@@ -709,6 +709,56 @@ img { max-width: 100%; }
     }
   };
 
+  /* ---------- Directorio de operadores de transporte (fuente pública DTPR 2025) ---------- */
+  var OPERADORES = [
+    ['Centauro Repuestos Ltda.','UN43','Operador identificado en documentación DTPR; recorrido por verificar'],
+    ['Comercial Centauro Ltda.','UN44','Operador identificado en documentación DTPR; recorrido por verificar'],
+    ['Comercial San Pedro Sur S.A.','UN56','Operador identificado en documentación DTPR; recorrido por verificar'],
+    ['Comercializadora y Servicios de Locomoción Colectiva San Pedro S.A.','UN65','Operador identificado en documentación DTPR; recorrido por verificar'],
+    ['Empresa de Transportes Rengo Lientur Ltda.','','Aparición en listado histórico; vigencia por verificar'],
+    ['Expresos Plaza del Mall S.A.','UN17','Operador identificado en documentación DTPR; recorrido por verificar'],
+    ['Nueva Sol Yet S.A.','UN53','Operador identificado en documentación DTPR; recorrido por verificar'],
+    ['Primavera S.A.','UN46','Operador identificado en documentación DTPR; recorrido por verificar'],
+    ['Rutas Las Galaxias S.A.','UN59','Operador identificado en documentación DTPR; recorrido por verificar'],
+    ['Servicio de Locomoción Colectiva Las Golondrinas S.A.','','Aparición en listado histórico; vigencia por verificar'],
+    ['Servicio de Locomoción Colectiva Minibuses Hualpencillo S.A.','UN42','Operador identificado en documentación DTPR; recorrido por verificar'],
+    ['Servicio de Locomoción Colectiva Puchacay S.A.','UN71','Operador identificado en documentación DTPR; recorrido por verificar'],
+    ['Transportes Vía Láctea S.A.','UN10','Operador identificado en documentación DTPR; recorrido por verificar'],
+    ['Locomoción Colectiva Pedro de Valdivia Universidad S.A.','UN55','Operador identificado en documentación DTPR; recorrido por verificar'],
+    ['Servicios de Transporte Intermodal S.A. (Bio Bus)','UN30','Operador identificado en documentación DTPR; recorrido por verificar'],
+    ['Locomoción Colectiva San Remo S.A.','UN58','Operador identificado en documentación DTPR; recorrido por verificar'],
+    ['Géminis del Sur Ltda.','UN52','Operador identificado en documentación DTPR; recorrido por verificar'],
+    ['Mini Verde SpA','UN41','Operador identificado en documentación DTPR; recorrido por verificar'],
+    ['Buses Puerto - Las Canchas - Tumbes Ltda.','','Aparición en listado histórico; vigencia por verificar'],
+    ['Sociedad Comercial Inmobiliaria del Mar Ltda.','UN38','Operador identificado en documentación DTPR; recorrido por verificar'],
+    ['Nueva Llacolén S.A.','UN60','Operador identificado en documentación DTPR; recorrido por verificar'],
+    ['Buses Expreso Concepción Chiguayante S.A.','UN18','Operador identificado en documentación DTPR; recorrido por verificar'],
+    ['Buses Base Naval Ltda.','UN43','Operador identificado en documentación DTPR; recorrido por verificar'],
+    ['Transportes Cóndor S.A.','','Aparición en listado histórico; vigencia por verificar'],
+    ['Vía del Sol S.A.','UN81','Operador identificado en documentación DTPR; recorrido por verificar'],
+    ['Nueva Sotrapel S.A.','UN12','Operador identificado en documentación DTPR; recorrido por verificar'],
+    ['Vía Futuro S.A.','UN11','Operador identificado en documentación DTPR; recorrido por verificar'],
+    ['Huertos Familiares S.A.','','Aparición en listado histórico; vigencia por verificar'],
+    ['Riviera Ltda.','UN42','Operador identificado en documentación DTPR; código por confirmar'],
+    ['Taxibuses Nueva Lan B Puerto San Vicente S.A.','','Aparición en listado histórico; vigencia por verificar'],
+    ['Buses Tucapel S.A.','UN60','Operador identificado en documentación DTPR; recorrido por verificar'],
+    ['Transporte y Administración Las Bahías S.A.','','Aparición en listado histórico; vigencia por verificar'],
+    ['Transportes Colectivos Penco Chiguayante Sur S.A.','UN14','Operador identificado en documentación DTPR; recorrido por verificar'],
+    ['Transportes Hualpensan S.A.','UN02','Operador identificado en documentación DTPR; recorrido por verificar'],
+    ['Ruta Las Playas S.A.','UN50','Operador identificado en documentación DTPR; recorrido por verificar'],
+    ['Vía Siglo XXI S.A.','UN13','Operador identificado en documentación DTPR; recorrido por verificar'],
+    ['Vía Universo S.A.','UN16','Operador identificado en documentación DTPR; recorrido por verificar']
+  ];
+  function operatorDirectory() {
+    return '<section class="note" style="margin-top:18px"><h2>Directorio de empresas de buses</h2><p class="muted small">Listado inicial basado en documentos públicos de la DTPR. No equivale a un padrón completo y actualizado: los nombres históricos, códigos y vigencia requieren confirmación oficial.</p><label class="fld">Buscar empresa o código<input id="operatorSearch" type="search" placeholder="Ej. Tucapel, UN14..."></label><div id="operatorList">' + operatorRows('') + '</div><p class="muted small">Fuente de referencia: DTPR, documentos del sistema regulado del Gran Concepción (2025) y listado histórico regional. Los recorridos específicos no se muestran como confirmados hasta verificarlos.</p></section>';
+  }
+  function operatorRows(q) {
+    q = norm(q || '');
+    var rows = OPERADORES.filter(function(o){ return norm(o.join(' ')).indexOf(q) >= 0; });
+    if (!rows.length) return '<div class="empty">No hay empresas que coincidan.</div>';
+    return '<div style="display:grid;gap:8px;margin-top:10px">' + rows.map(function(o){ return '<div style="padding:10px;border:1px solid var(--line);border-radius:12px;background:var(--surface)"><b>' + esc(o[0]) + '</b><div class="muted small">' + (o[1] ? 'Unidad: ' + esc(o[1]) + ' · ' : '') + esc(o[2]) + '</div></div>'; }).join('') + '</div>';
+  }
+
   /* ---------- Pantallas ---------- */
   var VIEWS = {
     home: function () {
@@ -723,7 +773,7 @@ img { max-width: 100%; }
         '<div class="fbar"><button class="chip grow" data-a="ftoggle" aria-pressed="' + S.fopen + '">Filtros' + (nAct ? ' (' + nAct + ')' : '') + '</button>' +
         '<label class="fld" style="flex:1"><select data-f="orden" aria-label="Ordenar"><option value="reciente"' + (S.F.orden === 'reciente' ? ' selected' : '') + '>Más recientes</option><option value="nombre"' + (S.F.orden === 'nombre' ? ' selected' : '') + '>Por nombre</option></select></label></div>' +
         (S.fopen ? '<div class="fpanel">' + sel('emp', 'Empresa') + sel('tipo', 'Tipo') + sel('color', 'Color') + sel('tema', 'Temática') + sel('imp', 'Imprenta') + '</div>' : '') +
-        adSlot() + '<div id="catList">' + catResults() + '</div>';
+        adSlot() + '<div id="catList">' + catResults() + '</div>' + operatorDirectory();
     },
     ticket: function (v) {
       var t = BYID[v.id];
@@ -1011,6 +1061,8 @@ img { max-width: 100%; }
     try { navigator.clipboard.writeText(text).then(function () { toast('Correo copiado'); }, function () { toast('Mantén presionado el correo para copiarlo'); }); }
     catch (e) { toast('Mantén presionado el correo para copiarlo'); }
   }
+
+  document.addEventListener('input', function(e) { if (e.target && e.target.id === 'operatorSearch') { var box = document.getElementById('operatorList'); if (box) box.innerHTML = operatorRows(e.target.value); } });
 
   document.addEventListener('click', function (e) {
     var el = e.target.closest('[data-a]');
