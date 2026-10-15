@@ -460,7 +460,7 @@ img { max-width: 100%; }
   var FLABEL = { emp: 'Empresa', tipo: 'Tipo', color: 'Color', tema: 'Temática', imp: 'Imprenta' };
   function filtered() {
     var F = S.F, list = TICKETS.filter(function (t) {
-      return (!F.emp || (function(){ var chosen = norm(F.emp.replace(/^[A-Z0-9]+\s+/, '')); var actual = norm((t.emp || '').replace(/\s+(S\.A\.|Ltda\.|SpA|S\.A)$/i, '')); return actual && (actual === chosen || actual.indexOf(chosen) >= 0 || chosen.indexOf(actual) >= 0); })()) && (!F.tipo || t.tipo === F.tipo) && (!F.color || t.color === F.color) && (!F.tema || t.tema === F.tema) && (!F.imp || t.imp === F.imp);
+      return (!F.emp || (function(){ var elegido = empresaFiltroValor(F.emp); var chosen = norm(elegido.replace(/^[A-Z0-9]+\s+/, '')); var actual = norm((t.emp || '').replace(/\s+(S\.A\.|Ltda\.|SpA|S\.A)$/i, '')); return actual && (actual === chosen || actual.indexOf(chosen) >= 0 || chosen.indexOf(actual) >= 0); })()) && (!F.tipo || t.tipo === F.tipo) && (!F.color || t.color === F.color) && (!F.tema || t.tema === F.tema) && (!F.imp || t.imp === F.imp);
     });
     if (!D.acct && (F.emp || F.tipo || F.color || F.tema || F.imp)) list = list.filter(canSee);
     if (F.orden === 'nombre') list.sort(function (a, b) { return a.title.localeCompare(b.title); });
@@ -474,7 +474,37 @@ img { max-width: 100%; }
     h += list.length ? '<div class="grid2">' + list.map(card).join('') + '</div>' : '<div class="empty">Ninguna ficha coincide con estos filtros.</div>';
     return h;
   }
-  var LINEAS_BUS_GRAN_CONCEPCION = ['02 Hualpensan', '10 Vía Láctea', '11 Vía Futuro', '12 Nueva Sotrapel', '13 Vía Siglo XXI', '14 Chiguayante Sur', '16 Vía Universo', '17 Expresos Plaza del Mall', '18 Buses Expreso Concepción–Chiguayante', '20 Nueva Llacolén', '21 Riviera', '22 San Pedro', '23 San Pedro Sur', '24 San Remo', '30 Ruta Las Playas', '31 Ruta del Mar', '32 Del Mar', '40 Las Golondrinas', '41 Mini Verde', '42 Mini Buses Hualpencillo', '43 Centauro Repuestos', '44 Comercial Centauro', '50 Ruta Las Playas', '52 Géminis Sur', '56 Buses Base Naval', '60 Buses Tucapel', '62 Buses Primavera', '63 Rengo Lientur', '65 Buses Cóndor', '70 Las Bahías', '71 Puchacay', '72 Pedro de Valdivia Universidad', '80 Ruta Las Galaxias', '81 Vía del Sol', '90 Nueva Sol Yet', 'B0 Biobús'];
+  var LINEAS_BUS_GRAN_CONCEPCION = [
+    '10 Vía Láctea', '11 Vía Futuro', '12 Nueva Sotrapel', '13 Vía Siglo XXI', '14 Chiguayante Sur', '16 Vía Universo', '17 Expresos Chiguayante', '18 Buses Palomares',
+    '20 Nueva Llacolén', '21 Riviera Biobío', '22 San Pedro', '23 Buses Michaihue', '24 San Remo',
+    '30 Ruta Las Playas', '31 Ruta del Mar', '32 Transportes del Mar',
+    '40 Las Golondrinas', '41 Buses Mini Verde', '42 Minibuses Hualpencillo', '43 Flota Las Lilas', '44 Flota Centauro',
+    '50 Buses Campanil', '52 Géminis Sur', '56 Buses Base Naval', '57 Transporte Colón',
+    '60 Buses Tucapel', '62 Mi Expreso', '63 Rengo Lientur', '65 Buses Chillancito',
+    '70 Las Bahías', '71 Buses Puchacay', '72 Pedro de Valdivia',
+    '80 Las Galaxias', '81 Vía del Sol',
+    'Rural: Buses Tomé (Tomé, Dichato y Cocholgüe)', 'Rural: Buses Coronel / Lota'
+  ];
+  var GRUPOS_LINEAS = [
+    { titulo: 'Líneas 10 a 18 · Chiguayante / Oriente', desde: 0, hasta: 8 },
+    { titulo: 'Líneas 20 a 24 · San Pedro de la Paz / Sur', desde: 8, hasta: 13 },
+    { titulo: 'Líneas 30 a 32 · Penco / Lirquén / Norte', desde: 13, hasta: 16 },
+    { titulo: 'Líneas 40 a 44 · Hualpén / Talcahuano / Poniente', desde: 16, hasta: 21 },
+    { titulo: 'Líneas 50 a 57 · Talcahuano / Centro / Hualpén', desde: 21, hasta: 25 },
+    { titulo: 'Líneas 60 a 65 · Urbanas e intercomunales', desde: 25, hasta: 29 },
+    { titulo: 'Líneas 70 a 72 · Urbanas de Concepción', desde: 29, hasta: 32 },
+    { titulo: 'Líneas 80 a 81 · Zona Hualqui', desde: 32, hasta: 34 },
+    { titulo: 'Líneas rurales / interurbanas', desde: 34, hasta: 36 }
+  ];
+  function lineasChips() {
+    return GRUPOS_LINEAS.map(function (g) {
+      return '<div style="width:100%;margin-top:10px"><h3 style="font-size:13px;margin:0 0 8px;color:var(--muted)">' + esc(g.titulo) + '</h3><div class="chips" style="flex-wrap:wrap;overflow:visible;padding-bottom:0">' + LINEAS_BUS_GRAN_CONCEPCION.slice(g.desde, g.hasta).map(function (v) { return '<button class="chip" data-a="goexplore" data-id="emp" data-val="' + esc(v) + '">' + esc(v) + '</button>'; }).join('') + '</div></div>';
+    }).join('');
+  }
+  function empresaFiltroValor(v) {
+    var aliases = { '17 Expresos Chiguayante': 'Plaza del Mall S.A.', '18 Buses Palomares': 'Expreso Concepción–Chiguayante', '21 Riviera Biobío': 'Riviera', '23 Buses Michaihue': 'San Pedro Sur', '32 Transportes del Mar': 'Del Mar', '41 Buses Mini Verde': 'Mini Verde', '42 Minibuses Hualpencillo': 'Mini Buses Hualpencillo', '43 Flota Las Lilas': 'Centauro Repuestos', '44 Flota Centauro': 'Comercial Centauro', '50 Buses Campanil': 'Buses Campanil', '62 Mi Expreso': 'Buses Primavera', '65 Buses Chillancito': 'Buses Cóndor', '71 Buses Puchacay': 'Puchacay', '72 Pedro de Valdivia': 'Pedro de Valdivia Universidad', '80 Las Galaxias': 'Ruta Las Galaxias' };
+    return aliases[v] || v;
+  }
   function sel(key, label) {
     var opciones = key === 'emp' ? LINEAS_BUS_GRAN_CONCEPCION : uniq(key);
     return '<label class="fld">' + label + '<select data-f="' + key + '"><option value="">Todos</option>' + opciones.map(function (o) { return '<option value="' + esc(o) + '"' + (S.F[key] === o ? ' selected' : '') + '>' + esc(o) + '</option>'; }).join('') + '</select></label>';
@@ -488,7 +518,7 @@ img { max-width: 100%; }
       if (!res.length) return '<div class="empty">No hay fichas para “' + esc(S.query) + '”.<br>Prueba con empresa, tipo o parte de la numeración.</div>';
       return '<div class="cnt">' + res.length + (res.length === 1 ? ' ficha' : ' fichas') + '</div><div class="grid2">' + res.map(card).join('') + '</div>';
     }
-    var key = S.explore, vals = uniq(key), h = '';
+    var key = S.explore, vals = key === 'emp' ? LINEAS_BUS_GRAN_CONCEPCION : uniq(key), h = '';
     h += '<button class="banner" data-a="tab" data-id="cat" aria-label="Abrir el catálogo">' +
       '<span class="c" style="left:16px;top:12px;transform:rotate(-9deg)"><img alt="" src="' + IMG.t4 + '"></span>' +
       '<span class="c" style="left:88px;top:26px;transform:rotate(6deg)"><img alt="" src="' + IMG.t5 + '"></span>' +
@@ -499,7 +529,7 @@ img { max-width: 100%; }
     h += adSlot();
     h += '<div class="sec"><h2>Explorar por</h2></div>';
     h += '<div class="seg"><button data-a="explore" data-id="emp" aria-pressed="' + (key === 'emp') + '">Empresas</button><button data-a="explore" data-id="tipo" aria-pressed="' + (key === 'tipo') + '">Tipos</button><button data-a="explore" data-id="imp" aria-pressed="' + (key === 'imp') + '">Imprentas</button></div>';
-    h += '<div class="chips" style="flex-wrap:wrap;overflow:visible">' + vals.map(function (v) { return '<button class="chip" data-a="goexplore" data-id="' + key + '" data-val="' + esc(v) + '">' + esc(v) + '</button>'; }).join('') + '</div>';
+    h += key === 'emp' ? lineasChips() : '<div class="chips" style="flex-wrap:wrap;overflow:visible">' + vals.map(function (v) { return '<button class="chip" data-a="goexplore" data-id="' + key + '" data-val="' + esc(v) + '">' + esc(v) + '</button>'; }).join('') + '</div>';
     var up = EVENTS.filter(function (e) { return !isPast(e); }).sort(function (a, b) { return a.ini < b.ini ? -1 : 1; }).slice(0, 2);
     h += '<div class="sec"><h2>Próximos eventos</h2><button data-a="tab" data-id="ev">Ver calendario</button></div>' + up.map(function (e) { return evCard(e); }).join('');
     h += '<div class="sec"><h2>Piezas destacadas</h2><button data-a="tab" data-id="cat">Ver catálogo</button></div>';
@@ -1075,7 +1105,7 @@ img { max-width: 100%; }
     else if (a === 'ticket') push({ name: 'ticket', id: id });
     else if (a === 'about') push({ name: 'about' });
     else if (a === 'explore') { S.explore = id; render(true); }
-    else if (a === 'goexplore') { S.F = { emp: '', tipo: '', color: '', tema: '', imp: '', orden: S.F.orden }; S.F[id] = el.dataset.val; S.fopen = false; S.tab = 'cat'; S.stack = [{ name: 'cat' }]; render(false); }
+    else if (a === 'goexplore') { S.F = { emp: '', tipo: '', color: '', tema: '', imp: '', orden: S.F.orden }; S.F[id] = id === 'emp' ? empresaFiltroValor(el.dataset.val) : el.dataset.val; S.fopen = false; S.tab = 'cat'; S.stack = [{ name: 'cat' }]; render(false); }
     else if (a === 'ftoggle') { S.fopen = !S.fopen; render(true); }
     else if (a === 'clearf') { S.F[id] = ''; render(true); }
     else if (a === 'clearall') { ['emp', 'tipo', 'color', 'tema', 'imp'].forEach(function (k) { S.F[k] = ''; }); render(true); }
