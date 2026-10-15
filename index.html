@@ -1,562 +1,628 @@
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#101114">
-<title>Bolecciona Concepción | Archivo de boletos</title>
-<meta name="description" content="Catálogo digital de boletos históricos y coleccionables del Gran Concepción. Un archivo independiente de la memoria del transporte local.">
-
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bolecciona Concepción</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Sora:wght@400;600;700&display=swap">
 <style>
+/* Layout: archivo digital de boletos como app de teléfono (máx. 430px). Cinco pestañas (Inicio, Catálogo, Añadir, Comunidad, Perfil) y pantallas apiladas encima. Tema oscuro único, como la propuesta visual. */
 :root {
-  --bg: #101114;
-  --panel: #191b20;
-  --panel2: #22252b;
-  --text: #f5f5f5;
-  --muted: #a6a8b0;
-  --line: #343740;
-  --accent: #c9cbd1;
+  --bg: #06122a;
+  --surface: #0d2140;
+  --surface2: #14305a;
+  --line: #1d3a63;
+  --fg: #e9f2fb;
+  --muted: #8ca4bf;
+  --accent: #33c6f2;
+  --accent-ink: #04202d;
+  --good: #4ade80;
+  --warn: #f5b73d;
+  --bad: #ff7a70;
+  --f-display: 'Sora', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --f-body: 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  color-scheme: dark;
 }
 * { box-sizing: border-box; }
+html, body { height: 100%; }
 body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background: var(--bg);
-  color: var(--text);
+  background: var(--bg); color: var(--fg); font-family: var(--f-body); font-size: 15px; line-height: 1.4;
+  padding-block: 0;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; justify-content: center; overflow: hidden;
 }
-button, input, select { font: inherit; }
-button { cursor: pointer; }
-header {
-  padding: 32px 20px 26px;
-  background: linear-gradient(145deg, #252830, #101114 72%);
-  border-bottom: 1px solid var(--line);
-}
-.topline {
-  max-width: 1050px;
-  margin: auto;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-}
-.brand {
-  font-size: 12px;
-  letter-spacing: 3px;
-  color: var(--muted);
-  text-transform: uppercase;
-}
-.mark {
-  border: 1px solid #666a74;
-  border-radius: 50%;
-  width: 42px;
-  height: 42px;
-  display: grid;
-  place-items: center;
-  font-size: 20px;
-}
-.hero {
-  max-width: 1050px;
-  margin: 48px auto 10px;
-}
-.eyebrow {
-  color: #c4c6cd;
-  font-size: 11px;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-}
-h1 {
-  font-size: clamp(35px, 8vw, 68px);
-  line-height: 1;
-  letter-spacing: -2px;
-  margin: 14px 0;
-}
-.hero p {
-  max-width: 570px;
-  color: #c2c3c9;
-  line-height: 1.65;
-  font-size: 15px;
-}
-main {
-  max-width: 1050px;
-  margin: auto;
-  padding: 26px 18px 55px;
-}
-.stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin-bottom: 28px;
-}
-.stat {
-  padding: 16px 12px;
-  border: 1px solid var(--line);
-  background: var(--panel);
-  border-radius: 12px;
-}
-.stat strong { display: block; font-size: 25px; }
-.stat span { color: var(--muted); font-size: 11px; }
-.section-heading {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 12px;
-  margin: 30px 0 17px;
-}
-h2 { font-size: 22px; margin: 0; }
-.section-heading span { color: var(--muted); font-size: 12px; }
-.filters {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-bottom: 22px;
-}
-.filters input, .filters select {
-  min-width: 0;
-  width: 100%;
-  color: var(--text);
-  background: var(--panel);
-  border: 1px solid var(--line);
-  padding: 13px;
-  border-radius: 9px;
-  outline: none;
-}
-.filters input:focus, .filters select:focus {
-  border-color: #a9abb4;
-}
-.filters input { grid-column: 1 / -1; }
-.catalog {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 13px;
-}
-.card {
-  overflow: hidden;
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 13px;
-}
-.ticket-stage {
-  min-height: 205px;
-  display: grid;
-  place-items: center;
-  padding: 24px 12px;
-  background:
-    radial-gradient(ellipse at 50% 40%, #454750 0, #292b32 45%, #1b1d22 100%);
-}
-.ticket {
-  position: relative;
-  width: min(100%, 175px);
-  min-height: 120px;
-  padding: 9px 10px 12px;
-  color: #161616;
-  background: #f1eadb;
-  box-shadow: 3px 8px 15px #0007;
-  transform: rotate(-2deg);
-  text-align: center;
-  overflow-wrap: anywhere;
-}
-.ticket:before, .ticket:after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 5px;
-  background: radial-gradient(circle at 5px 0, transparent 4px, #f1eadb 4.5px) repeat-x;
-  background-size: 10px 7px;
-}
-.ticket:before { top: -1px; }
-.ticket:after { bottom: -1px; transform: rotate(180deg); }
-.ticket .serial {
-  font-family: monospace;
-  font-size: 10px;
-  letter-spacing: 1px;
-  border-bottom: 1px dashed #888;
-  padding-bottom: 5px;
-}
-.ticket .ticket-title {
-  font-weight: 900;
-  font-size: 18px;
-  line-height: 1.1;
-  margin: 9px 0 5px;
-}
-.ticket .ticket-sub {
-  font-size: 10px;
-  font-weight: bold;
-  line-height: 1.4;
-}
-.ticket .art {
-  font-size: 36px;
-  margin: 7px 0;
-}
-.ticket .foot {
-  border-top: 1px dashed #999;
-  padding-top: 5px;
-  font-family: monospace;
-  font-size: 9px;
-}
-.purple { background: #eee6ef; }
-.purple .ticket-title { color: #712454; }
-.orange { background: #f2e1cb; }
-.orange .ticket-title { color: #a45124; }
-.green { background: #e0ebdd; }
-.green .ticket-title { color: #19734d; }
-.blue { background: #e0eaf0; }
-.blue .ticket-title { color: #315c91; }
-.red { background: #f0dfda; }
-.red .ticket-title { color: #ad3636; }
-.card-info { padding: 15px; }
-.tag {
-  display: inline-block;
-  border: 1px solid #555862;
-  border-radius: 20px;
-  padding: 4px 8px;
-  color: #d3d4d9;
-  font-size: 10px;
-  margin-bottom: 10px;
-}
-.card h3 { font-size: 16px; margin: 0 0 7px; }
-.card p {
-  color: var(--muted);
-  font-size: 12px;
-  line-height: 1.5;
-  margin: 0 0 13px;
-}
-.details {
-  width: 100%;
-  border: 1px solid #4a4d56;
-  border-radius: 8px;
-  color: white;
-  background: #252830;
-  padding: 10px;
-}
-.details:hover { background: #343741; }
-.empty {
-  display: none;
-  padding: 35px 10px;
-  text-align: center;
-  color: var(--muted);
-}
-.note {
-  margin-top: 30px;
-  padding: 17px;
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  color: var(--muted);
-  font-size: 12px;
-  line-height: 1.6;
-}
-footer {
-  padding: 25px 18px;
-  text-align: center;
-  border-top: 1px solid var(--line);
-  color: var(--muted);
-  font-size: 11px;
-  line-height: 1.8;
-}
-footer strong { color: #eee; }
-dialog {
-  width: calc(100% - 30px);
-  max-width: 470px;
-  padding: 0;
-  color: var(--text);
-  background: var(--panel);
-  border: 1px solid #4a4d56;
-  border-radius: 15px;
-}
-dialog::backdrop { background: #000b; }
-.modal-content { padding: 22px; }
-.modal-content h2 { margin-bottom: 12px; }
-.modal-content p {
-  color: #c3c4ca;
-  font-size: 14px;
-  line-height: 1.7;
-}
-.close {
-  background: #30333b;
-  color: white;
-  border: 1px solid #555862;
-  padding: 10px 15px;
-  border-radius: 8px;
-}
-@media (min-width: 700px) {
-  .catalog { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .ticket-stage { min-height: 235px; }
-  .filters { grid-template-columns: 2fr 1fr 1fr; }
-  .filters input { grid-column: auto; }
-}
-@media (max-width: 360px) {
-  .catalog { grid-template-columns: 1fr; }
-  .stats { gap: 6px; }
-  .stat { padding: 12px 8px; }
-  .stat strong { font-size: 21px; }
-}
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; text-align: left; }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+svg { display: block; }
+
+#app { width: 100%; max-width: 430px; height: 100%; display: flex; flex-direction: column; position: relative; min-width: 0; }
+#main { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; padding-bottom: 10px; }
+#main::-webkit-scrollbar { display: none; }
+
+nav { margin: 6px 0 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 20px; display: flex; padding: 6px; gap: 2px; }
+nav button { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 7px 0 6px; border-radius: 14px; color: var(--muted); font-size: 10px; font-weight: 500; }
+nav button svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+nav button[aria-current="true"] { color: var(--accent); background: var(--surface2); }
+
+.wordmark { font-family: var(--f-display); font-weight: 700; text-transform: uppercase; letter-spacing: .2em; line-height: 1.15; }
+.wordmark span { display: block; color: var(--accent); font-weight: 400; letter-spacing: .5em; font-size: .78em; }
+h1 { font-family: var(--f-display); font-size: 21px; font-weight: 600; margin: 0; text-wrap: balance; }
+h2 { font-family: var(--f-display); font-size: 15px; font-weight: 600; margin: 0; }
+.muted { color: var(--muted); }
+.small { font-size: 12.5px; }
+
+.top { display: flex; align-items: center; gap: 10px; padding: 14px 0 12px; }
+.top h1 { flex: 1; min-width: 0; }
+.iconbtn { width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; background: var(--surface); border: 1px solid var(--line); flex: none; }
+.iconbtn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.brand { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; font-size: 12px; }
+.brand svg { width: 34px; height: 34px; flex: none; }
+
+.search { position: relative; display: block; margin-bottom: 14px; }
+.search svg { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; fill: none; stroke: var(--muted); stroke-width: 1.8; stroke-linecap: round; }
+.search input { width: 100%; height: 44px; border-radius: 14px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); font: inherit; font-size: 14px; padding: 0 14px 0 40px; }
+input::placeholder, textarea::placeholder { color: var(--muted); }
+
+.banner { position: relative; width: 100%; height: 118px; border-radius: 18px; overflow: hidden; background: var(--surface2); display: block; margin-bottom: 12px; }
+.banner .c { position: absolute; width: 74px; }
+.banner::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(6,18,42,.94) 12%, rgba(6,18,42,.12)); }
+.banner .t { position: absolute; z-index: 1; left: 16px; bottom: 14px; right: 50px; font-family: var(--f-display); font-weight: 600; font-size: 16px; line-height: 1.25; }
+.banner .go { position: absolute; z-index: 1; right: 12px; bottom: 14px; width: 26px; height: 26px; border-radius: 50%; background: rgba(6,18,42,.6); display: grid; place-items: center; }
+.banner .go svg { width: 14px; height: 14px; fill: none; stroke: var(--fg); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+.notice { display: flex; gap: 10px; padding: 11px 13px; border-radius: 14px; background: rgba(245,183,61,.1); border: 1px solid rgba(245,183,61,.35); color: #f7d890; font-size: 12.5px; margin-bottom: 16px; }
+.notice b { color: var(--warn); font-weight: 700; }
+
+.sec { display: flex; align-items: baseline; justify-content: space-between; margin: 6px 0 10px; }
+.sec button { color: var(--accent); font-size: 12px; }
+.strip { display: flex; gap: 12px; overflow-x: auto; margin: 0 -2px 16px; padding: 2px 2px 6px; scrollbar-width: none; }
+.strip::-webkit-scrollbar { display: none; }
+.feat { flex: none; width: 120px; display: flex; flex-direction: column; gap: 5px; }
+.feat b { font-weight: 500; font-size: 13px; }
+.feat small { color: var(--muted); font-size: 11.5px; margin-top: -3px; }
+
+.card { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.card svg { width: 100%; height: auto; border-radius: 8px; }
+.card b { font-weight: 500; font-size: 13px; }
+.card small { color: var(--muted); font-size: 11.5px; margin-top: -4px; }
+.grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px 14px; padding-bottom: 8px; }
+
+.chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 12px; scrollbar-width: none; }
+.chips::-webkit-scrollbar { display: none; }
+.chip { flex: none; padding: 8px 14px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+.chip[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); font-weight: 500; }
+.seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; padding: 4px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); margin-bottom: 12px; }
+.seg button { text-align: center; padding: 9px 0; border-radius: 10px; font-size: 13px; color: var(--muted); }
+.seg button[aria-pressed="true"] { background: var(--fg); color: var(--bg); font-weight: 500; }
+
+.fbar { display: flex; gap: 8px; margin-bottom: 10px; }
+.fbar .grow { flex: 1; }
+.fpanel { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+label.fld { display: flex; flex-direction: column; gap: 5px; font-size: 12px; color: var(--muted); min-width: 0; }
+select, input[type="text"], textarea { width: 100%; min-width: 0; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); font: inherit; font-size: 14px; padding: 0 12px; height: 42px; }
+textarea { height: auto; min-height: 78px; padding: 10px 12px; resize: vertical; }
+.cnt { color: var(--muted); font-size: 12.5px; margin: 2px 0 10px; }
+.active { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+.active button { padding: 5px 10px; border-radius: 999px; background: var(--surface2); font-size: 12px; }
+
+.bd { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 11px; font-weight: 500; white-space: nowrap; }
+.bd.ok { background: rgba(74,222,128,.14); color: var(--good); }
+.bd.est { background: rgba(245,183,61,.15); color: var(--warn); }
+.bd.pend { border: 1px dashed var(--muted); color: var(--muted); }
+.bd.rev { background: rgba(51,198,242,.15); color: var(--accent); }
+.bd.res { background: rgba(74,222,128,.14); color: var(--good); }
+.bd.ab { background: rgba(245,183,61,.15); color: var(--warn); }
+
+.hero { padding: 2px 0 12px; }
+.hero svg { width: 100%; height: auto; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,.4); }
+.hero .tag { margin-top: 8px; font-size: 11.5px; color: var(--muted); text-align: center; }
+.info { margin: 12px 0 12px; }
+.info > div { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); font-size: 14px; }
+.info > div > span:first-child { color: var(--muted); flex: none; }
+.info .v { display: flex; align-items: center; gap: 8px; justify-content: flex-end; text-align: right; min-width: 0; flex-wrap: wrap; }
+.info .v i { font-style: italic; color: var(--muted); }
+.legend { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+
+.btn { width: 100%; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 500; text-align: center; background: var(--accent); color: var(--accent-ink); }
+.btn.ghost { background: transparent; color: var(--fg); border: 1px solid var(--line); }
+.btn.warn { background: #e0524a; color: #fff; }
+.btns { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+.btns.row2 { flex-direction: row; }
+
+.note { padding: 16px; border-radius: 16px; background: var(--surface); border: 1px solid var(--line); margin-bottom: 12px; }
+.note p { margin: 6px 0 0; color: var(--muted); font-size: 13.5px; }
+.note .hd { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.empty { text-align: center; padding: 34px 12px; color: var(--muted); }
+ul.plain { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size: 13.5px; }
+ul.plain li { margin-bottom: 4px; }
+.rows { display: flex; flex-direction: column; }
+.row { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid var(--line); width: 100%; }
+.row:first-child { border-top: 0; }
+.row .th { width: 52px; flex: none; }
+.row .th svg { width: 100%; height: auto; border-radius: 6px; }
+.row .tx { flex: 1; min-width: 0; }
+.row .tx b { display: block; font-weight: 500; font-size: 14.5px; }
+.row .tx small { display: block; color: var(--muted); font-size: 12px; }
+.row > svg { width: 16px; height: 16px; flex: none; fill: none; stroke: var(--muted); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+.form { display: flex; flex-direction: column; gap: 12px; }
+.photos { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.drop { position: relative; display: grid; place-items: center; text-align: center; aspect-ratio: 180 / 170; border-radius: 12px; border: 1.5px dashed var(--line); background: var(--surface); color: var(--muted); font-size: 12.5px; overflow: hidden; cursor: pointer; padding: 8px; }
+.drop input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+.drop img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.drop:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.check { display: flex; gap: 10px; align-items: flex-start; font-size: 13.5px; }
+.check input { width: 20px; height: 20px; margin: 1px 0 0; flex: none; accent-color: var(--accent); }
+.msg { font-size: 13px; padding: 10px 12px; border-radius: 12px; }
+.msg.err { background: rgba(255,122,112,.12); color: var(--bad); }
+.msg.good { background: rgba(74,222,128,.12); color: var(--good); }
+.copyline { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; border-radius: 12px; background: var(--bg); border: 1px solid var(--line); font-size: 13px; margin-top: 10px; user-select: all; }
+.copyline button { color: var(--accent); font-size: 12.5px; flex: none; user-select: none; }
+.phase { display: flex; gap: 10px; padding: 10px 0; border-top: 1px solid var(--line); font-size: 13.5px; }
+.phase:first-of-type { border-top: 0; }
+.phase em { font-style: normal; font-family: var(--f-display); font-weight: 600; color: var(--accent); width: 18px; flex: none; }
+.phase span { color: var(--muted); display: block; font-size: 12.5px; }
+
+#toast { position: absolute; left: 50%; bottom: 84px; transform: translate(-50%, 12px); background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 12px; font-size: 13.5px; font-weight: 500; opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; max-width: 92%; text-align: center; z-index: 5; }
+#toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+#splash { position: fixed; inset: 0; z-index: 10; display: flex; justify-content: center; background: linear-gradient(180deg, #0a1d45 0%, #1b3f78 42%, #e0875a 78%, #f0b078 100%); transition: opacity .35s; }
+#splash.gone { opacity: 0; pointer-events: none; }
+#splash .in { position: relative; width: 100%; max-width: 430px; height: 100%; display: flex; flex-direction: column; align-items: center; padding-top: calc(env(safe-area-inset-top, 0px) + 12vh); padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 28px); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); text-align: center; }
+#splash .logo { width: 64px; height: 64px; margin-bottom: 16px; }
+#splash .wordmark { font-size: 26px; }
+#splash p { margin: 14px 0 0; color: #dbe8f7; font-size: 14px; max-width: 230px; }
+#splash .sky { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: 46%; }
+#splash .enter { position: relative; z-index: 1; margin-top: auto; width: 100%; max-width: 280px; height: 48px; border-radius: 14px; background: var(--accent); color: var(--accent-ink); font-weight: 700; text-align: center; font-family: var(--f-display); letter-spacing: .06em; font-size: 14px; }
+#splash small { position: relative; z-index: 1; margin-top: 12px; color: #1a2d4d; font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; font-weight: 700; text-align: center; }
+@media (prefers-reduced-motion: reduce) { #splash, #toast { transition: none; } }
+</style>
+<style>
+:root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+body { margin: 0; }
+img { max-width: 100%; }
+[hidden] { display: none !important; }
 </style>
 </head>
-
 <body>
-<header>
-  <div class="topline">
-    <div class="brand">Archivo independiente · Gran Concepción</div>
-    <div class="mark" aria-label="Símbolo del archivo">B.</div>
-  </div>
-  <div class="hero">
-    <div class="eyebrow">Memoria sobre papel</div>
-    <h1>Bolecciona<br>Concepción.</h1>
-    <p>
-      Boletos que cuentan historias. Un catálogo dedicado a conservar
-      y explorar los diseños, las líneas y los recuerdos del transporte
-      del Gran Concepción.
-    </p>
-  </div>
-</header>
 
-<main>
-  <div class="stats">
-    <div class="stat">
-      <strong id="total">6</strong>
-      <span>Fichas iniciales</span>
-    </div>
-    <div class="stat">
-      <strong>01</strong>
-      <span>Archivo regional</span>
-    </div>
-    <div class="stat">
-      <strong>2026</strong>
-      <span>Proyecto independiente</span>
-    </div>
+<div id="app">
+  <div id="main"></div>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <nav id="nav" aria-label="Secciones"></nav>
+</div>
+
+<div id="splash">
+  <div class="in">
+    <svg class="sky" viewBox="0 0 400 200" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+      <polygon points="0,200 0,120 40,104 90,126 140,112 200,138 260,118 320,96 370,84 400,98 400,200" fill="#0d2447"/>
+      <polygon points="0,200 0,150 60,140 130,152 210,144 290,154 360,146 400,152 400,200" fill="#081935"/>
+      <g stroke="#0a1b3a" stroke-width="3" fill="none"><path d="M20 150 V118 H48 M34 118 V104"/><path d="M70 152 V124 H96"/></g>
+      <rect x="0" y="168" width="400" height="32" fill="#060f22"/>
+      <g>
+        <rect x="104" y="128" width="136" height="38" rx="7" fill="#e9f2fb"/>
+        <rect x="104" y="148" width="136" height="9" fill="#2a7fc0"/>
+        <rect x="112" y="134" width="22" height="13" rx="2" fill="#1b3f78"/><rect x="140" y="134" width="22" height="13" rx="2" fill="#1b3f78"/><rect x="168" y="134" width="22" height="13" rx="2" fill="#1b3f78"/><rect x="196" y="134" width="22" height="13" rx="2" fill="#1b3f78"/>
+        <rect x="224" y="134" width="12" height="22" rx="2" fill="#1b3f78"/>
+        <circle cx="136" cy="168" r="9" fill="#0b1630"/><circle cx="210" cy="168" r="9" fill="#0b1630"/>
+        <rect x="236" y="152" width="5" height="5" rx="2" fill="#ffd479"/>
+      </g>
+    </svg>
+    <svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><use href="#logo-mark"/></svg>
+    <div class="wordmark">Bolecciona<span>Concepción</span></div>
+    <p>Los boletos también cuentan la historia de nuestra ciudad.</p>
+    <button class="enter" id="enter" type="button">Entrar</button>
+    <small>Prototipo con datos de ejemplo</small>
   </div>
+</div>
 
-  <div class="section-heading">
-    <h2>Explorar colección</h2>
-    <span id="result-count">6 resultados</span>
-  </div>
-
-  <div class="filters">
-    <input id="search" type="search"
-      placeholder="Buscar boleto, línea o tema..."
-      aria-label="Buscar en el catálogo">
-    <select id="company" aria-label="Filtrar por empresa">
-      <option value="">Todas las líneas</option>
-    </select>
-    <select id="theme" aria-label="Filtrar por temática">
-      <option value="">Todas las temáticas</option>
-    </select>
-  </div>
-
-  <div class="catalog" id="catalog"></div>
-  <div class="empty" id="empty">No se encontraron boletos con esos filtros.</div>
-
-  <div class="note">
-    <strong>Sobre este catálogo</strong><br>
-    Esta es una versión inicial de demostración. Las ilustraciones de
-    los boletos son representaciones provisionales, no fotografías
-    originales. Los datos históricos se irán completando y verificando
-    a medida que avance la documentación de la colección.
-  </div>
-</main>
-
-<footer>
-  <strong>BOLECCIONA CONCEPCIÓN</strong><br>
-  Archivo digital independiente de boletos coleccionables.<br>
-  Un proyecto dedicado a la memoria visual del transporte local.
-</footer>
-
-<dialog id="modal">
-  <div class="modal-content">
-    <div class="eyebrow">Ficha de colección</div>
-    <h2 id="modal-title"></h2>
-    <div id="modal-body"></div>
-    <button class="close" id="close-modal">Cerrar ficha</button>
-  </div>
-</dialog>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <g id="logo-mark" fill="none" stroke="#33c6f2" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round">
+      <g transform="rotate(-14 32 32)">
+        <path d="M8 18 H56 V27 a5 5 0 0 0 0 10 V46 H8 V37 a5 5 0 0 0 0 -10 Z"/>
+        <rect x="20" y="24" width="24" height="15" rx="3"/>
+        <path d="M20 31 H44"/>
+        <circle cx="26" cy="42" r="1.4" fill="#33c6f2"/><circle cx="38" cy="42" r="1.4" fill="#33c6f2"/>
+      </g>
+    </g>
+  </defs>
+</svg>
 
 <script>
-const tickets = [
-  {
-    id: 1,
-    title: "Festival REC 2026 · Vía Futuro",
-    company: "Vía Futuro",
-    theme: "Eventos y festivales",
-    color: "purple",
-    serial: "00204131",
-    art: "♫",
-    short: "Boleto de adulto con diseño conmemorativo del Festival REC.",
-    description: "Boleto de adulto de Vía Futuro asociado al Festival REC 2026, con gráfica musical en tonos morados. La impresión incluye la referencia a marzo 28/29. Ejemplar de interés por la unión entre transporte público y un evento cultural regional.",
-    year: "2026"
-  },
-  {
-    id: 2,
-    title: "Festival REC 2026 · Vía Siglo XXI",
-    company: "Vía Siglo XXI S.A.",
-    theme: "Eventos y festivales",
-    color: "orange",
-    serial: "00143767",
-    art: "♫",
-    short: "Boleto de adulto en tonos anaranjados con gráfica del REC.",
-    description: "Boleto de adulto de Vía Siglo XXI S.A. con diseño especial vinculado al Festival REC 2026. Presenta gráfica musical y referencia a marzo 28/29. Se conserva como pieza de una edición conmemorativa.",
-    year: "2026"
-  },
-  {
-    id: 3,
-    title: "Llacolén · Gráfica musical",
-    company: "Llacolén",
-    theme: "Diseños gráficos",
-    color: "red",
-    serial: "1637284",
-    art: "🤘",
-    short: "Boleto con ilustración de una mano haciendo el gesto rockero.",
-    description: "Boleto de Llacolén con una ilustración de una mano haciendo el gesto asociado al rock. La pieza destaca por su estilo gráfico y su relación visual con la música. El número se transcribe según la fotografía disponible.",
-    year: "Por determinar"
-  },
-  {
-    id: 4,
-    title: "Ruta Las Galaxias · Feliz Noche Buena",
-    company: "Ruta Las Galaxias",
-    theme: "Fiestas y celebraciones",
-    color: "blue",
-    serial: "2752995",
-    art: "🕯️",
-    short: "Diseño navideño con vela y saludo de Noche Buena.",
-    description: "Boleto de Ruta Las Galaxias con ilustración navideña, vela encendida y el saludo 'Feliz Noche Buena'. Es un ejemplo de boleto temático que incorpora una celebración al diseño cotidiano del transporte.",
-    year: "Por determinar"
-  },
-  {
-    id: 5,
-    title: "Las Galaxias · Carreta tradicional",
-    company: "Las Galaxias",
-    theme: "Ilustraciones y cultura",
-    color: "orange",
-    serial: "7344650",
-    art: "🐎",
-    short: "Ilustración de una carreta tirada por un caballo.",
-    description: "Boleto de Las Galaxias con una escena ilustrada de una carreta tirada por un caballo. Su composición y colores lo distinguen de los boletos de tarifa más simples. Fecha de emisión pendiente de documentación.",
-    year: "Por determinar"
-  },
-  {
-    id: 6,
-    title: "Buses Campanil · Escolar",
-    company: "Buses Campanil",
-    theme: "Transporte escolar",
-    color: "green",
-    serial: "0683766",
-    art: "♟",
-    short: "Boleto escolar verde con personaje ilustrado y mensaje educativo.",
-    description: "Boleto escolar de Buses Campanil, con predominio del verde y un personaje ilustrado. Incluye un mensaje sobre ceder el asiento a personas adultas mayores y una referencia a la puntualidad y el respeto. Ejemplar relevante para documentar los mensajes impresos en boletos.",
-    year: "Por determinar"
-  },
-  {
-    id: 7,
-    title: "Expresos Plaza del Mall · Inspector",
-    company: "Expresos Plaza del Mall",
-    theme: "Diseños gráficos",
-    color: "red",
-    serial: "17525783",
-    art: "▤",
-    short: "Boleto de inspector con gráfica roja y azul.",
-    description: "Boleto identificado como 'Expresos Plaza del Mall', con la palabra 'Inspector' y una gráfica central en tonos azules y rojos. La pieza registra una variante de boleto vinculada a funciones de inspección. La transcripción del número debe cotejarse con el original.",
-    year: "Por determinar"
+(function () {
+  /* ---------- Datos de ejemplo (ilustrativos, no son piezas reales) ---------- */
+  var P = {
+    azul:  { name: 'Azul',     sky: '#3c8dd6', far: '#1f5c99', near: '#16406e', sea: '#2a6fb0', hi: '#f6c453', a2: '#e4572e' },
+    turq:  { name: 'Turquesa', sky: '#46b3ae', far: '#23786f', near: '#165852', sea: '#2c8f8c', hi: '#ffe08a', a2: '#e8643c' },
+    rojo:  { name: 'Rojo',     sky: '#d9534f', far: '#9a2f3a', near: '#6c1f2e', sea: '#b24556', hi: '#ffe7a8', a2: '#2e6fb0' },
+    verde: { name: 'Verde',    sky: '#5cae72', far: '#2f7a52', near: '#1e5238', sea: '#3e9a78', hi: '#ffe9a0', a2: '#d9534f' },
+    noche: { name: 'Azul noche', sky: '#1e3a6e', far: '#142a52', near: '#0e1e3e', sea: '#2b4f8a', hi: '#ffd479', a2: '#e4572e' }
+  };
+  var EMP = [
+    { name: 'Buses Tucapel',     head: 'BUSES TUCAPEL',     pals: [P.azul, P.turq, P.noche, P.azul],  scenes: ['ciudad', 'mar', 'ciudad', 'mar'],       comunas: ['Concepción', 'Talcahuano', 'Concepción', 'Hualpén'],           recs: ['Concepción – Talcahuano', 'Talcahuano – Hualpén', 'Concepción – Chiguayante', 'Concepción – Talcahuano'] },
+    { name: 'Nueva Llacolén',    head: 'NUEVA LLACOLÉN',    pals: [P.azul, P.noche, P.turq, P.azul],  scenes: ['puente', 'puente', 'puente', 'ciudad'], comunas: ['San Pedro de la Paz', 'Concepción', 'San Pedro de la Paz', 'Concepción'], recs: ['Concepción – San Pedro de la Paz', 'Centro – San Pedro de la Paz', 'Concepción – San Pedro de la Paz', 'Centro – Zócalo'] },
+    { name: 'Las Bahías',        head: 'LAS BAHÍAS',        pals: [P.rojo, P.azul, P.rojo, P.verde],  scenes: ['fiesta', 'fiesta', 'fiesta', 'navidad'], comunas: ['Talcahuano', 'Talcahuano', 'Hualpén', 'Talcahuano'],           recs: ['Talcahuano – Concepción', 'Talcahuano – Hualpén', 'Hualpén – Concepción', 'Talcahuano – Concepción'] },
+    { name: 'Ruta Las Galaxias', head: 'RUTA LAS GALAXIAS', pals: [P.turq, P.verde, P.azul, P.noche], scenes: ['mar', 'mar', 'ciudad', 'navidad'],       comunas: ['Hualpén', 'Talcahuano', 'Concepción', 'Hualpén'],             recs: ['Hualpén – Concepción', 'Talcahuano – Hualpén', 'Concepción – Hualpén', 'Hualpén – Concepción'] }
+  ];
+  var TIPOS = ['Adulto', 'Escolar', 'Universitario', 'Adulto mayor', 'Temático'];
+  var DEC = ['1990', '2000', '2010', '2020'];
+  var NOTAS = {
+    mar: 'Diseño con paisaje costero y gaviota, que refleja la identidad marítima de la zona.',
+    puente: 'Diseño con un puente atirantado sobre el río, que alude a la unión entre orillas.',
+    ciudad: 'Diseño con el perfil de la ciudad al atardecer.',
+    fiesta: 'Diseño con banderines de fiestas patrias.',
+    navidad: 'Edición con motivos navideños.'
+  };
+  var TICKETS = [], BYID = {};
+  EMP.forEach(function (e, ei) {
+    for (var k = 0; k < 4; k++) {
+      var n = ei * 4 + k + 1;
+      var t = {
+        id: 'BC-' + String(n).padStart(4, '0'), n: n, emp: e.name, head: e.head,
+        pal: e.pals[k], scene: e.scenes[k], color: e.pals[k].name,
+        comuna: e.comunas[k], rec: e.recs[k], dec: DEC[(n + ei) % 4], tipo: TIPOS[(n + k) % 5],
+        material: n % 3 === 0 ? null : (n % 2 ? 'Papel térmico' : 'Cartulina'),
+        medidas: n % 4 === 0 ? null : (5 + n % 3) + ' × ' + (3 + n % 2) + ' cm',
+        confianza: n % 3 === 1 ? 'Alta' : 'Media',
+        decEst: n % 5 !== 0,
+        proc: n % 2 ? 'Colección del proyecto' : null,
+        serial: String(2000000 + (n * 7919 + ei * 104729) % 900000)
+      };
+      TICKETS.push(t); BYID[t.id] = t;
+    }
+  });
+  function fields(t) {
+    var f = [];
+    f.push(['Código interno', t.id, 'ok']);
+    f.push(['Empresa', t.emp, 'ok']);
+    f.push(['Recorrido', t.rec, t.n % 4 === 2 ? 'est' : 'ok']);
+    f.push(['Comuna', t.comuna, 'ok']);
+    f.push(['Época', 'Década de ' + t.dec, t.decEst ? 'est' : 'ok']);
+    f.push(['Tipo', t.tipo, 'ok']);
+    f.push(['Color', t.color, 'ok']);
+    f.push(['Material', t.material, t.material ? 'ok' : 'pend']);
+    f.push(['Medidas', t.medidas, t.medidas ? 'ok' : 'pend']);
+    f.push(['Procedencia', t.proc, t.proc ? 'ok' : 'pend']);
+    return f;
   }
-];
+  function pendCount(t) { return fields(t).filter(function (x) { return x[2] === 'pend'; }).length; }
+  var COMMUNITY = [
+    { title: '¿Alguien reconoce esta numeración?', who: 'Coleccionista de ejemplo', st: 'ab', replies: 3, text: 'Boleto con numeración en rojo en el reverso. No sé de qué década es.' },
+    { title: 'Recorrido impreso sin nombre de empresa', who: 'Aporte de ejemplo', st: 'ab', replies: 1, text: 'Solo dice el recorrido. Busco ayuda para ubicar la empresa.' },
+    { title: 'Edición navideña identificada', who: 'Coleccionista de ejemplo', st: 'res', replies: 5, text: 'Quedó confirmada con otro ejemplar fechado y se agregó a la ficha.' }
+  ];
 
-const catalog = document.getElementById("catalog");
-const search = document.getElementById("search");
-const company = document.getElementById("company");
-const theme = document.getElementById("theme");
-const modal = document.getElementById("modal");
+  /* ---------- Estado y guardado (por visitante, en este dispositivo) ---------- */
+  var KEY = 'bolecciona-v2';
+  var D = { fav: [], subs: [] };
+  try { var raw = localStorage.getItem(KEY); if (raw) { var o = JSON.parse(raw); D.fav = o.fav || []; D.subs = o.subs || []; } } catch (e) {}
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(D)); } catch (e) {} }
+  var S = {
+    tab: 'home', stack: [{ name: 'home' }], query: '', explore: 'emp',
+    F: { emp: '', rec: '', comuna: '', dec: '', tipo: '', color: '', orden: 'reciente' }, fopen: false,
+    side: 'front', sugg: false, pv: { front: '', back: '' }, formMsg: null, confirmReset: false
+  };
 
-function fillOptions(select, values) {
-  [...new Set(values)].sort().forEach(value => {
-    const option = document.createElement("option");
-    option.value = value;
-    option.textContent = value;
-    select.appendChild(option);
+  /* ---------- Utilidades ---------- */
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (m) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]; }); }
+  function norm(s) { return String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); }
+  function uniq(key) { var a = []; TICKETS.forEach(function (t) { if (a.indexOf(t[key]) < 0) a.push(t[key]); }); return a.sort(); }
+  var ICON = {
+    chev: '<svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>',
+    back: '<svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg>',
+    search: '<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>',
+    filter: '<svg viewBox="0 0 24 24"><path d="M4 6h16M7 12h10M10 18h4"/></svg>',
+    heart: '<svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>'
+  };
+
+  /* ---------- Arte del boleto (dibujo propio, de ejemplo) ---------- */
+  function art(t) {
+    var p = t.pal, s = '', k, x, y;
+    s += '<rect x="1" y="1" width="178" height="168" rx="8" fill="#ebdcb4" stroke="#b89b5e" stroke-width="2"/>';
+    s += '<rect x="6" y="6" width="168" height="158" rx="5" fill="none" stroke="#b89b5e" stroke-width=".8" stroke-dasharray="2 2"/>';
+    s += '<text x="86" y="18" text-anchor="middle" font-family="Sora,sans-serif" font-weight="700" font-size="8.5" letter-spacing="1" fill="#2a2418">' + esc(t.head) + '</text>';
+    s += '<rect x="12" y="24" width="148" height="108" fill="' + p.sky + '"/>';
+    if (t.scene === 'mar') {
+      s += '<circle cx="130" cy="46" r="9" fill="' + p.hi + '"/>';
+      s += '<polygon points="12,100 38,70 60,88 92,56 126,92 146,76 160,90 160,104 12,104" fill="' + p.far + '"/>';
+      s += '<polygon points="12,104 12,92 30,84 58,100 86,92 120,104" fill="' + p.near + '"/>';
+      s += '<rect x="12" y="100" width="148" height="32" fill="' + p.sea + '"/>';
+      s += '<path d="M20 112 q6 -4 12 0 t12 0 M96 122 q6 -4 12 0 t12 0 M60 126 q6 -4 12 0 t12 0" stroke="#fff" stroke-opacity=".5" stroke-width="1.2" fill="none"/>';
+      s += '<polygon points="30,114 52,114 48,121 34,121" fill="' + p.a2 + '"/><rect x="40" y="104" width="2" height="10" fill="#fff"/>';
+      s += '<path d="M60 62 Q70 52 80 62 Q90 52 100 62" stroke="#fff" stroke-width="3.5" fill="none" stroke-linecap="round"/><ellipse cx="80" cy="64" rx="5" ry="3" fill="#fff"/>';
+    } else if (t.scene === 'puente') {
+      s += '<circle cx="132" cy="50" r="10" fill="' + p.hi + '"/>';
+      s += '<rect x="12" y="104" width="148" height="28" fill="' + p.sea + '"/>';
+      s += '<path d="M22 116 q6 -4 12 0 t12 0 M100 122 q6 -4 12 0 t12 0" stroke="#fff" stroke-opacity=".45" stroke-width="1.2" fill="none"/>';
+      s += '<rect x="40" y="94" width="3" height="14" fill="' + p.near + '"/><rect x="128" y="94" width="3" height="14" fill="' + p.near + '"/>';
+      s += '<rect x="12" y="90" width="148" height="4" fill="' + p.near + '"/><rect x="84" y="36" width="5" height="58" fill="' + p.near + '"/>';
+      [24, 42, 60, 72, 101, 113, 131, 149].forEach(function (cx) { s += '<line x1="86.5" y1="40" x2="' + cx + '" y2="90" stroke="#fff" stroke-opacity=".85" stroke-width="1"/>'; });
+    } else if (t.scene === 'ciudad') {
+      s += '<circle cx="124" cy="46" r="10" fill="' + p.hi + '"/>';
+      [[14, 14, 40], [30, 12, 56], [44, 16, 34], [62, 12, 62], [76, 16, 44], [94, 12, 70], [108, 16, 48], [124, 12, 58], [138, 18, 38]].forEach(function (b, n) {
+        s += '<rect x="' + b[0] + '" y="' + (104 - b[2]) + '" width="' + b[1] + '" height="' + b[2] + '" fill="' + (n % 2 ? p.far : p.near) + '"/>';
+      });
+      s += '<rect x="12" y="104" width="148" height="28" fill="' + p.near + '"/><line x1="12" y1="118" x2="160" y2="118" stroke="#fff" stroke-opacity=".7" stroke-width="1.5" stroke-dasharray="8 6"/>';
+    } else if (t.scene === 'fiesta') {
+      s += '<polygon points="12,132 12,108 40,100 70,110 100,98 130,108 160,102 160,132" fill="' + p.near + '"/>';
+      [[26, 112], [78, 114], [128, 112]].forEach(function (h) {
+        s += '<rect x="' + h[0] + '" y="' + h[1] + '" width="16" height="12" fill="' + p.far + '"/><polygon points="' + (h[0] - 2) + ',' + h[1] + ' ' + (h[0] + 8) + ',' + (h[1] - 8) + ' ' + (h[0] + 18) + ',' + h[1] + '" fill="' + p.hi + '"/>';
+      });
+      s += '<path d="M12 40 Q86 100 160 40" stroke="#fff" stroke-width="1.2" fill="none"/>';
+      var cl = ['#d9534f', '#ffffff', '#2e6fb0'];
+      for (k = 0; k <= 8; k++) {
+        var tt = k / 8; x = 12 + 148 * tt; y = 40 + 120 * tt * (1 - tt);
+        s += '<polygon points="' + (x - 7).toFixed(1) + ',' + y.toFixed(1) + ' ' + (x + 7).toFixed(1) + ',' + y.toFixed(1) + ' ' + x.toFixed(1) + ',' + (y + 16).toFixed(1) + '" fill="' + cl[k % 3] + '"/>';
+      }
+    } else {
+      [[24, 36], [52, 50], [96, 34], [132, 52], [148, 34]].forEach(function (a) { s += '<circle cx="' + a[0] + '" cy="' + a[1] + '" r="1.8" fill="#fff"/>'; });
+      s += '<circle cx="118" cy="44" r="7" fill="' + p.hi + '"/><rect x="12" y="116" width="148" height="16" fill="#f4f8ff"/>';
+      [[44, 98, 1], [90, 92, 1.25], [132, 100, 1]].forEach(function (tr) {
+        var sc = tr[2];
+        s += '<polygon points="' + tr[0] + ',' + (tr[1] - 22 * sc) + ' ' + (tr[0] - 13 * sc) + ',' + (tr[1] - 2 * sc) + ' ' + (tr[0] + 13 * sc) + ',' + (tr[1] - 2 * sc) + '" fill="' + p.far + '"/>';
+        s += '<polygon points="' + tr[0] + ',' + (tr[1] - 12 * sc) + ' ' + (tr[0] - 16 * sc) + ',' + (tr[1] + 14 * sc) + ' ' + (tr[0] + 16 * sc) + ',' + (tr[1] + 14 * sc) + '" fill="' + p.near + '"/>';
+        s += '<rect x="' + (tr[0] - 2) + '" y="' + (tr[1] + 14 * sc) + '" width="4" height="' + (118 - tr[1] - 14 * sc) + '" fill="#5a3b24"/>';
+      });
+    }
+    s += '<text x="86" y="150" text-anchor="middle" font-family="Sora,sans-serif" font-weight="600" font-size="8" letter-spacing=".8" fill="#2a2418">' + esc(('Pasaje ' + t.tipo).toUpperCase()) + '</text>';
+    s += '<text transform="translate(170 130) rotate(-90)" font-family="Sora,sans-serif" font-size="6.5" fill="#2a2418">Nº ' + t.serial + '</text>';
+    return '<svg viewBox="0 0 180 170" role="img" aria-label="Anverso del boleto ' + esc(t.id) + '">' + s + '</svg>';
+  }
+  function artBack(t) {
+    var s = '<rect x="1" y="1" width="178" height="168" rx="8" fill="#e3d2a6" stroke="#b89b5e" stroke-width="2"/>';
+    s += '<rect x="6" y="6" width="168" height="158" rx="5" fill="none" stroke="#b89b5e" stroke-width=".8" stroke-dasharray="2 2"/>';
+    s += '<text x="86" y="26" text-anchor="middle" font-family="Sora,sans-serif" font-weight="700" font-size="8" letter-spacing="1.4" fill="#2a2418">REVERSO</text>';
+    for (var i = 0; i < 9; i++) s += '<rect x="22" y="' + (40 + i * 12) + '" width="' + (136 - (i % 3) * 22) + '" height="4" rx="2" fill="#8a7448" opacity=".45"/>';
+    s += '<text x="86" y="156" text-anchor="middle" font-family="Sora,sans-serif" font-size="7" fill="#2a2418">' + esc(t.id) + ' · reverso de ejemplo</text>';
+    return '<svg viewBox="0 0 180 170" role="img" aria-label="Reverso del boleto ' + esc(t.id) + '">' + s + '</svg>';
+  }
+  function card(t) {
+    var pc = pendCount(t);
+    return '<button class="card" data-a="ticket" data-id="' + t.id + '">' + art(t) + '<b>' + esc(t.id) + '</b><small>' + esc(t.emp) + ' · ' + t.dec + 's</small>' + (pc ? '<span><span class="bd pend">' + pc + ' dato' + (pc > 1 ? 's' : '') + ' pendiente' + (pc > 1 ? 's' : '') + '</span></span>' : '') + '</button>';
+  }
+  function head(title, back) {
+    return '<div class="top">' + (back ? '<button class="iconbtn" data-a="back" aria-label="Volver">' + ICON.back + '</button>' : '') + '<h1>' + esc(title) + '</h1></div>';
+  }
+  function toast(msg) {
+    var el = document.getElementById('toast'); el.textContent = msg; el.classList.add('show');
+    clearTimeout(toast.t); toast.t = setTimeout(function () { el.classList.remove('show'); }, 2200);
+  }
+  function stBadge(st) { return st === 'ok' ? '<span class="bd ok">Confirmado</span>' : st === 'est' ? '<span class="bd est">Estimado</span>' : '<span class="bd pend">Pendiente</span>'; }
+
+  /* ---------- Catálogo ---------- */
+  function filtered() {
+    var F = S.F, list = TICKETS.filter(function (t) {
+      return (!F.emp || t.emp === F.emp) && (!F.rec || t.rec === F.rec) && (!F.comuna || t.comuna === F.comuna) && (!F.dec || t.dec === F.dec) && (!F.tipo || t.tipo === F.tipo) && (!F.color || t.color === F.color);
+    });
+    if (F.orden === 'nombre') list.sort(function (a, b) { return a.emp.localeCompare(b.emp) || a.n - b.n; });
+    else list.sort(function (a, b) { return b.n - a.n; });
+    return list;
+  }
+  var FLABEL = { emp: 'Empresa', rec: 'Recorrido', comuna: 'Comuna', dec: 'Década', tipo: 'Tipo', color: 'Color' };
+  function catResults() {
+    var list = filtered(), act = Object.keys(FLABEL).filter(function (k) { return S.F[k]; });
+    var h = '';
+    if (act.length) h += '<div class="active">' + act.map(function (k) { return '<button data-a="clearf" data-id="' + k + '" aria-label="Quitar filtro ' + FLABEL[k] + '">' + FLABEL[k] + ': ' + esc(k === 'dec' ? S.F[k] + 's' : S.F[k]) + ' ✕</button>'; }).join('') + '<button data-a="clearall" style="color:var(--accent)">Limpiar filtros</button></div>';
+    h += '<div class="cnt">' + list.length + (list.length === 1 ? ' ficha' : ' fichas') + ' de ejemplo</div>';
+    h += list.length ? '<div class="grid2">' + list.map(card).join('') + '</div>' : '<div class="empty">Ninguna ficha coincide con estos filtros.</div>';
+    return h;
+  }
+  function sel(key, label, opts) {
+    return '<label class="fld">' + label + '<select data-f="' + key + '"><option value="">Todas</option>' + opts.map(function (o) { var v = Array.isArray(o) ? o[0] : o, l = Array.isArray(o) ? o[1] : o; return '<option value="' + esc(v) + '"' + (S.F[key] === v ? ' selected' : '') + '>' + esc(l) + '</option>'; }).join('') + '</select></label>';
+  }
+
+  /* ---------- Inicio ---------- */
+  function homeBody() {
+    var q = norm(S.query.trim());
+    if (q) {
+      var res = TICKETS.filter(function (t) { return norm([t.id, t.emp, t.rec, t.comuna, t.tipo, t.color, t.dec + 's', t.serial].join(' ')).indexOf(q) > -1; });
+      if (!res.length) return '<div class="empty">No hay fichas para “' + esc(S.query) + '”.<br>Prueba con empresa, recorrido o comuna.</div>';
+      return '<div class="cnt">' + res.length + ' fichas</div><div class="grid2">' + res.map(card).join('') + '</div>';
+    }
+    var key = S.explore, vals = key === 'emp' ? EMP.map(function (e) { return e.name; }) : uniq(key === 'rec' ? 'rec' : 'comuna');
+    var h = '';
+    h += '<button class="banner" data-a="tab" data-id="cat" aria-label="Abrir el catálogo">' +
+      '<span class="c" style="left:18px;top:14px;transform:rotate(-10deg)">' + art(BYID['BC-0013']) + '</span>' +
+      '<span class="c" style="left:92px;top:30px;transform:rotate(6deg)">' + art(BYID['BC-0009']) + '</span>' +
+      '<span class="c" style="left:170px;top:8px;transform:rotate(-4deg)">' + art(BYID['BC-0005']) + '</span>' +
+      '<span class="c" style="left:244px;top:26px;transform:rotate(9deg)">' + art(BYID['BC-0001']) + '</span>' +
+      '<span class="t">Memoria gráfica del transporte del Gran Concepción</span><span class="go">' + ICON.chev + '</span></button>';
+    h += '<div class="notice"><span><b>Prototipo con datos de ejemplo.</b> Las fichas y los dibujos son ilustrativos. El catálogo está en crecimiento y aún no incluye fotografías reales.</span></div>';
+    h += '<div class="sec"><h2>Explorar por</h2></div>';
+    h += '<div class="seg"><button data-a="explore" data-id="emp" aria-pressed="' + (key === 'emp') + '">Empresas</button><button data-a="explore" data-id="rec" aria-pressed="' + (key === 'rec') + '">Recorridos</button><button data-a="explore" data-id="comuna" aria-pressed="' + (key === 'comuna') + '">Comunas</button></div>';
+    h += '<div class="chips" style="flex-wrap:wrap;overflow:visible">' + vals.map(function (v) { return '<button class="chip" data-a="goexplore" data-id="' + key + '" data-val="' + esc(v) + '">' + esc(v) + '</button>'; }).join('') + '</div>';
+    h += '<div class="sec"><h2>Piezas destacadas</h2><button data-a="tab" data-id="cat">Ver catálogo</button></div>';
+    h += '<div class="strip">' + [1, 6, 11, 16, 3, 8].map(function (n) { var t = TICKETS[n - 1]; return '<button class="feat" data-a="ticket" data-id="' + t.id + '">' + art(t) + '<b>' + esc(t.emp) + '</b><small>' + esc(t.comuna) + ' · ' + t.dec + 's</small></button>'; }).join('') + '</div>';
+    h += '<div class="sec"><h2>Incorporadas recientemente</h2></div>';
+    h += '<div class="strip">' + TICKETS.slice().sort(function (a, b) { return b.n - a.n; }).slice(0, 6).map(function (t) { return '<button class="feat" data-a="ticket" data-id="' + t.id + '">' + art(t) + '<b>' + esc(t.id) + '</b><small>' + esc(t.emp) + '</small></button>'; }).join('') + '</div>';
+    return h;
+  }
+
+  /* ---------- Pantallas ---------- */
+  var VIEWS = {
+    home: function () {
+      return '<div class="top"><div class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#logo-mark"/></svg><div class="wordmark">Bolecciona<span>Concepción</span></div></div></div>' +
+        '<label class="search">' + ICON.search + '<input id="q" type="search" placeholder="Buscar empresa, recorrido o comuna..." autocomplete="off" value="' + esc(S.query) + '"></label>' +
+        '<div id="homeBody">' + homeBody() + '</div>';
+    },
+    cat: function () {
+      var nAct = Object.keys(FLABEL).filter(function (k) { return S.F[k]; }).length;
+      return head('Catálogo') +
+        '<div class="fbar"><button class="chip grow" data-a="ftoggle" aria-pressed="' + S.fopen + '">Filtros' + (nAct ? ' (' + nAct + ')' : '') + '</button>' +
+        '<label class="fld" style="flex:1"><select data-f="orden" aria-label="Ordenar"><option value="reciente"' + (S.F.orden === 'reciente' ? ' selected' : '') + '>Más recientes</option><option value="nombre"' + (S.F.orden === 'nombre' ? ' selected' : '') + '>Por empresa</option></select></label></div>' +
+        (S.fopen ? '<div class="fpanel">' + sel('emp', 'Empresa', EMP.map(function (e) { return e.name; })) + sel('rec', 'Recorrido', uniq('rec')) + sel('comuna', 'Comuna', uniq('comuna')) + sel('dec', 'Década', DEC.map(function (d) { return [d, d + 's']; })) + sel('tipo', 'Tipo', TIPOS) + sel('color', 'Color', uniq('color')) + '</div>' : '') +
+        '<div id="catList">' + catResults() + '</div>';
+    },
+    ticket: function (v) {
+      var t = BYID[v.id], fav = D.fav.indexOf(t.id) > -1, pc = pendCount(t);
+      var rows = fields(t).map(function (f) {
+        return '<div><span>' + f[0] + '</span><span class="v">' + (f[1] ? esc(f[1]) : '<i>Sin dato</i>') + stBadge(f[2]) + '</span></div>';
+      }).join('');
+      var hip = fields(t).filter(function (f) { return f[2] === 'est'; }).map(function (f) { return f[0].toLowerCase(); });
+      return head('Ficha del boleto', true) +
+        '<div class="seg"><button data-a="side" data-id="front" aria-pressed="' + (S.side === 'front') + '">Anverso</button><button data-a="side" data-id="back" aria-pressed="' + (S.side === 'back') + '">Reverso</button></div>' +
+        '<div class="hero">' + (S.side === 'front' ? art(t) : artBack(t)) + '<div class="tag">Dibujo de ejemplo, no es una fotografía real</div></div>' +
+        '<h1>' + esc(t.emp) + '</h1><div class="muted small" style="margin-top:2px">' + esc(t.rec) + ' · ' + esc(t.comuna) + '</div>' +
+        '<div class="info">' + rows + '</div>' +
+        '<div class="note"><h2>Hipótesis y notas</h2><p>' + esc(NOTAS[t.scene]) + (hip.length ? ' Se estimó ' + hip.join(' y ') + ' a partir del diseño; falta confirmarlo con otro ejemplar fechado. Confianza de la estimación: ' + t.confianza.toLowerCase() + '.' : '') + (pc ? ' Hay ' + pc + ' dato' + (pc > 1 ? 's' : '') + ' pendiente' + (pc > 1 ? 's' : '') + ' de registrar.' : '') + '</p></div>' +
+        '<div class="note"><h2>Fuente y derechos</h2><p>Fuente: ' + (t.proc ? 'colección del proyecto (ejemplo)' : 'por registrar') + '. Imagen: ilustración del prototipo, sin restricciones. En el catálogo real cada foto indicará quién la aportó y bajo qué permiso.</p></div>' +
+        '<div class="btns"><button class="btn' + (fav ? ' ghost' : '') + '" data-a="fav" data-id="' + t.id + '">' + (fav ? 'Quitar de favoritos' : 'Guardar en favoritos') + '</button>' +
+        (S.sugg ? '<div class="note" style="margin:0"><label class="fld" for="sg">Qué dato corregirías<textarea id="sg" placeholder="Ej.: la década parece anterior porque..."></textarea></label><div class="btns row2" style="margin-top:10px"><button class="btn" data-a="sendsugg" data-id="' + t.id + '">Enviar</button><button class="btn ghost" data-a="cancelsugg">Cancelar</button></div></div>' : '<button class="btn ghost" data-a="sugg">Sugerir una corrección</button>') + '</div>';
+    },
+    add: function () {
+      var m = S.formMsg;
+      return head('Añadir boleto') +
+        '<p class="muted small" style="margin:-4px 0 14px">Envía fotos y los datos que conozcas. Lo que no sepas, déjalo vacío: quedará como pendiente. Cada aporte se revisa antes de publicarse.</p>' +
+        '<form class="form" id="addform" novalidate>' +
+        '<div class="photos"><label class="drop" id="dropF"><span>' + (S.pv.front ? '' : 'Foto del frente<br>(obligatoria)') + '</span><input type="file" accept="image/*" id="f-front" aria-label="Foto del frente">' + (S.pv.front ? '<img alt="Vista previa del frente" src="' + S.pv.front + '">' : '') + '</label>' +
+        '<label class="drop" id="dropB"><span>' + (S.pv.back ? '' : 'Foto del reverso<br>(si existe)') + '</span><input type="file" accept="image/*" id="f-back" aria-label="Foto del reverso">' + (S.pv.back ? '<img alt="Vista previa del reverso" src="' + S.pv.back + '">' : '') + '</label></div>' +
+        '<label class="fld" for="f-emp">Empresa o línea<input type="text" id="f-emp" placeholder="Nombre impreso en el boleto"></label>' +
+        '<label class="fld" for="f-rec">Recorrido o localidad<input type="text" id="f-rec" placeholder="Ej.: Concepción – Talcahuano"></label>' +
+        '<label class="fld" for="f-fecha">Fecha o período<input type="text" id="f-fecha" placeholder="Fecha impresa o década estimada"></label>' +
+        '<label class="fld" for="f-notas">Notas o procedencia<textarea id="f-notas" placeholder="Donación, colección personal, cualquier detalle"></textarea></label>' +
+        '<label class="check"><input type="checkbox" id="f-der"><span>Confirmo que tengo derecho a compartir estas imágenes y que pueden mostrarse en el catálogo.</span></label>' +
+        (m ? '<div class="msg ' + m.k + '" role="alert">' + esc(m.t) + '</div>' : '') +
+        '<button class="btn" type="submit">Enviar a revisión</button></form>' +
+        '<p class="muted small" style="margin-top:12px">En este prototipo las fotos solo se previsualizan y no se guardan. La carga real y la revisión por parte de personas autorizadas llegan en la fase 2.</p>';
+    },
+    comm: function () {
+      return head('Comunidad') +
+        '<div class="notice"><span><b>Ejemplos.</b> Las publicaciones son ficticias. Los comentarios, reportes y la moderación necesitan cuentas de usuario (fase 3).</span></div>' +
+        COMMUNITY.map(function (c) {
+          return '<div class="note"><div class="hd"><h2>' + esc(c.title) + '</h2><span class="bd ' + c.st + '">' + (c.st === 'res' ? 'Resuelta' : 'Abierta') + '</span></div><p>' + esc(c.text) + '</p><p style="font-size:12px">' + esc(c.who) + ' · ' + c.replies + ' respuestas</p></div>';
+        }).join('') +
+        '<div class="note"><h2>Qué permitirá la comunidad</h2><ul class="plain"><li>Pedir ayuda para identificar piezas difíciles</li><li>Aportar contexto y comentarios a una ficha</li><li>Reportar datos incorrectos o personales sin autorización</li></ul></div>';
+    },
+    profile: function () {
+      var favs = D.fav.map(function (id) { return BYID[id]; }).filter(Boolean);
+      return head('Perfil') +
+        '<div class="notice"><span><b>Sin cuenta.</b> Tus favoritos y aportes se guardan solo en este dispositivo. El inicio de sesión es opcional y llega más adelante.</span></div>' +
+        '<div class="sec"><h2>Favoritos</h2></div>' +
+        (favs.length ? '<div class="grid2" style="margin-bottom:14px">' + favs.map(card).join('') + '</div>' : '<div class="note"><p style="margin:0">Aún no guardas favoritos. Guárdalos desde la ficha de cada boleto.</p></div>') +
+        '<div class="sec"><h2>Mis aportes</h2></div>' +
+        (D.subs.length ? '<div class="rows" style="margin-bottom:10px">' + D.subs.map(function (s) { return '<div class="row"><span class="tx"><b>' + esc(s.title) + '</b><small>' + esc(s.when) + (s.has ? '' : '') + '</small></span><span class="bd rev">En revisión</span></div>'; }).join('') + '</div>' : '<div class="note"><p style="margin:0">Todavía no has enviado aportes.</p></div>') +
+        '<div class="sec"><h2>Proyecto</h2></div>' +
+        '<div class="rows"><button class="row" data-a="about"><span class="tx"><b>Acerca del proyecto y contacto</b><small>Propósito, fases, criterios y colaboración</small></span>' + ICON.chev + '</button></div>' +
+        '<div class="note" style="margin-top:14px"><h2>Datos de este prototipo</h2><p>Borra tus favoritos y aportes de ejemplo de este dispositivo.</p><div style="margin-top:12px">' +
+        (S.confirmReset ? '<p style="margin:0 0 10px;color:var(--fg)">¿Borrar favoritos y aportes?</p><div class="btns row2"><button class="btn warn" data-a="reset">Sí, borrar</button><button class="btn ghost" data-a="cancelreset">Cancelar</button></div>' : '<button class="btn ghost" data-a="askreset">Restablecer prototipo</button>') + '</div></div>';
+    },
+    about: function () {
+      return head('Acerca del proyecto', true) +
+        '<div class="note"><h2>Propósito</h2><p>Bolecciona Concepción es una iniciativa digital independiente que quiere registrar, organizar y difundir los boletos de micro del Gran Concepción como objetos de colección y testimonio de la memoria gráfica cotidiana.</p></div>' +
+        '<div class="note"><h2>Criterios de catalogación</h2><p>Se prefiere un dato pendiente a uno inventado. Cada dato lleva una de estas marcas:</p><div class="legend" style="margin-top:10px"><span class="bd ok">Confirmado</span><span class="bd est">Estimado</span><span class="bd pend">Pendiente</span></div></div>' +
+        '<div class="note"><h2>Fases de desarrollo</h2><div style="margin-top:6px">' +
+        '<div class="phase"><em>1</em><div><b>Prototipo</b> (esta versión)<span>Navegación, catálogo de muestra y fichas ilustrativas.</span></div></div>' +
+        '<div class="phase"><em>2</em><div><b>Catálogo real</b><span>Base de datos, imágenes, buscador y panel de revisión.</span></div></div>' +
+        '<div class="phase"><em>3</em><div><b>Comunidad</b><span>Cuentas, favoritos, aportes, comentarios y moderación.</span></div></div>' +
+        '<div class="phase"><em>4</em><div><b>Crecimiento</b><span>Búsqueda visual, estadísticas y alianzas culturales.</span></div></div></div></div>' +
+        '<div class="note"><h2>Contacto y colaboración</h2><p>Para donar información, colaborar o patrocinar. La colaboración no transfiere la propiedad de la marca ni del proyecto.</p><div class="copyline"><span>rodrigoschalchli.contacto@gmail.com</span><button data-a="copy" data-val="rodrigoschalchli.contacto@gmail.com">Copiar</button></div></div>' +
+        '<div class="note"><h2>Privacidad y condiciones</h2><p>El aviso de privacidad, las condiciones de uso y la atribución de imágenes se redactarán antes de la versión pública.</p></div>';
+    }
+  };
+
+  /* ---------- Render y navegación ---------- */
+  var main = document.getElementById('main'), navEl = document.getElementById('nav');
+  var TABS = [
+    ['home', 'Inicio', '<svg viewBox="0 0 24 24"><path d="M4 11l8-6.5 8 6.5v8.5a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z"/></svg>'],
+    ['cat', 'Catálogo', '<svg viewBox="0 0 24 24"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/></svg>'],
+    ['add', 'Añadir', '<svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M12 8.5v7M8.5 12h7"/></svg>'],
+    ['comm', 'Comunidad', '<svg viewBox="0 0 24 24"><circle cx="9" cy="9" r="3"/><path d="M3.5 19c.6-3 2.8-4.6 5.5-4.6s4.9 1.6 5.5 4.6"/><circle cx="17" cy="9.5" r="2.4"/><path d="M16.5 14.6c2.3 0 3.6 1.4 4 3.8"/></svg>'],
+    ['profile', 'Perfil', '<svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.6"/><path d="M5 20c.8-3.6 3.6-5.4 7-5.4s6.2 1.8 7 5.4"/></svg>']
+  ];
+  function render(keep) {
+    var v = S.stack[S.stack.length - 1], top = main.scrollTop;
+    main.innerHTML = VIEWS[v.name](v);
+    main.scrollTop = keep ? top : 0;
+    navEl.innerHTML = TABS.map(function (t) { return '<button data-a="tab" data-id="' + t[0] + '"' + (S.tab === t[0] ? ' aria-current="true"' : '') + '>' + t[2] + t[1] + '</button>'; }).join('');
+  }
+  function push(v) { S.stack.push(v); S.side = 'front'; S.sugg = false; render(false); }
+  function copyText(text) {
+    try { navigator.clipboard.writeText(text).then(function () { toast('Correo copiado'); }, function () { toast('Mantén presionado el correo para copiarlo'); }); }
+    catch (e) { toast('Mantén presionado el correo para copiarlo'); }
+  }
+
+  document.addEventListener('click', function (e) {
+    var el = e.target.closest('[data-a]');
+    if (!el) return;
+    var a = el.dataset.a, id = el.dataset.id;
+    if (a === 'tab') { S.tab = id; S.stack = [{ name: id }]; S.confirmReset = false; S.formMsg = null; S.sugg = false; render(false); }
+    else if (a === 'back') { if (S.stack.length > 1) S.stack.pop(); S.sugg = false; render(false); }
+    else if (a === 'ticket') push({ name: 'ticket', id: id });
+    else if (a === 'about') push({ name: 'about' });
+    else if (a === 'explore') { S.explore = id; render(true); }
+    else if (a === 'goexplore') { S.F = { emp: '', rec: '', comuna: '', dec: '', tipo: '', color: '', orden: S.F.orden }; S.F[id] = el.dataset.val; S.fopen = false; S.tab = 'cat'; S.stack = [{ name: 'cat' }]; render(false); }
+    else if (a === 'ftoggle') { S.fopen = !S.fopen; render(true); }
+    else if (a === 'clearf') { S.F[id] = ''; render(true); }
+    else if (a === 'clearall') { ['emp', 'rec', 'comuna', 'dec', 'tipo', 'color'].forEach(function (k) { S.F[k] = ''; }); render(true); }
+    else if (a === 'side') { S.side = id; render(true); }
+    else if (a === 'fav') {
+      var i = D.fav.indexOf(id);
+      if (i > -1) { D.fav.splice(i, 1); toast('Quitado de favoritos'); } else { D.fav.push(id); toast('Guardado en favoritos'); }
+      save(); render(true);
+    }
+    else if (a === 'sugg') { S.sugg = true; render(true); }
+    else if (a === 'cancelsugg') { S.sugg = false; render(true); }
+    else if (a === 'sendsugg') {
+      var ta = document.getElementById('sg');
+      if (!ta || !ta.value.trim()) { toast('Escribe qué dato corregirías'); return; }
+      S.sugg = false; render(true); toast('Sugerencia registrada en este prototipo');
+    }
+    else if (a === 'copy') copyText(el.dataset.val);
+    else if (a === 'askreset') { S.confirmReset = true; render(true); }
+    else if (a === 'cancelreset') { S.confirmReset = false; render(true); }
+    else if (a === 'reset') { D = { fav: [], subs: [] }; save(); S.confirmReset = false; render(true); toast('Prototipo restablecido'); }
   });
-}
-
-fillOptions(company, tickets.map(t => t.company));
-fillOptions(theme, tickets.map(t => t.theme));
-
-function escapeHTML(value) {
-  return String(value).replace(/[&<>"']/g, char => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#039;"
-  })[char]);
-}
-
-function render() {
-  const query = search.value.trim().toLocaleLowerCase("es");
-  const selectedCompany = company.value;
-  const selectedTheme = theme.value;
-
-  const filtered = tickets.filter(t => {
-    const text = [
-      t.title, t.company, t.theme, t.serial, t.short, t.description
-    ].join(" ").toLocaleLowerCase("es");
-
-    return text.includes(query) &&
-      (!selectedCompany || t.company === selectedCompany) &&
-      (!selectedTheme || t.theme === selectedTheme);
+  document.addEventListener('input', function (e) {
+    if (e.target.id === 'q') { S.query = e.target.value; document.getElementById('homeBody').innerHTML = homeBody(); }
+  });
+  document.addEventListener('change', function (e) {
+    var t = e.target;
+    if (t.dataset && t.dataset.f) { S.F[t.dataset.f] = t.value; var box = document.getElementById('catList'); if (box) box.innerHTML = catResults(); }
+    else if (t.id === 'f-front' || t.id === 'f-back') {
+      var side = t.id === 'f-front' ? 'front' : 'back', file = t.files && t.files[0];
+      if (!file) return;
+      var fr = new FileReader();
+      fr.onload = function () {
+        S.pv[side] = String(fr.result);
+        var vals = ['f-emp', 'f-rec', 'f-fecha', 'f-notas'].map(function (id) { var x = document.getElementById(id); return x ? x.value : ''; });
+        var der = document.getElementById('f-der') && document.getElementById('f-der').checked;
+        render(true);
+        ['f-emp', 'f-rec', 'f-fecha', 'f-notas'].forEach(function (id, i) { var x = document.getElementById(id); if (x) x.value = vals[i]; });
+        var d = document.getElementById('f-der'); if (d) d.checked = der;
+      };
+      fr.readAsDataURL(file);
+    }
+  });
+  document.addEventListener('submit', function (e) {
+    if (e.target.id !== 'addform') return;
+    e.preventDefault();
+    var emp = document.getElementById('f-emp').value.trim(), rec = document.getElementById('f-rec').value.trim(), fecha = document.getElementById('f-fecha').value.trim();
+    var der = document.getElementById('f-der').checked;
+    if (!S.pv.front) { S.formMsg = { k: 'err', t: 'Falta la foto del frente. Es obligatoria para publicar.' }; }
+    else if (!emp && !rec) { S.formMsg = { k: 'err', t: 'Indica al menos la empresa o el recorrido.' }; }
+    else if (!der) { S.formMsg = { k: 'err', t: 'Debes confirmar que tienes derecho a compartir las imágenes.' }; }
+    else {
+      D.subs.unshift({ title: emp || rec, when: (fecha ? fecha + ' · ' : '') + 'enviado hoy' });
+      save(); S.pv = { front: '', back: '' };
+      S.formMsg = { k: 'good', t: 'Aporte enviado a revisión. Lo verás en tu perfil con estado “En revisión”.' };
+      render(false); toast('Aporte enviado a revisión'); return;
+    }
+    var keep = { e: document.getElementById('f-emp').value, r: document.getElementById('f-rec').value, f: document.getElementById('f-fecha').value, n: document.getElementById('f-notas').value };
+    render(true);
+    document.getElementById('f-emp').value = keep.e; document.getElementById('f-rec').value = keep.r; document.getElementById('f-fecha').value = keep.f; document.getElementById('f-notas').value = keep.n; document.getElementById('f-der').checked = der;
+  });
+  document.getElementById('enter').addEventListener('click', function () {
+    var sp = document.getElementById('splash'); sp.classList.add('gone');
+    setTimeout(function () { sp.hidden = true; }, 400);
   });
 
-  catalog.innerHTML = filtered.map(t => `
-    <article class="card">
-      <div class="ticket-stage">
-        <div class="ticket ${escapeHTML(t.color)}">
-          <div class="serial">N.º ${escapeHTML(t.serial)}</div>
-          <div class="ticket-title">${escapeHTML(t.company)}</div>
-          <div class="ticket-sub">${escapeHTML(t.theme)}</div>
-          <div class="art">${escapeHTML(t.art)}</div>
-          <div class="foot">BOLECCIONA · ${escapeHTML(t.year)}</div>
-        </div>
-      </div>
-      <div class="card-info">
-        <span class="tag">${escapeHTML(t.theme)}</span>
-        <h3>${escapeHTML(t.title)}</h3>
-        <p>${escapeHTML(t.short)}</p>
-        <button class="details" data-id="${t.id}">Ver ficha completa ↗</button>
-      </div>
-    </article>
-  `).join("");
-
-  document.getElementById("result-count").textContent =
-    `${filtered.length} ${filtered.length === 1 ? "resultado" : "resultados"}`;
-  document.getElementById("empty").style.display =
-    filtered.length ? "none" : "block";
-}
-
-catalog.addEventListener("click", event => {
-  const button = event.target.closest("button[data-id]");
-  if (!button) return;
-
-  const ticket = tickets.find(t => t.id === Number(button.dataset.id));
-  if (!ticket) return;
-
-  document.getElementById("modal-title").textContent = ticket.title;
-  document.getElementById("modal-body").innerHTML = `
-    <p>${escapeHTML(ticket.description)}</p>
-    <p><strong>Empresa o línea:</strong> ${escapeHTML(ticket.company)}</p>
-    <p><strong>Temática:</strong> ${escapeHTML(ticket.theme)}</p>
-    <p><strong>Número impreso:</strong> ${escapeHTML(ticket.serial)}</p>
-    <p><strong>Año:</strong> ${escapeHTML(ticket.year)}</p>
-    <p><strong>Estado del registro:</strong> Ficha inicial; datos pendientes de verificación.</p>
-  `;
-  modal.showModal();
-});
-
-document.getElementById("close-modal").addEventListener("click", () => {
-  modal.close();
-});
-search.addEventListener("input", render);
-company.addEventListener("change", render);
-theme.addEventListener("change", render);
-
-document.getElementById("total").textContent = tickets.length;
-render();
+  render(false);
+})();
 </script>
+
 </body>
 </html>
