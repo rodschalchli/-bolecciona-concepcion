@@ -211,6 +211,48 @@ legend { font-size: 12px; color: var(--muted); padding: 0; margin-bottom: 8px; }
 .info .v.locked { color: var(--muted); gap: 6px; font-size: 13px; }
 .mini { padding: 3px 9px; border-radius: 99px; border: 1px solid var(--accent); color: var(--accent); font-size: 11px; }
 #splash .enter2 { position: relative; z-index: 1; margin-top: 8px; height: 40px; width: 100%; max-width: 280px; background: transparent; color: #0d2447; font-weight: 600; text-align: center; font-size: 13px; text-decoration: underline; }
+
+nav { padding: 6px 4px; gap: 0; }
+nav button { font-size: 9.5px; }
+nav button svg { width: 21px; height: 21px; }
+.ad { margin: 0 0 16px; }
+.adhead { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--muted); letter-spacing: .05em; text-transform: uppercase; margin-bottom: 6px; }
+.adpause { font-size: 12px; color: var(--accent); text-transform: none; letter-spacing: 0; padding: 4px 8px; margin: -4px 0; }
+.adtrack { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; border-radius: 16px; scrollbar-width: none; }
+.adtrack::-webkit-scrollbar { display: none; }
+.adslide { flex: 0 0 100%; scroll-snap-align: start; min-height: 96px; padding: 14px 16px; display: flex; flex-direction: column; gap: 3px; justify-content: center; color: #fff; border-radius: 16px; }
+.adslide b { font-family: var(--f-display); font-size: 15px; font-weight: 600; line-height: 1.25; }
+.adslide span { font-size: 12.5px; color: rgba(255,255,255,.88); }
+.adslide em { font-style: normal; font-size: 12px; font-weight: 600; margin-top: 6px; text-decoration: underline; }
+.addots { display: flex; gap: 5px; justify-content: center; margin-top: 7px; }
+.addots i { width: 6px; height: 6px; border-radius: 99px; background: var(--line); transition: width .2s, background .2s; }
+.addots i[aria-current="true"] { background: var(--accent); width: 16px; }
+.cal { margin-bottom: 10px; }
+.calhead { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.calhead b { font-family: var(--f-display); font-size: 15px; }
+.dow, .days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.dow span { text-align: center; font-size: 11px; color: var(--muted); padding: 4px 0; }
+.day { aspect-ratio: 1; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 13.5px; background: var(--surface); border: 1px solid transparent; text-align: center; min-width: 0; }
+.day.blank { background: none; border-color: transparent; }
+.day.today { border-color: var(--accent); }
+.day[aria-pressed="true"] { background: var(--fg); color: var(--bg); font-weight: 600; }
+.day .pt { display: block; width: 5px; height: 5px; border-radius: 50%; background: var(--accent); margin-top: 3px; }
+.day[aria-pressed="true"] .pt { background: var(--bg); }
+.evcard { display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); width: 100%; margin-bottom: 10px; }
+.evdate { width: 46px; flex: none; text-align: center; background: var(--surface2); border-radius: 10px; padding: 6px 0; display: flex; flex-direction: column; }
+.evdate b { font-family: var(--f-display); font-size: 18px; line-height: 1.1; }
+.evdate i { font-style: normal; font-size: 11px; color: var(--accent); text-transform: uppercase; }
+.evcard .tx { flex: 1; min-width: 0; }
+.evcard .tx > b { display: block; font-weight: 500; font-size: 14.5px; }
+.evcard .tx > small { display: block; color: var(--muted); font-size: 12px; }
+.evtags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+.evcard > svg { width: 16px; height: 16px; flex: none; fill: none; stroke: var(--muted); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+input[type="date"] { width: 100%; min-width: 0; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); font: inherit; font-size: 14px; padding: 0 12px; height: 42px; }
+@media (prefers-reduced-motion: reduce) { .addots i { transition: none; } }
+.day.blank { aspect-ratio: auto; }
+#splash .enter { margin-top: 36px; }
+#splash .enter2 { margin-top: 8px; color: #fff; }
+#splash small { position: absolute; left: 0; right: 0; bottom: calc(env(safe-area-inset-bottom, 0px) + 18px); margin: 0; color: #a9bbd6; }
 </style>
 <style>
 :root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
@@ -430,9 +472,12 @@ img { max-width: 100%; }
       '<span class="c" style="left:236px;top:24px;transform:rotate(8deg)"><img alt="" src="' + IMG.t2 + '"></span>' +
       '<span class="t">Memoria gráfica del transporte del Gran Concepción</span><span class="go">' + ICON.chev + '</span></button>';
     h += homeNotice();
+    h += adSlot();
     h += '<div class="sec"><h2>Explorar por</h2></div>';
     h += '<div class="seg"><button data-a="explore" data-id="emp" aria-pressed="' + (key === 'emp') + '">Empresas</button><button data-a="explore" data-id="tipo" aria-pressed="' + (key === 'tipo') + '">Tipos</button><button data-a="explore" data-id="imp" aria-pressed="' + (key === 'imp') + '">Imprentas</button></div>';
     h += '<div class="chips" style="flex-wrap:wrap;overflow:visible">' + vals.map(function (v) { return '<button class="chip" data-a="goexplore" data-id="' + key + '" data-val="' + esc(v) + '">' + esc(v) + '</button>'; }).join('') + '</div>';
+    var up = EVENTS.filter(function (e) { return !isPast(e); }).sort(function (a, b) { return a.ini < b.ini ? -1 : 1; }).slice(0, 2);
+    h += '<div class="sec"><h2>Próximos eventos</h2><button data-a="tab" data-id="ev">Ver calendario</button></div>' + up.map(function (e) { return evCard(e); }).join('');
     h += '<div class="sec"><h2>Piezas destacadas</h2><button data-a="tab" data-id="cat">Ver catálogo</button></div>';
     h += '<div class="strip">' + [1, 4, 5, 6, 7].map(function (n) { var t = BYN[n]; return featBtn(t, t.tipo || t.tema || t.id); }).join('') + '</div>';
     h += '<div class="sec"><h2>Incorporadas recientemente</h2></div>';
@@ -477,6 +522,78 @@ img { max-width: 100%; }
     save(); S.su = { int: [] }; S.tab = 'profile'; S.stack = [{ name: 'profile' }]; render(false); toast('¡Bienvenido/a, @' + al + '!');
   }
 
+  /* ---------- Eventos culturales (ejemplos; el Festival REC 2026 sale de los boletos) ---------- */
+  var CATS = ['Música', 'Patrimonio', 'Coleccionismo', 'Exposición', 'Familia'];
+  function cap(s) { s = String(s); return s.charAt(0).toUpperCase() + s.slice(1); }
+  function p2(n) { return String(n).padStart(2, '0'); }
+  function isoOf(d) { return d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate()); }
+  function parseISO(s) { var p = s.split('-'); return new Date(+p[0], +p[1] - 1, +p[2], 12); }
+  function plus(n) { var d = new Date(); d.setHours(12, 0, 0, 0); d.setDate(d.getDate() + n); return isoOf(d); }
+  var TODAY = plus(0);
+  var EVENTS = [
+    { id: 'EV-01', title: 'Festival REC 2026', ini: '2026-03-28', fin: '2026-03-29', cat: 'Música', comuna: '', lugar: 'Lugar por confirmar', entrada: 'Gratuita, según los boletos', org: 'Según los boletos de la colección', ejemplo: false, tickets: [1, 2],
+      desc: 'Dos boletos de la colección llevan impreso “Festival REC 2026”, “Marzo 28/29” y “El festival gratuito más grande de Chile”. La ficha del evento se completará con lugar y programa cuando se confirmen.' },
+    { id: 'EV-02', title: 'Feria de coleccionistas de papel', ini: plus(4), fin: '', cat: 'Coleccionismo', comuna: 'Concepción', lugar: 'Espacio por definir', entrada: 'Por definir', org: 'Organizador de ejemplo', ejemplo: true, tickets: [],
+      desc: 'Encuentro para mostrar, intercambiar y conversar sobre boletos, postales, estampillas y otros papeles de colección.' },
+    { id: 'EV-03', title: 'Visita guiada por barrios patrimoniales', ini: plus(9), fin: '', cat: 'Patrimonio', comuna: 'Talcahuano', lugar: 'Punto de encuentro por definir', entrada: 'Por definir', org: 'Organizador de ejemplo', ejemplo: true, tickets: [],
+      desc: 'Recorrido a pie por calles y edificios que cuentan la historia del puerto y de su transporte.' },
+    { id: 'EV-04', title: 'Concierto de música local al aire libre', ini: plus(12), fin: '', cat: 'Música', comuna: 'Concepción', lugar: 'Plaza o parque por definir', entrada: 'Por definir', org: 'Organizador de ejemplo', ejemplo: true, tickets: [],
+      desc: 'Tarde de bandas y solistas de la zona en un espacio público.' },
+    { id: 'EV-05', title: 'Jornada de intercambio de boletos', ini: plus(18), fin: '', cat: 'Coleccionismo', comuna: 'San Pedro de la Paz', lugar: 'Espacio por definir', entrada: 'Por definir', org: 'Bolecciona Concepción (ejemplo)', ejemplo: true, tickets: [],
+      desc: 'Reunión de boleccionadores para conocerse, comparar fichas y cambiar boletos repetidos.' },
+    { id: 'EV-06', title: 'Exposición: la ciudad y su transporte', ini: plus(20), fin: plus(34), cat: 'Exposición', comuna: 'Penco', lugar: 'Sala de exposiciones por definir', entrada: 'Por definir', org: 'Organizador de ejemplo', ejemplo: true, tickets: [],
+      desc: 'Muestra de fotografías, objetos y boletos antiguos sobre cómo se ha movido la gente en el Gran Concepción.' },
+    { id: 'EV-07', title: 'Taller familiar de grabado y sellos', ini: plus(27), fin: '', cat: 'Familia', comuna: 'Hualpén', lugar: 'Centro comunitario por definir', entrada: 'Por definir', org: 'Organizador de ejemplo', ejemplo: true, tickets: [],
+      desc: 'Taller para grandes y chicos: crear un sello y estampar su propio boleto.' }
+  ];
+  var EVBYID = {};
+  EVENTS.forEach(function (e) { EVBYID[e.id] = e; });
+  S.ev = { y: new Date().getFullYear(), m: new Date().getMonth(), sel: TODAY, cat: '', mode: 'cal', past: false };
+  S.adPaused = false;
+  function endOf(e) { return e.fin || e.ini; }
+  function isPast(e) { return endOf(e) < TODAY; }
+  function evOn(iso) { return EVENTS.filter(function (e) { return e.ini <= iso && iso <= endOf(e); }); }
+  function evCatOk(e) { return !S.ev.cat || e.cat === S.ev.cat; }
+  function fmtDay(iso, o) { try { return parseISO(iso).toLocaleDateString('es-CL', o); } catch (x) { return iso; } }
+  function fmtRange(e) {
+    if (!e.fin || e.fin === e.ini) return fmtDay(e.ini, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    return 'Del ' + fmtDay(e.ini, { day: 'numeric', month: 'long' }) + ' al ' + fmtDay(e.fin, { day: 'numeric', month: 'long', year: 'numeric' });
+  }
+  function evCard(e) {
+    var d = parseISO(e.ini), mon = fmtDay(e.ini, { month: 'short' }).replace('.', '');
+    return '<button class="evcard" data-a="event" data-id="' + e.id + '"><span class="evdate"><b>' + d.getDate() + '</b><i>' + esc(mon) + '</i></span>' +
+      '<span class="tx"><b>' + esc(e.title) + '</b><small>' + esc(e.lugar) + (e.comuna ? ' · ' + esc(e.comuna) : '') + '</small>' +
+      '<span class="evtags"><span class="bd rev">' + esc(e.cat) + '</span>' + (isPast(e) ? '<span class="bd pend">Realizado</span>' : '') + (e.ejemplo ? '<span class="bd pend">Ejemplo</span>' : '') + '</span></span>' + ICON.chev + '</button>';
+  }
+  function icsEsc(s) { return String(s).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n'); }
+  function downloadIcs(e) {
+    try {
+      var fd = parseISO(endOf(e)); fd.setDate(fd.getDate() + 1);
+      var stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+/, '');
+      var loc = e.lugar + (e.comuna ? ', ' + e.comuna : '');
+      var lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Bolecciona Concepcion//ES', 'BEGIN:VEVENT', 'UID:' + e.id + '@bolecciona-concepcion', 'DTSTAMP:' + stamp,
+        'DTSTART;VALUE=DATE:' + e.ini.replace(/-/g, ''), 'DTEND;VALUE=DATE:' + isoOf(fd).replace(/-/g, ''), 'SUMMARY:' + icsEsc((e.ejemplo ? '[Ejemplo] ' : '') + e.title),
+        'LOCATION:' + icsEsc(loc), 'DESCRIPTION:' + icsEsc(e.desc), 'END:VEVENT', 'END:VCALENDAR'];
+      var blob = new Blob([lines.join('\r\n')], { type: 'text/calendar' }), url = URL.createObjectURL(blob), a = document.createElement('a');
+      a.href = url; a.download = e.id + '.ics'; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+      toast('Archivo de calendario descargado');
+    } catch (x) { toast('No se pudo generar el archivo de calendario'); }
+  }
+
+  /* ---------- Publicidad: banners rotativos dentro de la app (nunca ventanas que bloqueen) ---------- */
+  var ADS = [
+    { t: 'Tu negocio, a la vista de coleccionistas', s: 'Espacio para auspiciadores locales', c: 'Anuncia aquí', bg: 'linear-gradient(135deg,#14305a,#1f6aa8)' },
+    { t: 'Auspicia una colección', s: 'Tu marca junto a la memoria del transporte', c: 'Ver cómo', bg: 'linear-gradient(135deg,#3a1d5c,#7a3b8f)' },
+    { t: 'Librerías, imprentas y cafés del barrio', s: 'Aquí irían anuncios de negocios locales', c: 'Ver formatos', bg: 'linear-gradient(135deg,#0f4a4a,#23867f)' },
+    { t: '¿Organizas un evento cultural?', s: 'Difúndelo en el calendario del Gran Concepción', c: 'Ver cómo', bg: 'linear-gradient(135deg,#6b2a2a,#b5503f)' }
+  ];
+  function adSlot() {
+    return '<section class="ad" aria-label="Publicidad"><div class="adhead"><span>Publicidad · ejemplo</span><button class="adpause" data-a="adpause" aria-pressed="' + S.adPaused + '">' + (S.adPaused ? 'Reanudar' : 'Pausar') + '</button></div>' +
+      '<div class="adtrack">' + ADS.map(function (a) { return '<button class="adslide" data-a="advertise" style="background:' + a.bg + '"><b>' + esc(a.t) + '</b><span>' + esc(a.s) + '</span><em>' + esc(a.c) + '</em></button>'; }).join('') + '</div>' +
+      '<div class="addots" aria-hidden="true">' + ADS.map(function (a, i) { return '<i aria-current="' + (i === 0) + '"></i>'; }).join('') + '</div></section>';
+  }
+
   /* ---------- Pantallas ---------- */
   var VIEWS = {
     home: function () {
@@ -491,7 +608,7 @@ img { max-width: 100%; }
         '<div class="fbar"><button class="chip grow" data-a="ftoggle" aria-pressed="' + S.fopen + '">Filtros' + (nAct ? ' (' + nAct + ')' : '') + '</button>' +
         '<label class="fld" style="flex:1"><select data-f="orden" aria-label="Ordenar"><option value="reciente"' + (S.F.orden === 'reciente' ? ' selected' : '') + '>Más recientes</option><option value="nombre"' + (S.F.orden === 'nombre' ? ' selected' : '') + '>Por nombre</option></select></label></div>' +
         (S.fopen ? '<div class="fpanel">' + sel('emp', 'Empresa') + sel('tipo', 'Tipo') + sel('color', 'Color') + sel('tema', 'Temática') + sel('imp', 'Imprenta') + '</div>' : '') +
-        '<div id="catList">' + catResults() + '</div>';
+        adSlot() + '<div id="catList">' + catResults() + '</div>';
     },
     ticket: function (v) {
       var t = BYID[v.id];
@@ -553,6 +670,7 @@ img { max-width: 100%; }
     profile: function () {
       var rowsEnd = '<div class="sec"><h2>Proyecto</h2></div><div class="rows">' +
         '<button class="row" data-a="plans"><span class="tx"><b>Planes y beneficios</b><small>Qué incluye cada acceso</small></span>' + ICON.chev + '</button>' +
+        '<button class="row" data-a="advertise"><span class="tx"><b>Anunciar en Bolecciona</b><small>Publicidad y auspicios</small></span>' + ICON.chev + '</button>' +
         '<button class="row" data-a="about"><span class="tx"><b>Acerca del proyecto y contacto</b><small>Propósito, fases, criterios y colaboración</small></span>' + ICON.chev + '</button></div>';
       if (!D.acct) return head('Perfil') + acctCard() + rowsEnd;
       var mine = D.own.map(function (id) { return BYID[id]; }).filter(Boolean);
@@ -592,12 +710,84 @@ img { max-width: 100%; }
         '<div class="note"><h2>Cómo se accede</h2><ul class="plain"><li>Visitantes: vista previa de algunas fichas con datos básicos</li><li>Boleccionadores: cuenta gratuita con catálogo completo, colección guardada y aportes</li><li>Boleccionador Plus: opciones de pago en estudio para más adelante</li></ul></div>' +
         '<div class="note"><h2>Criterios de catalogación</h2><p>Se prefiere un dato pendiente a uno inventado. Cada dato lleva una de estas marcas:</p><div class="legend" style="margin-top:10px"><span class="bd ok">Confirmado</span><span class="bd est">Estimado</span><span class="bd pend">Pendiente</span></div></div>' +
         '<div class="note"><h2>Fases de desarrollo</h2><div style="margin-top:6px">' +
-        '<div class="phase"><em>1</em><div><b>Prototipo</b> (esta versión)<span>Navegación, ' + TICKETS.length + ' fichas reales de la colección, registro simulado y formulario de muestra.</span></div></div>' +
+        '<div class="phase"><em>1</em><div><b>Prototipo</b> (esta versión)<span>Navegación, ' + TICKETS.length + ' fichas reales de la colección, registro simulado, calendario de eventos y espacios publicitarios de muestra.</span></div></div>' +
         '<div class="phase"><em>2</em><div><b>Catálogo real</b><span>Base de datos, imágenes, buscador y panel de revisión.</span></div></div>' +
         '<div class="phase"><em>3</em><div><b>Cuentas y comunidad</b><span>Cuentas reales, colecciones guardadas, comentarios y moderación.</span></div></div>' +
         '<div class="phase"><em>4</em><div><b>Crecimiento</b><span>Búsqueda visual, estadísticas, planes de pago y alianzas culturales.</span></div></div></div></div>' +
         '<div class="note"><h2>Contacto y colaboración</h2><p>Para donar información, colaborar o patrocinar. La colaboración no transfiere la propiedad de la marca ni del proyecto.</p><div class="copyline"><span>rodrigoschalchli.contacto@gmail.com</span><button data-a="copy" data-val="rodrigoschalchli.contacto@gmail.com">Copiar</button></div></div>' +
         '<div class="note"><h2>Privacidad y condiciones</h2><p>El aviso de privacidad, las condiciones de uso y la atribución de imágenes se redactarán antes de la versión pública.</p></div>';
+    },
+    ev: function () {
+      var E = S.ev, h = head('Eventos culturales');
+      h += '<div class="notice"><span><b>Calendario en construcción.</b> Los eventos son ejemplos, salvo el Festival REC 2026, que sale de los boletos de la colección. El calendario real se armará con organizadores, municipios y coleccionistas.</span></div>';
+      h += adSlot();
+      h += '<div class="seg"><button data-a="evmode" data-id="cal" aria-pressed="' + (E.mode === 'cal') + '">Calendario</button><button data-a="evmode" data-id="list" aria-pressed="' + (E.mode === 'list') + '">Lista</button></div>';
+      h += '<div class="chips"><button class="chip" data-a="evcat" data-id="" aria-pressed="' + (!E.cat) + '">Todos</button>' + CATS.map(function (c) { return '<button class="chip" data-a="evcat" data-id="' + esc(c) + '" aria-pressed="' + (E.cat === c) + '">' + esc(c) + '</button>'; }).join('') + '</div>';
+      if (E.mode === 'cal') {
+        var first = new Date(E.y, E.m, 1), off = (first.getDay() + 6) % 7, dim = new Date(E.y, E.m + 1, 0).getDate(), cells = '', i, d;
+        var pre = E.y + '-' + p2(E.m + 1) + '-';
+        for (i = 0; i < off; i++) cells += '<span class="day blank" aria-hidden="true"></span>';
+        for (d = 1; d <= dim; d++) {
+          var iso = pre + p2(d), n = evOn(iso).filter(evCatOk).length;
+          cells += '<button class="day' + (iso === TODAY ? ' today' : '') + '" data-a="evday" data-id="' + iso + '" aria-pressed="' + (E.sel === iso) + '" aria-label="' + esc(fmtDay(iso, { weekday: 'long', day: 'numeric', month: 'long' }) + (n ? ', ' + n + (n === 1 ? ' evento' : ' eventos') : '')) + '">' + d + (n ? '<i class="pt"></i>' : '') + '</button>';
+        }
+        h += '<div class="cal"><div class="calhead"><button class="iconbtn" data-a="evmonth" data-id="-1" aria-label="Mes anterior">' + ICON.back + '</button><b>' + esc(cap(fmtDay(pre + '01', { month: 'long', year: 'numeric' }))) + '</b><button class="iconbtn" data-a="evmonth" data-id="1" aria-label="Mes siguiente">' + ICON.chev + '</button></div>' +
+          '<div class="dow"><span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span></div><div class="days">' + cells + '</div></div>';
+        var lastIso = pre + p2(dim), firstIso = pre + '01';
+        var list = E.sel ? evOn(E.sel).filter(evCatOk) : EVENTS.filter(function (e) { return evCatOk(e) && e.ini <= lastIso && endOf(e) >= firstIso; }).sort(function (a, b) { return a.ini < b.ini ? -1 : 1; });
+        h += '<div class="sec"><h2>' + (E.sel ? esc(cap(fmtDay(E.sel, { weekday: 'long', day: 'numeric', month: 'long' }))) : 'Eventos del mes') + '</h2></div>';
+        h += list.length ? list.map(function (e) { return evCard(e); }).join('') : '<div class="empty" style="padding:14px 0 20px">' + (E.sel ? 'No hay eventos este día.' : 'No hay eventos este mes.') + '</div>';
+      } else {
+        var all = EVENTS.filter(evCatOk).sort(function (a, b) { return a.ini < b.ini ? -1 : 1; });
+        var shown = E.past ? all : all.filter(function (e) { return !isPast(e); }), lastKey = '';
+        h += '<div class="chips"><button class="chip" data-a="evpast" aria-pressed="' + E.past + '">Mostrar realizados</button></div>';
+        if (!shown.length) h += '<div class="empty">No hay eventos próximos en esta categoría.</div>';
+        shown.forEach(function (e) {
+          var key = e.ini.slice(0, 7);
+          if (key !== lastKey) { lastKey = key; h += '<div class="sec"><h2>' + esc(cap(fmtDay(e.ini, { month: 'long', year: 'numeric' }))) + '</h2></div>'; }
+          h += evCard(e);
+        });
+      }
+      h += '<div class="note" style="margin-top:6px"><h2>¿Organizas un evento cultural?</h2><p>Propónlo para el calendario del Gran Concepción. Se revisa antes de publicarse.</p><div style="margin-top:12px"><button class="btn ghost" data-a="proposeev">Proponer un evento</button></div></div>';
+      return h;
+    },
+    event: function (v) {
+      var e = EVBYID[v.id], past = isPast(e), rel = (e.tickets || []).map(function (n) { return BYN[n]; }).filter(Boolean);
+      return head('Evento', true) +
+        (e.ejemplo ? '<div class="notice"><span><b>Evento de ejemplo.</b> Nombre, fecha y lugar son ilustrativos y no corresponden a una actividad real.</span></div>' : '') +
+        '<h1>' + esc(e.title) + '</h1>' +
+        '<div class="evtags" style="margin:8px 0 12px"><span class="bd rev">' + esc(e.cat) + '</span>' + (past ? '<span class="bd pend">Realizado</span>' : '') + (e.ejemplo ? '<span class="bd pend">Ejemplo</span>' : '') + '</div>' +
+        '<div class="info"><div><span>Fecha</span><span class="v">' + esc(fmtRange(e)) + '</span></div>' +
+        '<div><span>Lugar</span><span class="v">' + esc(e.lugar) + '</span></div>' +
+        '<div><span>Comuna</span><span class="v">' + (e.comuna ? esc(e.comuna) : '<i>Por confirmar</i>') + '</span></div>' +
+        '<div><span>Entrada</span><span class="v">' + esc(e.entrada) + '</span></div>' +
+        '<div><span>Organiza</span><span class="v">' + esc(e.org) + '</span></div></div>' +
+        '<div class="note"><h2>Sobre el evento</h2><p>' + esc(e.desc) + '</p></div>' +
+        (rel.length ? '<div class="sec"><h2>Boletos relacionados</h2></div><div class="chips">' + rel.map(function (t) { return '<button class="chip" data-a="ticket" data-id="' + t.id + '">' + esc(canSee(t) ? t.title + ' · ' + t.id : t.id) + '</button>'; }).join('') + '</div>' : '') +
+        (past ? '' : '<div class="btns"><button class="btn" data-a="evics" data-id="' + e.id + '">Agregar a mi calendario</button></div>');
+    },
+    proposeev: function () {
+      return head('Proponer un evento', true) +
+        '<p class="muted small" style="margin:-4px 0 14px">Para eventos culturales, patrimoniales o de coleccionismo en el Gran Concepción. Lo revisamos antes de publicarlo.</p>' +
+        '<form class="form" id="evform" novalidate>' +
+        '<label class="fld" for="e-title">Nombre del evento<input type="text" id="e-title" maxlength="80" autocomplete="off"></label>' +
+        '<label class="fld" for="e-date">Fecha<input type="date" id="e-date"></label>' +
+        '<label class="fld" for="e-com">Comuna<select id="e-com"><option value="">Elige una comuna</option>' + COMUNAS.map(function (c) { return '<option>' + esc(c) + '</option>'; }).join('') + '</select></label>' +
+        '<label class="fld" for="e-lugar">Lugar<input type="text" id="e-lugar" placeholder="Nombre del espacio o dirección" autocomplete="off"></label>' +
+        '<label class="fld" for="e-cat">Tipo de evento<select id="e-cat">' + CATS.map(function (c) { return '<option>' + esc(c) + '</option>'; }).join('') + '</select></label>' +
+        '<label class="fld" for="e-desc">Descripción<textarea id="e-desc" placeholder="De qué se trata, horario y si la entrada es gratuita"></textarea></label>' +
+        '<label class="check"><input type="checkbox" id="e-ok"><span>Confirmo que la información es veraz y que puedo difundir este evento.</span></label>' +
+        '<div class="msg err" id="evMsg" role="alert" hidden></div>' +
+        '<button class="btn" type="submit">Enviar a revisión</button></form>' +
+        '<p class="muted small" style="margin-top:12px">En este prototipo el envío queda registrado solo en tu dispositivo.</p>';
+    },
+    advertise: function () {
+      return head('Anuncia en Bolecciona', true) +
+        '<p class="muted small" style="margin:-4px 0 14px">Llega a coleccionistas y a personas interesadas en la historia y la cultura del Gran Concepción.</p>' +
+        '<div class="note"><h2>Formatos propuestos</h2><ul class="plain"><li>Banner rotativo dentro de la app: inicio, catálogo y eventos</li><li>Evento destacado en el calendario cultural</li><li>Auspicio de una colección o de una edición especial</li></ul></div>' +
+        '<div class="note"><h2>Reglas de la publicidad (propuesta)</h2><ul class="plain"><li>Siempre marcada como “Publicidad”</li><li>Sin ventanas emergentes ni pantallas que bloqueen el uso</li><li>Se puede pausar el movimiento de los anuncios</li><li>No se venden datos personales de los boleccionadores</li><li>Las fichas de boletos no se mezclan con anuncios</li></ul></div>' +
+        '<div class="note"><h2>Tarifas y condiciones</h2><p>Por definir. Escríbenos para conversar formatos, fechas y valores.</p><div class="copyline"><span>rodrigoschalchli.contacto@gmail.com</span><button data-a="copy" data-val="rodrigoschalchli.contacto@gmail.com">Copiar</button></div></div>' +
+        '<div class="note"><p style="margin:0">Los anuncios que ves hoy en el prototipo son espacios de ejemplo, sin anunciantes reales.</p></div>';
     },
     plans: function () {
       function tier(name, tag, tagCls, items) {
@@ -605,9 +795,9 @@ img { max-width: 100%; }
       }
       return head('Planes y beneficios', true) +
         '<p class="muted small" style="margin:-4px 0 14px">Así se organizará el acceso. En este prototipo no hay pagos.</p>' +
-        tier('Visitante', 'Sin cuenta', 'pend', ['Vista previa de ' + Object.keys(PREVIEW).length + ' fichas con datos básicos', 'Buscador y filtros sobre la vista previa']) +
-        tier('Boleccionador', 'Gratis', 'ok', ['Catálogo completo con todas las fichas', 'Tu colección guardada y tu avance', 'Favoritos', 'Aportar datos a las fichas y enviar boletos nuevos', 'Participar en la comunidad']) +
-        tier('Boleccionador Plus', 'Próximamente', 'est', ['Exportar tu colección a planilla o PDF', 'Estadísticas de tu colección y de lo que te falta', 'Más espacio para fotos propias y notas privadas', 'Insignias y portada personalizada']) +
+        tier('Visitante', 'Sin cuenta', 'pend', ['Vista previa de ' + Object.keys(PREVIEW).length + ' fichas con datos básicos', 'Buscador y filtros sobre la vista previa', 'Calendario de eventos abierto', 'Con publicidad en pantalla']) +
+        tier('Boleccionador', 'Gratis', 'ok', ['Catálogo completo con todas las fichas', 'Tu colección guardada y tu avance', 'Favoritos', 'Aportar datos a las fichas y enviar boletos nuevos', 'Participar en la comunidad', 'Proponer eventos para el calendario', 'Publicidad discreta, siempre marcada']) +
+        tier('Boleccionador Plus', 'Próximamente', 'est', ['Exportar tu colección a planilla o PDF', 'Estadísticas de tu colección y de lo que te falta', 'Más espacio para fotos propias y notas privadas', 'Insignias y portada personalizada', 'Sin publicidad']) +
         '<div class="note"><p style="margin:0">Las funciones de Plus son ideas en estudio, sin precio ni fecha. Se definirán según lo que pidan quienes coleccionan.</p></div>' +
         (D.acct ? '' : '<div class="btns"><button class="btn" data-a="signup">Crear cuenta de boleccionador</button></div>');
     }
@@ -619,6 +809,7 @@ img { max-width: 100%; }
     ['home', 'Inicio', '<svg viewBox="0 0 24 24"><path d="M4 11l8-6.5 8 6.5v8.5a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z"/></svg>'],
     ['cat', 'Catálogo', '<svg viewBox="0 0 24 24"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/></svg>'],
     ['add', 'Añadir', '<svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M12 8.5v7M8.5 12h7"/></svg>'],
+    ['ev', 'Eventos', '<svg viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14.5" rx="3"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/></svg>'],
     ['comm', 'Comunidad', '<svg viewBox="0 0 24 24"><circle cx="9" cy="9" r="3"/><path d="M3.5 19c.6-3 2.8-4.6 5.5-4.6s4.9 1.6 5.5 4.6"/><circle cx="17" cy="9.5" r="2.4"/><path d="M16.5 14.6c2.3 0 3.6 1.4 4 3.8"/></svg>'],
     ['profile', 'Perfil', '<svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.6"/><path d="M5 20c.8-3.6 3.6-5.4 7-5.4s6.2 1.8 7 5.4"/></svg>']
   ];
@@ -675,6 +866,16 @@ img { max-width: 100%; }
     else if (a === 'askout') { S.confirmOut = true; render(true); }
     else if (a === 'cancelout') { S.confirmOut = false; render(true); }
     else if (a === 'logout') { D = { fav: [], subs: [], acct: null, own: [] }; save(); S.confirmOut = false; render(true); toast('Cuenta borrada de este dispositivo'); }
+    else if (a === 'event') push({ name: 'event', id: id });
+    else if (a === 'evmonth') { var nd = new Date(S.ev.y, S.ev.m + (+id), 1); S.ev.y = nd.getFullYear(); S.ev.m = nd.getMonth(); S.ev.sel = (isoOf(nd).slice(0, 7) === TODAY.slice(0, 7)) ? TODAY : ''; render(true); }
+    else if (a === 'evday') { S.ev.sel = S.ev.sel === id ? '' : id; render(true); }
+    else if (a === 'evcat') { S.ev.cat = id || ''; render(true); }
+    else if (a === 'evmode') { S.ev.mode = id; render(true); }
+    else if (a === 'evpast') { S.ev.past = !S.ev.past; render(true); }
+    else if (a === 'evics') downloadIcs(EVBYID[id]);
+    else if (a === 'proposeev') { if (!requireAcct('Crea tu cuenta para proponer un evento')) return; push({ name: 'proposeev' }); }
+    else if (a === 'advertise') push({ name: 'advertise' });
+    else if (a === 'adpause') { S.adPaused = !S.adPaused; render(true); }
     else if (a === 'copy') copyText(el.dataset.val);
     else if (a === 'askreset') { S.confirmReset = true; render(true); }
     else if (a === 'cancelreset') { S.confirmReset = false; render(true); }
@@ -703,6 +904,20 @@ img { max-width: 100%; }
     }
   });
   document.addEventListener('submit', function (e) {
+    if (e.target.id === 'evform') {
+      e.preventDefault();
+      var tt = document.getElementById('e-title').value.trim(), dt = document.getElementById('e-date').value, cm = document.getElementById('e-com').value,
+        okc = document.getElementById('e-ok').checked, bx = document.getElementById('evMsg'), er = '';
+      if (tt.length < 3) er = 'Escribe el nombre del evento.';
+      else if (!dt) er = 'Indica la fecha del evento.';
+      else if (!cm) er = 'Elige la comuna donde se realiza.';
+      else if (!okc) er = 'Confirma que la información es veraz y que puedes difundirla.';
+      if (er) { bx.textContent = er; bx.hidden = false; return; }
+      D.subs.unshift({ title: 'Evento: ' + tt, when: fmtDay(dt, { day: 'numeric', month: 'long' }) + ' · enviado hoy' }); save();
+      if (S.stack.length > 1) S.stack.pop();
+      render(false); toast('Evento enviado a revisión');
+      return;
+    }
     if (e.target.id === 'signform') { e.preventDefault(); doSignup(); return; }
     if (e.target.id !== 'addform') return;
     e.preventDefault();
@@ -724,6 +939,28 @@ img { max-width: 100%; }
   function closeSplash() { var sp = document.getElementById('splash'); sp.classList.add('gone'); setTimeout(function () { sp.hidden = true; }, 400); }
   document.getElementById('enter').addEventListener('click', closeSplash);
   document.getElementById('enter-signup').addEventListener('click', function () { closeSplash(); S.tab = 'profile'; S.stack = [{ name: 'profile' }, { name: 'signup' }]; render(false); });
+
+  /* ---------- Anuncios en movimiento: avanzan solos, se pausan al tocarlos y respetan "reducir movimiento" ---------- */
+  var reduceMotion = false, adHold = false;
+  try { reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (x) {}
+  setInterval(function () {
+    if (S.adPaused || reduceMotion || adHold || document.hidden) return;
+    var tr = document.querySelectorAll('.adtrack');
+    for (var i = 0; i < tr.length; i++) {
+      var w = tr[i].clientWidth, c = tr[i].children.length;
+      if (!w || c < 2) continue;
+      var next = (Math.round(tr[i].scrollLeft / w) + 1) % c;
+      tr[i].scrollTo({ left: next * w, behavior: 'smooth' });
+    }
+  }, 5500);
+  document.addEventListener('pointerdown', function (e) { if (e.target && e.target.closest && e.target.closest('.adtrack')) adHold = true; }, true);
+  ['pointerup', 'pointercancel'].forEach(function (n) { document.addEventListener(n, function () { setTimeout(function () { adHold = false; }, 2500); }, true); });
+  document.addEventListener('scroll', function (e) {
+    var t = e.target;
+    if (!t || !t.classList || !t.classList.contains('adtrack')) return;
+    var idx = Math.round(t.scrollLeft / (t.clientWidth || 1)), dots = t.parentNode.querySelectorAll('.addots i');
+    for (var j = 0; j < dots.length; j++) dots[j].setAttribute('aria-current', String(j === idx));
+  }, true);
 
   render(false);
 })();
