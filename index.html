@@ -460,7 +460,7 @@ img { max-width: 100%; }
   var FLABEL = { emp: 'Empresa', tipo: 'Tipo', color: 'Color', tema: 'Temática', imp: 'Imprenta' };
   function filtered() {
     var F = S.F, list = TICKETS.filter(function (t) {
-      return (!F.emp || t.emp === F.emp) && (!F.tipo || t.tipo === F.tipo) && (!F.color || t.color === F.color) && (!F.tema || t.tema === F.tema) && (!F.imp || t.imp === F.imp);
+      return (!F.emp || (function(){ var chosen = norm(F.emp.replace(/^[A-Z0-9]+\s+/, '')); var actual = norm((t.emp || '').replace(/\s+(S\.A\.|Ltda\.|SpA|S\.A)$/i, '')); return actual && (actual === chosen || actual.indexOf(chosen) >= 0 || chosen.indexOf(actual) >= 0); })()) && (!F.tipo || t.tipo === F.tipo) && (!F.color || t.color === F.color) && (!F.tema || t.tema === F.tema) && (!F.imp || t.imp === F.imp);
     });
     if (!D.acct && (F.emp || F.tipo || F.color || F.tema || F.imp)) list = list.filter(canSee);
     if (F.orden === 'nombre') list.sort(function (a, b) { return a.title.localeCompare(b.title); });
@@ -474,8 +474,10 @@ img { max-width: 100%; }
     h += list.length ? '<div class="grid2">' + list.map(card).join('') + '</div>' : '<div class="empty">Ninguna ficha coincide con estos filtros.</div>';
     return h;
   }
+  var LINEAS_BUS_GRAN_CONCEPCION = ['02 Hualpensan', '10 Vía Láctea', '11 Vía Futuro', '12 Nueva Sotrapel', '13 Vía Siglo XXI', '14 Chiguayante Sur', '16 Vía Universo', '17 Expresos Plaza del Mall', '18 Buses Expreso Concepción–Chiguayante', '20 Nueva Llacolén', '21 Riviera', '22 San Pedro', '23 San Pedro Sur', '24 San Remo', '30 Ruta Las Playas', '31 Ruta del Mar', '32 Del Mar', '40 Las Golondrinas', '41 Mini Verde', '42 Mini Buses Hualpencillo', '43 Centauro Repuestos', '44 Comercial Centauro', '50 Ruta Las Playas', '52 Géminis Sur', '56 Buses Base Naval', '60 Buses Tucapel', '62 Buses Primavera', '63 Rengo Lientur', '65 Buses Cóndor', '70 Las Bahías', '71 Puchacay', '72 Pedro de Valdivia Universidad', '80 Ruta Las Galaxias', '81 Vía del Sol', '90 Nueva Sol Yet', 'B0 Biobús'];
   function sel(key, label) {
-    return '<label class="fld">' + label + '<select data-f="' + key + '"><option value="">Todos</option>' + uniq(key).map(function (o) { return '<option value="' + esc(o) + '"' + (S.F[key] === o ? ' selected' : '') + '>' + esc(o) + '</option>'; }).join('') + '</select></label>';
+    var opciones = key === 'emp' ? LINEAS_BUS_GRAN_CONCEPCION : uniq(key);
+    return '<label class="fld">' + label + '<select data-f="' + key + '"><option value="">Todos</option>' + opciones.map(function (o) { return '<option value="' + esc(o) + '"' + (S.F[key] === o ? ' selected' : '') + '>' + esc(o) + '</option>'; }).join('') + '</select></label>';
   }
 
   /* ---------- Inicio ---------- */
@@ -773,7 +775,7 @@ img { max-width: 100%; }
         '<div class="fbar"><button class="chip grow" data-a="ftoggle" aria-pressed="' + S.fopen + '">Filtros' + (nAct ? ' (' + nAct + ')' : '') + '</button>' +
         '<label class="fld" style="flex:1"><select data-f="orden" aria-label="Ordenar"><option value="reciente"' + (S.F.orden === 'reciente' ? ' selected' : '') + '>Más recientes</option><option value="nombre"' + (S.F.orden === 'nombre' ? ' selected' : '') + '>Por nombre</option></select></label></div>' +
         (S.fopen ? '<div class="fpanel">' + sel('emp', 'Empresa') + sel('tipo', 'Tipo') + sel('color', 'Color') + sel('tema', 'Temática') + sel('imp', 'Imprenta') + '</div>' : '') +
-        adSlot() + '<div id="catList">' + catResults() + '</div>' + operatorDirectory();
+        adSlot() + '<div id="catList">' + catResults() + '</div>';
     },
     ticket: function (v) {
       var t = BYID[v.id];
