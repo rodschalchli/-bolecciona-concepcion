@@ -253,6 +253,16 @@ input[type="date"] { width: 100%; min-width: 0; border-radius: 12px; border: 1px
 #splash .enter { margin-top: 36px; }
 #splash .enter2 { margin-top: 8px; color: #fff; }
 #splash small { position: absolute; left: 0; right: 0; bottom: calc(env(safe-area-inset-bottom, 0px) + 18px); margin: 0; color: #a9bbd6; }
+input[type="password"] { width: 100%; min-width: 0; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); font: inherit; font-size: 14px; padding: 0 12px; height: 42px; }
+.lnkb { display: inline; color: var(--accent); text-decoration: underline; padding: 0; font: inherit; }
+details.acc { border: 1px solid var(--line); border-radius: 14px; background: var(--surface); margin-bottom: 8px; }
+details.acc summary { padding: 14px; min-height: 44px; font-weight: 500; font-size: 14.5px; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+details.acc summary::-webkit-details-marker { display: none; }
+details.acc summary::after { content: "+"; color: var(--accent); font-size: 20px; line-height: 1; }
+details.acc[open] summary::after { content: "–"; }
+details.acc .bd2 { padding: 0 14px 12px; color: var(--muted); font-size: 13.5px; }
+details.acc .bd2 p { margin: 0 0 8px; }
+.row.dng b { color: var(--bad); }
 </style>
 <style>
 :root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
@@ -381,7 +391,7 @@ img { max-width: 100%; }
   /* ---------- Estado y guardado (por visitante, en este dispositivo) ---------- */
   var KEY = 'bolecciona-v3';
   var D = { fav: [], subs: [], acct: null, own: [] };
-  try { var raw = localStorage.getItem(KEY); if (raw) { var o = JSON.parse(raw); D.fav = o.fav || []; D.subs = o.subs || []; D.acct = o.acct || null; D.own = o.own || []; } } catch (e) {}
+  try { var raw = localStorage.getItem(KEY); if (raw) { var o = JSON.parse(raw); D.fav = o.fav || []; D.subs = o.subs || []; D.acct = o.acct || null; D.own = o.own || []; D.saved = o.saved || null; } } catch (e) {}
   function save() { try { localStorage.setItem(KEY, JSON.stringify(D)); } catch (e) {} }
   var S = {
     tab: 'home', stack: [{ name: 'home' }], query: '', explore: 'emp',
@@ -501,25 +511,28 @@ img { max-width: 100%; }
   function acctCard() {
     var a = D.acct;
     if (!a) {
-      return '<div class="note"><h2>Crea tu cuenta de boleccionador</h2><p>Es gratuita y da acceso completo:</p><ul class="plain"><li>Catálogo y fichas completas</li><li>Tu colección guardada, con tu avance</li><li>Favoritos y aportes de datos y boletos</li><li>Participación en la comunidad</li></ul><div class="btns" style="margin-top:12px"><button class="btn" data-a="signup">Crear cuenta de boleccionador</button></div></div>';
+      return '<div class="note"><h2>Crea tu cuenta de boleccionador</h2><p>Es gratuita y da acceso completo:</p><ul class="plain"><li>Catálogo y fichas completas</li><li>Tu colección guardada, con tu avance</li><li>Favoritos y aportes de datos y boletos</li><li>Participación en la comunidad</li></ul><div class="btns" style="margin-top:12px"><button class="btn" data-a="signup">Crear cuenta de boleccionador</button><button class="btn ghost" data-a="login">Ya tengo cuenta · Iniciar sesión</button></div></div>';
     }
     return '<div class="note"><div class="acct"><span class="avatar">' + esc(a.alias.charAt(0).toUpperCase()) + '</span><div class="tx"><b>@' + esc(a.alias) + '</b><span class="muted small">Boleccionador desde ' + esc(memberSince(a.desde)) + (a.comuna ? ' · ' + esc(a.comuna) : '') + '</span></div></div>' +
       '<div class="stats"><div><b>' + D.own.length + '/' + TICKETS.length + '</b><span>En colección</span></div><div><b>' + D.fav.length + '</b><span>Favoritos</span></div><div><b>' + D.subs.length + '</b><span>Aportes</span></div></div>' +
       (a.int.length ? '<div class="legend">' + a.int.map(function (x) { return '<span class="bd rev">' + esc(x) + '</span>'; }).join('') + '</div>' : '') +
       '<h2 style="margin:4px 0 8px">Tu colección</h2><div class="seg"><button data-a="setpub" data-id="0" aria-pressed="' + (!a.pub) + '">Privada</button><button data-a="setpub" data-id="1" aria-pressed="' + a.pub + '">Pública</button></div>' +
       '<p class="muted small" style="margin:-4px 0 14px">Mientras no exista el servicio de cuentas, este ajuste solo cambia lo que ves en este dispositivo.</p>' +
-      (S.confirmOut ? '<p style="margin:0 0 10px">¿Borrar tu cuenta y tu colección de este dispositivo?</p><div class="btns row2"><button class="btn warn" data-a="logout">Sí, borrar</button><button class="btn ghost" data-a="cancelout">Cancelar</button></div>' : '<button class="btn ghost" data-a="askout">Cerrar y borrar cuenta de este dispositivo</button>') + '</div>';
+      '</div>';
   }
   function doSignup() {
-    var al = document.getElementById('s-alias').value.trim(), mail = document.getElementById('s-mail').value.trim(),
-      com = document.getElementById('s-com').value, terms = document.getElementById('s-terms').checked,
-      pubEl = document.querySelector('input[name="vis"]:checked'), box = document.getElementById('signMsg'), err = '';
-    if (!/^[\p{L}\p{N}._-]{3,24}$/u.test(al)) err = 'El nombre de boleccionador debe tener entre 3 y 24 caracteres: letras, números, punto, guion o guion bajo.';
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)) err = 'Escribe un correo válido, por ejemplo nombre@correo.cl.';
-    else if (!terms) err = 'Para crear la cuenta debes aceptar las condiciones de uso y el aviso de privacidad.';
-    if (err) { box.textContent = err; box.hidden = false; return; }
-    D.acct = { alias: al, comuna: com, int: S.su.int.slice(), pub: !!(pubEl && pubEl.value === '1'), desde: new Date().toISOString().slice(0, 10) };
-    save(); S.su = { int: [] }; S.tab = 'profile'; S.stack = [{ name: 'profile' }]; render(false); toast('¡Bienvenido/a, @' + al + '!');
+    var g = function (id) { return document.getElementById(id); };
+    var al = g('s-alias').value.trim(), mail = g('s-mail').value.trim(), pw = g('s-pass').value, pw2 = g('s-pass2').value,
+      com = g('s-com').value, terms = g('s-terms').checked, pubEl = document.querySelector('input[name="vis"]:checked'), err = aliasErr(al);
+    if (!err && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)) err = 'Escribe un correo válido, por ejemplo nombre@correo.cl.';
+    if (!err) err = pwErr(pw, al, pw2);
+    if (!err && !terms) err = 'Para crear la cuenta debes tener 18 años o más y aceptar las condiciones de uso y la política de privacidad.';
+    if (err) { showMsg('signMsg', err); return; }
+    showMsg('signMsg', '');
+    hashPw(pw).then(function (h) {
+      D.acct = { alias: al, mail: mail, comuna: com, int: S.su.int.slice(), pub: !!(pubEl && pubEl.value === '1'), desde: new Date().toISOString().slice(0, 10), salt: h.salt, ph: h.hash };
+      D.saved = null; save(); S.su = { int: [] }; S.tab = 'profile'; S.stack = [{ name: 'profile' }]; render(false); toast('¡Bienvenido/a, @' + al + '!');
+    }, function () { showMsg('signMsg', 'Tu navegador no permite crear la cuenta de forma segura. Prueba con otro navegador.'); });
   }
 
   /* ---------- Eventos culturales (ejemplos; el Festival REC 2026 sale de los boletos) ---------- */
@@ -593,6 +606,96 @@ img { max-width: 100%; }
       '<div class="adtrack">' + ADS.map(function (a) { return '<button class="adslide" data-a="advertise" style="background:' + a.bg + '"><b>' + esc(a.t) + '</b><span>' + esc(a.s) + '</span><em>' + esc(a.c) + '</em></button>'; }).join('') + '</div>' +
       '<div class="addots" aria-hidden="true">' + ADS.map(function (a, i) { return '<i aria-current="' + (i === 0) + '"></i>'; }).join('') + '</div></section>';
   }
+
+  /* ---------- Cuenta: contraseña (solo huella), reglas y textos legales ---------- */
+  S.fp = null; S.fails = 0; S.lockUntil = 0;
+  var RESERVED = ['admin', 'administrador', 'bolecciona', 'boleccionador', 'soporte', 'moderador', 'moderacion', 'contacto', 'oficial', 'sercotec'];
+  var TAKEN = ['rodrigo', 'micro_penco', 'coleccionista', 'talcahuano', 'concepcion', 'boleto'];
+  var COMUNPW = ['12345678', '123456789', '1234567890', 'password', 'contrasena', 'qwertyui', '11111111', 'bolecciona'];
+  function aliasErr(al) {
+    if (!/^[\p{L}\p{N}._-]{3,24}$/u.test(al)) return 'Usa entre 3 y 24 caracteres: letras, números, punto, guion o guion bajo.';
+    var n = norm(al);
+    if (RESERVED.indexOf(n) > -1 || /^(admin|moderador|bolecciona)/.test(n)) return 'Ese nombre está reservado. Elige otro.';
+    if (TAKEN.indexOf(n) > -1) return 'Ese nombre ya está en uso. Elige otro.';
+    return '';
+  }
+  function pwErr(p, alias, p2) {
+    if (p.length < 8) return 'La contraseña debe tener al menos 8 caracteres.';
+    if (alias && norm(p) === norm(alias)) return 'La contraseña no puede ser igual al nombre de usuario.';
+    if (COMUNPW.indexOf(norm(p)) > -1) return 'Esa contraseña es muy común. Elige otra.';
+    if (p2 !== undefined && p !== p2) return 'Las contraseñas no coinciden.';
+    return '';
+  }
+  function b64(buf) { var a = new Uint8Array(buf), s = '', i; for (i = 0; i < a.length; i++) s += String.fromCharCode(a[i]); return btoa(s); }
+  function unb64(s) { var b = atob(s), a = new Uint8Array(b.length), i; for (i = 0; i < b.length; i++) a[i] = b.charCodeAt(i); return a; }
+  /* La contraseña nunca se guarda: solo una huella PBKDF2-SHA256 con sal aleatoria. */
+  function hashPw(pw, saltB64) {
+    return new Promise(function (ok, no) {
+      try {
+        var salt = saltB64 ? unb64(saltB64) : crypto.getRandomValues(new Uint8Array(16));
+        crypto.subtle.importKey('raw', new TextEncoder().encode(pw), 'PBKDF2', false, ['deriveBits']).then(function (k) {
+          return crypto.subtle.deriveBits({ name: 'PBKDF2', salt: salt, iterations: 150000, hash: 'SHA-256' }, k, 256);
+        }).then(function (bits) { ok({ salt: b64(salt), hash: b64(bits) }); }, no);
+      } catch (e) { no(e); }
+    });
+  }
+  function showMsg(id, txt) { var b = document.getElementById(id); if (!b) return; b.textContent = txt; b.hidden = !txt; }
+  function pwField(id, label, auto) {
+    return '<label class="fld" for="' + id + '">' + label + '<input type="password" class="pw" id="' + id + '" autocomplete="' + auto + '" autocapitalize="none" spellcheck="false"></label>';
+  }
+  function showPwBox() { return '<label class="check"><input type="checkbox" data-a="showpw"><span>Mostrar contraseñas</span></label>'; }
+  function lnk(id, txt) { return '<button type="button" class="lnkb" data-a="legal" data-id="' + id + '">' + txt + '</button>'; }
+  function wipeAll() { D = { fav: [], subs: [], acct: null, own: [] }; save(); }
+  function downloadData() {
+    try {
+      var a = D.acct;
+      var out = { exportado: new Date().toISOString(), usuario: a.alias, correo: a.mail || null, comuna: a.comuna || null, intereses: a.int, coleccion_publica: !!a.pub, cuenta_creada: a.desde, coleccion: D.own, favoritos: D.fav, aportes: D.subs };
+      var blob = new Blob([JSON.stringify(out, null, 2)], { type: 'application/json' }), url = URL.createObjectURL(blob), el = document.createElement('a');
+      el.href = url; el.download = 'bolecciona-mis-datos.json'; document.body.appendChild(el); el.click(); document.body.removeChild(el);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+      toast('Copia de tus datos descargada');
+    } catch (x) { toast('No se pudo generar la copia de tus datos'); }
+  }
+  function signOut() {
+    if (!D.acct) return;
+    D = { fav: [], subs: [], acct: null, own: [], saved: { acct: D.acct, fav: D.fav, subs: D.subs, own: D.own } };
+    save(); S.tab = 'profile'; S.stack = [{ name: 'profile' }]; render(false); toast('Sesión cerrada');
+  }
+  var LEGAL = {
+    priv: {
+      title: 'Privacidad y datos', lead: 'Qué datos tuyos usamos, para qué y cómo los controlas.',
+      pts: ['No vendemos tus datos personales.', 'Tu contraseña se guarda solo como huella cifrada: nadie puede leerla.', 'Puedes descargar tus datos, cambiar tu contraseña y eliminar tu cuenta cuando quieras.', 'Tu colección es privada salvo que tú la hagas pública.'],
+      secs: [
+        ['Quién es responsable', '<p>Rodrigo Schalchli, persona natural con inicio de actividades, Talcahuano, Chile. Contacto de privacidad: rodrigoschalchli.contacto@gmail.com.</p>'],
+        ['Qué datos recogemos', '<p>Nombre de usuario (público), correo, contraseña (solo huella cifrada), y de forma opcional comuna e intereses. También tu colección, favoritos, y los boletos o eventos que aportes. Datos técnicos mínimos para seguridad y funcionamiento. No pedimos RUT, dirección exacta, datos bancarios ni de salud.</p>'],
+        ['Para qué los usamos', '<p>Crear y administrar tu cuenta, guardar tu colección, iniciar sesión y recuperar tu contraseña, mostrar tu perfil según la visibilidad que elijas, revisar tus aportes, mantener la seguridad y avisarte cambios del servicio. Las novedades y promociones solo con tu consentimiento aparte.</p>'],
+        ['Con quién los compartimos', '<p>Con proveedores que hacen funcionar el servicio (cuentas, base de datos, imágenes, correos) bajo contrato; con otros usuarios solo lo que decides mostrar; con autoridades si la ley lo exige. Los anunciantes no reciben datos personales.</p>'],
+        ['Cuánto los conservamos', '<p>Mientras tu cuenta esté activa. Al eliminarla, tus datos se borran de inmediato del servicio y de las copias de respaldo en un máximo de 30 días. Los aportes publicados quedan sin tu nombre, salvo que pidas retirarlos.</p>'],
+        ['Tus derechos', '<p>Acceso, rectificación, supresión, oposición, portabilidad y bloqueo temporal, según la Ley 21.719, que rige desde el 1 de diciembre de 2026. Los ejerces desde Perfil o escribiendo al contacto. Respondemos en un máximo de 30 días corridos.</p>'],
+        ['Eliminar tu cuenta', '<p>Perfil, “Eliminar mi cuenta”, confirmando con tu contraseña. Es definitivo. Antes puedes usar “Descargar mis datos”.</p>'],
+        ['Contraseñas y seguridad', '<p>Cambias tu contraseña desde Perfil. Si la olvidas, pides un código de un solo uso al correo de tu cuenta, que vence en minutos. Nunca te pediremos tu contraseña por correo ni mensajes.</p>'],
+        ['Menores de edad', '<p>La cuenta es para personas de 18 años o más. Menores solo con autorización de un adulto responsable.</p>'],
+        ['Publicidad y almacenamiento local', '<p>La publicidad va dentro de la app, marcada como “Publicidad”, sin ventanas que bloqueen y sin usar tus datos personales. Guardamos en tu dispositivo solo lo necesario para que la app funcione.</p>']
+      ]
+    },
+    terms: {
+      title: 'Condiciones de uso', lead: 'Las reglas básicas para usar Bolecciona Concepción.',
+      pts: ['Eliges un nombre de usuario público y proteges tu contraseña.', 'Subes solo fotos y datos que tengas derecho a compartir.', 'Respetamos a las personas: sin acoso, spam ni suplantación.', 'Puedes eliminar tu cuenta cuando quieras.'],
+      secs: [
+        ['Aceptación', '<p>Al crear una cuenta o usar el servicio aceptas estas condiciones y la política de privacidad. El servicio lo presta Rodrigo Schalchli, Talcahuano, Chile.</p>'],
+        ['Qué es Bolecciona', '<p>Un catálogo y archivo digital de boletos históricos de buses del Gran Concepción, con colección personal, comunidad y calendario de eventos culturales.</p>'],
+        ['Tu cuenta', '<p>Eliges tu nombre de usuario (3 a 24 caracteres, público, sin imitar a otras personas). Eres responsable de mantener tu contraseña en secreto. Puedes cambiarla, recuperarla si la olvidas y eliminar tu cuenta cuando quieras. Una persona, una cuenta.</p>'],
+        ['Contenido que subes', '<p>Sigues siendo dueño de lo que subes y nos das una licencia gratuita y no exclusiva para mostrarlo en el catálogo y en la difusión del proyecto mientras esté publicado. Revisamos los aportes antes de publicarlos. Eres responsable de que tengas derecho a compartirlos.</p>'],
+        ['Reglas de conducta', '<p>No se permite acosar, discriminar, publicar contenido ilegal o engañoso, suplantar identidades, acceder a cuentas ajenas, copiar masivamente el catálogo ni enviar spam. Podemos retirar contenido o suspender cuentas que lo incumplan.</p>'],
+        ['Catálogo y planes', '<p>Sin cuenta ves una vista previa limitada. Con cuenta, el catálogo completo y tu colección guardada. Si hay planes de pago, te informaremos el precio y cómo cancelar antes de cobrar.</p>'],
+        ['Publicidad y eventos', '<p>Los anuncios son banners marcados como “Publicidad”, sin ventanas que bloqueen. Los eventos los informan organizadores y usuarios: confirma fecha, lugar y precio con quien organiza.</p>'],
+        ['Propiedad intelectual', '<p>El nombre, el diseño, el software y la organización del catálogo pertenecen a Rodrigo Schalchli. Las imágenes de boletos pertenecen a quienes las aportaron.</p>'],
+        ['Suspensión y cierre', '<p>Tú puedes cerrar tu cuenta en cualquier momento. Nosotros podemos suspenderla si incumples estas condiciones, avisándote por correo salvo urgencia.</p>'],
+        ['Responsabilidad', '<p>Las fichas pueden contener datos estimados o pendientes. No garantizamos que el servicio esté libre de errores o interrupciones, dentro de lo que la ley permita.</p>'],
+        ['Ley aplicable y contacto', '<p>Leyes de Chile. Contacto: rodrigoschalchli.contacto@gmail.com. Te avisaremos con anticipación si cambian las condiciones.</p>']
+      ]
+    }
+  };
 
   /* ---------- Pantallas ---------- */
   var VIEWS = {
@@ -671,6 +774,8 @@ img { max-width: 100%; }
       var rowsEnd = '<div class="sec"><h2>Proyecto</h2></div><div class="rows">' +
         '<button class="row" data-a="plans"><span class="tx"><b>Planes y beneficios</b><small>Qué incluye cada acceso</small></span>' + ICON.chev + '</button>' +
         '<button class="row" data-a="advertise"><span class="tx"><b>Anunciar en Bolecciona</b><small>Publicidad y auspicios</small></span>' + ICON.chev + '</button>' +
+        '<button class="row" data-a="legal" data-id="priv"><span class="tx"><b>Política de privacidad</b><small>Tus datos y tus derechos</small></span>' + ICON.chev + '</button>' +
+        '<button class="row" data-a="legal" data-id="terms"><span class="tx"><b>Condiciones de uso</b><small>Reglas del servicio</small></span>' + ICON.chev + '</button>' +
         '<button class="row" data-a="about"><span class="tx"><b>Acerca del proyecto y contacto</b><small>Propósito, fases, criterios y colaboración</small></span>' + ICON.chev + '</button></div>';
       if (!D.acct) return head('Perfil') + acctCard() + rowsEnd;
       var mine = D.own.map(function (id) { return BYID[id]; }).filter(Boolean);
@@ -684,25 +789,95 @@ img { max-width: 100%; }
         (favs.length ? '<div class="grid2" style="margin-bottom:14px">' + favs.map(card).join('') + '</div>' : '<div class="note"><p style="margin:0">Aún no guardas favoritos.</p></div>') +
         '<div class="sec"><h2>Mis aportes</h2></div>' +
         (D.subs.length ? '<div class="rows" style="margin-bottom:10px">' + D.subs.map(function (s) { return '<div class="row"><span class="tx"><b>' + esc(s.title) + '</b><small>' + esc(s.when) + '</small></span><span class="bd rev">En revisión</span></div>'; }).join('') + '</div>' : '<div class="note"><p style="margin:0">Todavía no has enviado aportes.</p></div>') +
+        '<div class="sec"><h2>Cuenta y seguridad</h2></div><div class="rows" style="margin-bottom:6px">' +
+        '<button class="row" data-a="chpass"><span class="tx"><b>Cambiar contraseña</b><small>Necesitas tu contraseña actual</small></span>' + ICON.chev + '</button>' +
+        '<button class="row" data-a="dldata"><span class="tx"><b>Descargar mis datos</b><small>Una copia en archivo JSON</small></span>' + ICON.chev + '</button>' +
+        '<button class="row" data-a="logout"><span class="tx"><b>Cerrar sesión</b><small>Tu cuenta queda guardada en este dispositivo</small></span>' + ICON.chev + '</button>' +
+        '<button class="row dng" data-a="delacct"><span class="tx"><b>Eliminar mi cuenta</b><small>Borra tu cuenta y tus datos para siempre</small></span>' + ICON.chev + '</button></div>' +
         rowsEnd +
         '<div class="note" style="margin-top:14px"><h2>Datos de este prototipo</h2><p>Borra tu cuenta, tu colección, tus favoritos y tus aportes de este dispositivo.</p><div style="margin-top:12px">' +
         (S.confirmReset ? '<p style="margin:0 0 10px;color:var(--fg)">¿Borrar todo?</p><div class="btns row2"><button class="btn warn" data-a="reset">Sí, borrar</button><button class="btn ghost" data-a="cancelreset">Cancelar</button></div>' : '<button class="btn ghost" data-a="askreset">Restablecer prototipo</button>') + '</div></div>';
     },
     signup: function () {
+      var u = S.su;
       return head('Crear cuenta', true) +
         '<p class="muted small" style="margin:-4px 0 14px">Sé parte del archivo: guarda tu colección, ve el catálogo completo y aporta datos. La cuenta es gratuita.</p>' +
         '<form class="form" id="signform" novalidate>' +
-        '<label class="fld" for="s-alias">Nombre de boleccionador<input type="text" id="s-alias" maxlength="24" autocomplete="off" placeholder="Ej.: boleccionador_penco"><span class="hint">Es público. Si prefieres, no uses tu nombre completo.</span></label>' +
-        '<label class="fld" for="s-mail">Correo<input type="text" id="s-mail" inputmode="email" autocomplete="off" placeholder="nombre@correo.cl"><span class="hint">No se envía ni se guarda en este prototipo.</span></label>' +
-        '<label class="fld" for="s-com">Comuna (opcional)<select id="s-com"><option value="">Prefiero no decirlo</option>' + COMUNAS.map(function (c) { return '<option>' + esc(c) + '</option>'; }).join('') + '</select></label>' +
+        '<label class="fld" for="s-alias">Nombre de usuario<input type="text" id="s-alias" maxlength="24" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="Ej.: boleccionador_penco" value="' + esc(u.alias || '') + '"><span class="hint" id="aliasHint">De 3 a 24 caracteres. Es público: si prefieres, no uses tu nombre completo.</span></label>' +
+        '<label class="fld" for="s-mail">Correo<input type="text" id="s-mail" inputmode="email" autocomplete="email" autocapitalize="none" placeholder="nombre@correo.cl" value="' + esc(u.mail || '') + '"><span class="hint">Sirve para recuperar tu contraseña. En este prototipo queda solo en tu dispositivo.</span></label>' +
+        pwField('s-pass', 'Contraseña', 'new-password') +
+        pwField('s-pass2', 'Repite la contraseña', 'new-password') +
+        '<span class="hint" style="margin-top:-6px">Mínimo 8 caracteres. Mejor una frase larga que solo tú conozcas.</span>' +
+        showPwBox() +
+        '<label class="fld" for="s-com">Comuna (opcional)<select id="s-com"><option value="">Prefiero no decirlo</option>' + COMUNAS.map(function (c) { return '<option' + (u.com === c ? ' selected' : '') + '>' + esc(c) + '</option>'; }).join('') + '</select></label>' +
         '<fieldset><legend>Qué boletos te interesan (opcional)</legend><div class="chips" style="flex-wrap:wrap;overflow:visible;padding-bottom:0">' + INTERESES.map(function (x) { return '<button type="button" class="chip" data-a="sint" data-val="' + esc(x) + '" aria-pressed="' + (S.su.int.indexOf(x) > -1) + '">' + esc(x) + '</button>'; }).join('') + '</div></fieldset>' +
         '<fieldset><legend>Quién puede ver tu colección</legend>' +
-        '<label class="opt"><input type="radio" name="vis" value="0" checked><span>Privada<small>Solo tú. Recomendado para empezar.</small></span></label>' +
-        '<label class="opt"><input type="radio" name="vis" value="1"><span>Pública<small>Otras personas podrán ver tus boletos y tu nombre de boleccionador.</small></span></label></fieldset>' +
-        '<label class="check"><input type="checkbox" id="s-terms"><span>Acepto las condiciones de uso y el aviso de privacidad. Ambos documentos se publicarán antes de la versión pública.</span></label>' +
+        '<label class="opt"><input type="radio" name="vis" value="0"' + (u.vis === '1' ? '' : ' checked') + '><span>Privada<small>Solo tú. Recomendado para empezar.</small></span></label>' +
+        '<label class="opt"><input type="radio" name="vis" value="1"' + (u.vis === '1' ? ' checked' : '') + '><span>Pública<small>Otras personas podrán ver tus boletos y tu nombre de usuario.</small></span></label></fieldset>' +
+        '<label class="check"><input type="checkbox" id="s-terms"' + (u.terms ? ' checked' : '') + '><span>Tengo 18 años o más y acepto las ' + lnk('terms', 'condiciones de uso') + ' y la ' + lnk('priv', 'política de privacidad') + '.</span></label>' +
         '<div class="msg err" id="signMsg" role="alert" hidden></div>' +
         '<button class="btn" type="submit">Crear cuenta de boleccionador</button></form>' +
-        '<div class="note" style="margin-top:14px"><h2>Sin contraseña en el prototipo</h2><p>Aquí no se crea una cuenta real: el registro se guarda solo en tu dispositivo. En la versión real, el acceso lo gestionará un servicio de cuentas y se pedirán solo los datos necesarios.</p></div>';
+        '<div class="btns"><button class="btn ghost" data-a="login">Ya tengo cuenta · Iniciar sesión</button></div>' +
+        '<div class="note" style="margin-top:14px"><h2>Cuenta simulada</h2><p>En este prototipo la cuenta vive solo en tu dispositivo y tu contraseña se guarda únicamente como huella cifrada. En la versión real el acceso lo gestionará un servicio de cuentas, con envío real de correos.</p></div>';
+    },
+    login: function () {
+      return head('Iniciar sesión', true) +
+        '<p class="muted small" style="margin:-4px 0 14px">Entra con tu nombre de usuario o tu correo, y tu contraseña.</p>' +
+        '<form class="form" id="loginform" novalidate>' +
+        '<label class="fld" for="l-user">Nombre de usuario o correo<input type="text" id="l-user" autocomplete="username" autocapitalize="none" spellcheck="false"></label>' +
+        pwField('l-pass', 'Contraseña', 'current-password') + showPwBox() +
+        '<div class="msg err" id="logMsg" role="alert" hidden></div>' +
+        '<button class="btn" type="submit">Entrar</button></form>' +
+        '<div class="btns"><button class="btn ghost" data-a="forgot">Olvidé mi contraseña</button><button class="btn ghost" data-a="signup">Crear cuenta nueva</button></div>' +
+        '<div class="note" style="margin-top:14px"><p style="margin:0">En este prototipo las cuentas existen solo en el dispositivo donde se crearon.</p></div>';
+    },
+    forgot: function () {
+      var f = S.fp || { step: 1 }, h = head('Recuperar contraseña', true);
+      if (f.step === 1) {
+        return h + '<p class="muted small" style="margin:-4px 0 14px">Escribe tu nombre de usuario o el correo de tu cuenta. Te enviaremos un código de un solo uso para crear una contraseña nueva.</p>' +
+          '<form class="form" id="forgotform" novalidate><label class="fld" for="f-who">Nombre de usuario o correo<input type="text" id="f-who" autocomplete="username" autocapitalize="none" spellcheck="false"></label>' +
+          '<div class="msg err" id="fpMsg" role="alert" hidden></div><button class="btn" type="submit">Enviar código</button></form>';
+      }
+      return h + '<div class="msg good" style="margin-bottom:12px">Si existe una cuenta con esos datos, enviamos un código al correo registrado. Vence en 10 minutos.</div>' +
+        (f.code ? '<div class="note"><h2>Simulación</h2><p>En la versión real este código llegaría por correo. Aquí lo mostramos para que pruebes el flujo:</p><p style="font-size:24px;letter-spacing:.25em;color:var(--fg);font-family:var(--f-display);margin:8px 0 0">' + f.code + '</p></div>'
+          : '<div class="note"><h2>Simulación</h2><p>No hay ninguna cuenta con esos datos en este dispositivo, así que no se generó código. En la versión real el mensaje sería el mismo, para no revelar quién tiene cuenta.</p></div>') +
+        '<form class="form" id="resetform" novalidate>' +
+        '<label class="fld" for="r-code">Código de 6 dígitos<input type="text" id="r-code" inputmode="numeric" maxlength="6" autocomplete="one-time-code"></label>' +
+        pwField('r-pass', 'Contraseña nueva', 'new-password') + pwField('r-pass2', 'Repite la contraseña nueva', 'new-password') + showPwBox() +
+        '<div class="msg err" id="rsMsg" role="alert" hidden></div><button class="btn" type="submit">Crear contraseña nueva</button></form>' +
+        '<div class="btns"><button class="btn ghost" data-a="forgot">Pedir otro código</button></div>';
+    },
+    chpass: function () {
+      return head('Cambiar contraseña', true) +
+        '<p class="muted small" style="margin:-4px 0 14px">Para tu seguridad, primero escribe tu contraseña actual.</p>' +
+        '<form class="form" id="chpassform" novalidate>' +
+        pwField('c-old', 'Contraseña actual', 'current-password') + pwField('c-new', 'Contraseña nueva', 'new-password') + pwField('c-new2', 'Repite la contraseña nueva', 'new-password') + showPwBox() +
+        '<div class="msg err" id="chMsg" role="alert" hidden></div><button class="btn" type="submit">Guardar contraseña nueva</button></form>' +
+        '<div class="note" style="margin-top:14px"><p style="margin:0">¿No recuerdas la actual? Cierra sesión y usa “Olvidé mi contraseña” en la pantalla de ingreso.</p></div>';
+    },
+    delacct: function () {
+      var a = D.acct;
+      return head('Eliminar mi cuenta', true) +
+        '<div class="note"><h2>Esto es definitivo</h2><p>Se borrarán tu cuenta @' + esc(a.alias) + ', tu colección, tus favoritos, tus aportes y tus datos de perfil. No se puede deshacer.</p>' +
+        '<p>En la versión real, además se borra del servidor, y de las copias de respaldo en un máximo de 30 días.</p>' +
+        '<div class="btns" style="margin-top:12px"><button class="btn ghost" data-a="dldata">Descargar mis datos antes</button></div></div>' +
+        '<form class="form" id="delform" novalidate>' +
+        (a.ph ? pwField('d-pass', 'Tu contraseña', 'current-password') : '') +
+        '<label class="fld" for="d-user">Escribe tu nombre de usuario para confirmar<input type="text" id="d-user" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="' + esc(a.alias) + '"></label>' +
+        (a.ph ? showPwBox() : '') +
+        '<div class="msg err" id="delMsg" role="alert" hidden></div>' +
+        '<button class="btn warn" type="submit">Eliminar mi cuenta para siempre</button></form>' +
+        '<div class="btns"><button class="btn ghost" data-a="back">Mejor no, volver</button></div>';
+    },
+    legal: function (v) {
+      var L = LEGAL[v.id] || LEGAL.priv, other = v.id === 'terms' ? 'priv' : 'terms';
+      return head(L.title, true) +
+        '<div class="notice"><span><b>Borrador.</b> Este texto se revisará con un abogado antes de la versión pública y aún tiene datos por completar.</span></div>' +
+        '<div class="note"><h2>' + esc(L.lead) + '</h2><ul class="plain">' + L.pts.map(function (p) { return '<li>' + esc(p) + '</li>'; }).join('') + '</ul></div>' +
+        '<div class="sec"><h2>Texto completo</h2></div>' +
+        L.secs.map(function (s, i) { return '<details class="acc"><summary>' + (i + 1) + '. ' + esc(s[0]) + '</summary><div class="bd2">' + s[1] + '</div></details>'; }).join('') +
+        '<div class="btns" style="margin-top:12px"><button class="btn ghost" data-a="legal" data-id="' + other + '">' + (other === 'terms' ? 'Ver condiciones de uso' : 'Ver política de privacidad') + '</button></div>' +
+        '<p class="muted small" style="margin-top:12px">Versión 0.1 · 15 de octubre de 2026 · Consultas: rodrigoschalchli.contacto@gmail.com</p>';
     },
     about: function () {
       return head('Acerca del proyecto', true) +
@@ -710,12 +885,12 @@ img { max-width: 100%; }
         '<div class="note"><h2>Cómo se accede</h2><ul class="plain"><li>Visitantes: vista previa de algunas fichas con datos básicos</li><li>Boleccionadores: cuenta gratuita con catálogo completo, colección guardada y aportes</li><li>Boleccionador Plus: opciones de pago en estudio para más adelante</li></ul></div>' +
         '<div class="note"><h2>Criterios de catalogación</h2><p>Se prefiere un dato pendiente a uno inventado. Cada dato lleva una de estas marcas:</p><div class="legend" style="margin-top:10px"><span class="bd ok">Confirmado</span><span class="bd est">Estimado</span><span class="bd pend">Pendiente</span></div></div>' +
         '<div class="note"><h2>Fases de desarrollo</h2><div style="margin-top:6px">' +
-        '<div class="phase"><em>1</em><div><b>Prototipo</b> (esta versión)<span>Navegación, ' + TICKETS.length + ' fichas reales de la colección, registro simulado, calendario de eventos y espacios publicitarios de muestra.</span></div></div>' +
+        '<div class="phase"><em>1</em><div><b>Prototipo</b> (esta versión)<span>Navegación, ' + TICKETS.length + ' fichas reales de la colección, cuentas simuladas (usuario, contraseña, recuperación y eliminación), calendario de eventos y espacios publicitarios de muestra.</span></div></div>' +
         '<div class="phase"><em>2</em><div><b>Catálogo real</b><span>Base de datos, imágenes, buscador y panel de revisión.</span></div></div>' +
         '<div class="phase"><em>3</em><div><b>Cuentas y comunidad</b><span>Cuentas reales, colecciones guardadas, comentarios y moderación.</span></div></div>' +
         '<div class="phase"><em>4</em><div><b>Crecimiento</b><span>Búsqueda visual, estadísticas, planes de pago y alianzas culturales.</span></div></div></div></div>' +
         '<div class="note"><h2>Contacto y colaboración</h2><p>Para donar información, colaborar o patrocinar. La colaboración no transfiere la propiedad de la marca ni del proyecto.</p><div class="copyline"><span>rodrigoschalchli.contacto@gmail.com</span><button data-a="copy" data-val="rodrigoschalchli.contacto@gmail.com">Copiar</button></div></div>' +
-        '<div class="note"><h2>Privacidad y condiciones</h2><p>El aviso de privacidad, las condiciones de uso y la atribución de imágenes se redactarán antes de la versión pública.</p></div>';
+        '<div class="note"><h2>Privacidad y condiciones</h2><p>Borradores de la política de privacidad y de las condiciones de uso, pendientes de revisión legal antes de la versión pública.</p><div class="btns" style="margin-top:12px"><button class="btn ghost" data-a="legal" data-id="priv">Política de privacidad</button><button class="btn ghost" data-a="legal" data-id="terms">Condiciones de uso</button></div></div>';
     },
     ev: function () {
       var E = S.ev, h = head('Eventos culturales');
@@ -865,7 +1040,7 @@ img { max-width: 100%; }
     else if (a === 'setpub') { if (D.acct) { D.acct.pub = id === '1'; save(); render(true); } }
     else if (a === 'askout') { S.confirmOut = true; render(true); }
     else if (a === 'cancelout') { S.confirmOut = false; render(true); }
-    else if (a === 'logout') { D = { fav: [], subs: [], acct: null, own: [] }; save(); S.confirmOut = false; render(true); toast('Cuenta borrada de este dispositivo'); }
+    else if (a === 'logout') signOut();
     else if (a === 'event') push({ name: 'event', id: id });
     else if (a === 'evmonth') { var nd = new Date(S.ev.y, S.ev.m + (+id), 1); S.ev.y = nd.getFullYear(); S.ev.m = nd.getMonth(); S.ev.sel = (isoOf(nd).slice(0, 7) === TODAY.slice(0, 7)) ? TODAY : ''; render(true); }
     else if (a === 'evday') { S.ev.sel = S.ev.sel === id ? '' : id; render(true); }
@@ -876,6 +1051,17 @@ img { max-width: 100%; }
     else if (a === 'proposeev') { if (!requireAcct('Crea tu cuenta para proponer un evento')) return; push({ name: 'proposeev' }); }
     else if (a === 'advertise') push({ name: 'advertise' });
     else if (a === 'adpause') { S.adPaused = !S.adPaused; render(true); }
+    else if (a === 'login') push({ name: 'login' });
+    else if (a === 'forgot') { S.fp = { step: 1 }; if (S.stack[S.stack.length - 1].name === 'forgot') render(false); else push({ name: 'forgot' }); }
+    else if (a === 'chpass') { if (!requireAcct()) return; push({ name: 'chpass' }); }
+    else if (a === 'delacct') { if (!requireAcct()) return; push({ name: 'delacct' }); }
+    else if (a === 'dldata') { if (D.acct) downloadData(); }
+    else if (a === 'showpw') { var fm = el.closest('form'); if (fm) Array.prototype.forEach.call(fm.querySelectorAll('input.pw'), function (i) { i.type = el.checked ? 'text' : 'password'; }); }
+    else if (a === 'legal') {
+      var sf = document.getElementById('signform');
+      if (sf) { var vv = document.querySelector('input[name="vis"]:checked'); S.su.alias = document.getElementById('s-alias').value; S.su.mail = document.getElementById('s-mail').value; S.su.com = document.getElementById('s-com').value; S.su.vis = vv ? vv.value : '0'; S.su.terms = document.getElementById('s-terms').checked; }
+      if (S.stack[S.stack.length - 1].name === 'legal') { S.stack[S.stack.length - 1] = { name: 'legal', id: id }; render(false); } else push({ name: 'legal', id: id });
+    }
     else if (a === 'copy') copyText(el.dataset.val);
     else if (a === 'askreset') { S.confirmReset = true; render(true); }
     else if (a === 'cancelreset') { S.confirmReset = false; render(true); }
@@ -916,6 +1102,68 @@ img { max-width: 100%; }
       D.subs.unshift({ title: 'Evento: ' + tt, when: fmtDay(dt, { day: 'numeric', month: 'long' }) + ' · enviado hoy' }); save();
       if (S.stack.length > 1) S.stack.pop();
       render(false); toast('Evento enviado a revisión');
+      return;
+    }
+    if (e.target.id === 'loginform') {
+      e.preventDefault();
+      var lu = document.getElementById('l-user').value.trim(), lp = document.getElementById('l-pass').value, sv = D.saved;
+      if (Date.now() < S.lockUntil) { showMsg('logMsg', 'Demasiados intentos. Espera ' + Math.ceil((S.lockUntil - Date.now()) / 1000) + ' segundos e inténtalo de nuevo.'); return; }
+      if (!lu || !lp) { showMsg('logMsg', 'Escribe tu usuario o correo y tu contraseña.'); return; }
+      var bad = function () { S.fails++; if (S.fails >= 5) { S.fails = 0; S.lockUntil = Date.now() + 30000; showMsg('logMsg', 'Demasiados intentos. Espera 30 segundos e inténtalo de nuevo.'); } else showMsg('logMsg', 'Usuario o contraseña incorrectos.'); };
+      var ac = sv && sv.acct, m = ac && (norm(ac.alias) === norm(lu) || (ac.mail && norm(ac.mail) === norm(lu)));
+      if (!m || !ac.ph) { bad(); return; }
+      showMsg('logMsg', '');
+      hashPw(lp, ac.salt).then(function (h) {
+        if (h.hash !== ac.ph) { bad(); return; }
+        S.fails = 0; D = { fav: sv.fav || [], subs: sv.subs || [], acct: ac, own: sv.own || [] }; save();
+        S.tab = 'profile'; S.stack = [{ name: 'profile' }]; render(false); toast('¡Hola de nuevo, @' + ac.alias + '!');
+      }, function () { showMsg('logMsg', 'Tu navegador no permite verificar la contraseña de forma segura.'); });
+      return;
+    }
+    if (e.target.id === 'forgotform') {
+      e.preventDefault();
+      var who = document.getElementById('f-who').value.trim(), st = D.acct ? D : D.saved, aa = st && st.acct;
+      if (!who) { showMsg('fpMsg', 'Escribe tu nombre de usuario o tu correo.'); return; }
+      var hit = aa && (norm(aa.alias) === norm(who) || (aa.mail && norm(aa.mail) === norm(who)));
+      S.fp = { step: 2, code: hit ? String(Math.floor(100000 + Math.random() * 900000)) : null, exp: Date.now() + 600000, tries: 0 };
+      render(false); return;
+    }
+    if (e.target.id === 'resetform') {
+      e.preventDefault();
+      var f = S.fp, rc = document.getElementById('r-code').value.trim(), np = document.getElementById('r-pass').value, np2 = document.getElementById('r-pass2').value;
+      var rt = D.acct ? D : D.saved, ra = rt && rt.acct;
+      if (!f || !f.code || !ra || f.tries >= 5) { showMsg('rsMsg', 'Código incorrecto o vencido. Pide uno nuevo.'); if (f) f.tries++; return; }
+      if (Date.now() > f.exp || rc !== f.code) { f.tries++; showMsg('rsMsg', 'Código incorrecto o vencido. Revisa los 6 dígitos o pide uno nuevo.'); return; }
+      var pe = pwErr(np, ra.alias, np2);
+      if (pe) { showMsg('rsMsg', pe); return; }
+      hashPw(np).then(function (h) {
+        ra.salt = h.salt; ra.ph = h.hash; save(); S.fp = null; S.fails = 0; S.lockUntil = 0;
+        S.tab = 'profile'; S.stack = [{ name: 'profile' }, { name: 'login' }]; render(false); toast('Contraseña actualizada. Ya puedes entrar.');
+      }, function () { showMsg('rsMsg', 'Tu navegador no permite guardar la contraseña de forma segura.'); });
+      return;
+    }
+    if (e.target.id === 'chpassform') {
+      e.preventDefault();
+      var co = document.getElementById('c-old').value, cn = document.getElementById('c-new').value, cn2 = document.getElementById('c-new2').value, ca = D.acct;
+      if (!ca) return;
+      var ce = pwErr(cn, ca.alias, cn2);
+      if (!co && ca.ph) { showMsg('chMsg', 'Escribe tu contraseña actual.'); return; }
+      if (ce) { showMsg('chMsg', ce); return; }
+      if (co === cn) { showMsg('chMsg', 'La contraseña nueva debe ser distinta de la actual.'); return; }
+      var upd = function () { hashPw(cn).then(function (h) { ca.salt = h.salt; ca.ph = h.hash; save(); if (S.stack.length > 1) S.stack.pop(); render(false); toast('Contraseña cambiada'); }, function () { showMsg('chMsg', 'Tu navegador no permite guardar la contraseña de forma segura.'); }); };
+      if (!ca.ph) { upd(); return; }
+      hashPw(co, ca.salt).then(function (h) { if (h.hash !== ca.ph) showMsg('chMsg', 'La contraseña actual no es correcta.'); else upd(); }, function () { showMsg('chMsg', 'Tu navegador no permite verificar la contraseña de forma segura.'); });
+      return;
+    }
+    if (e.target.id === 'delform') {
+      e.preventDefault();
+      var da = D.acct, dp = document.getElementById('d-pass'), du = document.getElementById('d-user').value.trim();
+      if (!da) return;
+      if (norm(du) !== norm(da.alias)) { showMsg('delMsg', 'Escribe tu nombre de usuario exactamente como aparece para confirmar.'); return; }
+      var doDel = function () { wipeAll(); S.tab = 'home'; S.stack = [{ name: 'home' }]; render(false); toast('Tu cuenta fue eliminada'); };
+      if (!da.ph) { doDel(); return; }
+      if (!dp.value) { showMsg('delMsg', 'Escribe tu contraseña para confirmar.'); return; }
+      hashPw(dp.value, da.salt).then(function (h) { if (h.hash !== da.ph) showMsg('delMsg', 'La contraseña no es correcta.'); else doDel(); }, function () { showMsg('delMsg', 'Tu navegador no permite verificar la contraseña de forma segura.'); });
       return;
     }
     if (e.target.id === 'signform') { e.preventDefault(); doSignup(); return; }
@@ -962,9 +1210,18 @@ img { max-width: 100%; }
     for (var j = 0; j < dots.length; j++) dots[j].setAttribute('aria-current', String(j === idx));
   }, true);
 
+  document.addEventListener('input', function (e) {
+    if (e.target.id !== 's-alias') return;
+    var h = document.getElementById('aliasHint'), v = e.target.value.trim();
+    if (!h) return;
+    if (!v) { h.textContent = 'De 3 a 24 caracteres. Es público: si prefieres, no uses tu nombre completo.'; h.style.color = ''; return; }
+    var er = aliasErr(v);
+    h.textContent = er || 'Disponible (en la versión real se verifica en el servidor).'; h.style.color = er ? 'var(--bad)' : 'var(--good)';
+  });
   render(false);
 })();
 
 </script>
+<!-- Bolecciona Concepción · prototipo v7: cuentas, privacidad y condiciones -->
 </body>
 </html>
