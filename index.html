@@ -1,0 +1,562 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#101114">
+<title>Bolecciona Concepción | Archivo de boletos</title>
+<meta name="description" content="Catálogo digital de boletos históricos y coleccionables del Gran Concepción. Un archivo independiente de la memoria del transporte local.">
+
+<style>
+:root {
+  --bg: #101114;
+  --panel: #191b20;
+  --panel2: #22252b;
+  --text: #f5f5f5;
+  --muted: #a6a8b0;
+  --line: #343740;
+  --accent: #c9cbd1;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+button, input, select { font: inherit; }
+button { cursor: pointer; }
+header {
+  padding: 32px 20px 26px;
+  background: linear-gradient(145deg, #252830, #101114 72%);
+  border-bottom: 1px solid var(--line);
+}
+.topline {
+  max-width: 1050px;
+  margin: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.brand {
+  font-size: 12px;
+  letter-spacing: 3px;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+.mark {
+  border: 1px solid #666a74;
+  border-radius: 50%;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+}
+.hero {
+  max-width: 1050px;
+  margin: 48px auto 10px;
+}
+.eyebrow {
+  color: #c4c6cd;
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+h1 {
+  font-size: clamp(35px, 8vw, 68px);
+  line-height: 1;
+  letter-spacing: -2px;
+  margin: 14px 0;
+}
+.hero p {
+  max-width: 570px;
+  color: #c2c3c9;
+  line-height: 1.65;
+  font-size: 15px;
+}
+main {
+  max-width: 1050px;
+  margin: auto;
+  padding: 26px 18px 55px;
+}
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 28px;
+}
+.stat {
+  padding: 16px 12px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  border-radius: 12px;
+}
+.stat strong { display: block; font-size: 25px; }
+.stat span { color: var(--muted); font-size: 11px; }
+.section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin: 30px 0 17px;
+}
+h2 { font-size: 22px; margin: 0; }
+.section-heading span { color: var(--muted); font-size: 12px; }
+.filters {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 22px;
+}
+.filters input, .filters select {
+  min-width: 0;
+  width: 100%;
+  color: var(--text);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  padding: 13px;
+  border-radius: 9px;
+  outline: none;
+}
+.filters input:focus, .filters select:focus {
+  border-color: #a9abb4;
+}
+.filters input { grid-column: 1 / -1; }
+.catalog {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 13px;
+}
+.card {
+  overflow: hidden;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 13px;
+}
+.ticket-stage {
+  min-height: 205px;
+  display: grid;
+  place-items: center;
+  padding: 24px 12px;
+  background:
+    radial-gradient(ellipse at 50% 40%, #454750 0, #292b32 45%, #1b1d22 100%);
+}
+.ticket {
+  position: relative;
+  width: min(100%, 175px);
+  min-height: 120px;
+  padding: 9px 10px 12px;
+  color: #161616;
+  background: #f1eadb;
+  box-shadow: 3px 8px 15px #0007;
+  transform: rotate(-2deg);
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+.ticket:before, .ticket:after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: radial-gradient(circle at 5px 0, transparent 4px, #f1eadb 4.5px) repeat-x;
+  background-size: 10px 7px;
+}
+.ticket:before { top: -1px; }
+.ticket:after { bottom: -1px; transform: rotate(180deg); }
+.ticket .serial {
+  font-family: monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+  border-bottom: 1px dashed #888;
+  padding-bottom: 5px;
+}
+.ticket .ticket-title {
+  font-weight: 900;
+  font-size: 18px;
+  line-height: 1.1;
+  margin: 9px 0 5px;
+}
+.ticket .ticket-sub {
+  font-size: 10px;
+  font-weight: bold;
+  line-height: 1.4;
+}
+.ticket .art {
+  font-size: 36px;
+  margin: 7px 0;
+}
+.ticket .foot {
+  border-top: 1px dashed #999;
+  padding-top: 5px;
+  font-family: monospace;
+  font-size: 9px;
+}
+.purple { background: #eee6ef; }
+.purple .ticket-title { color: #712454; }
+.orange { background: #f2e1cb; }
+.orange .ticket-title { color: #a45124; }
+.green { background: #e0ebdd; }
+.green .ticket-title { color: #19734d; }
+.blue { background: #e0eaf0; }
+.blue .ticket-title { color: #315c91; }
+.red { background: #f0dfda; }
+.red .ticket-title { color: #ad3636; }
+.card-info { padding: 15px; }
+.tag {
+  display: inline-block;
+  border: 1px solid #555862;
+  border-radius: 20px;
+  padding: 4px 8px;
+  color: #d3d4d9;
+  font-size: 10px;
+  margin-bottom: 10px;
+}
+.card h3 { font-size: 16px; margin: 0 0 7px; }
+.card p {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+  margin: 0 0 13px;
+}
+.details {
+  width: 100%;
+  border: 1px solid #4a4d56;
+  border-radius: 8px;
+  color: white;
+  background: #252830;
+  padding: 10px;
+}
+.details:hover { background: #343741; }
+.empty {
+  display: none;
+  padding: 35px 10px;
+  text-align: center;
+  color: var(--muted);
+}
+.note {
+  margin-top: 30px;
+  padding: 17px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+footer {
+  padding: 25px 18px;
+  text-align: center;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.8;
+}
+footer strong { color: #eee; }
+dialog {
+  width: calc(100% - 30px);
+  max-width: 470px;
+  padding: 0;
+  color: var(--text);
+  background: var(--panel);
+  border: 1px solid #4a4d56;
+  border-radius: 15px;
+}
+dialog::backdrop { background: #000b; }
+.modal-content { padding: 22px; }
+.modal-content h2 { margin-bottom: 12px; }
+.modal-content p {
+  color: #c3c4ca;
+  font-size: 14px;
+  line-height: 1.7;
+}
+.close {
+  background: #30333b;
+  color: white;
+  border: 1px solid #555862;
+  padding: 10px 15px;
+  border-radius: 8px;
+}
+@media (min-width: 700px) {
+  .catalog { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .ticket-stage { min-height: 235px; }
+  .filters { grid-template-columns: 2fr 1fr 1fr; }
+  .filters input { grid-column: auto; }
+}
+@media (max-width: 360px) {
+  .catalog { grid-template-columns: 1fr; }
+  .stats { gap: 6px; }
+  .stat { padding: 12px 8px; }
+  .stat strong { font-size: 21px; }
+}
+</style>
+</head>
+
+<body>
+<header>
+  <div class="topline">
+    <div class="brand">Archivo independiente · Gran Concepción</div>
+    <div class="mark" aria-label="Símbolo del archivo">B.</div>
+  </div>
+  <div class="hero">
+    <div class="eyebrow">Memoria sobre papel</div>
+    <h1>Bolecciona<br>Concepción.</h1>
+    <p>
+      Boletos que cuentan historias. Un catálogo dedicado a conservar
+      y explorar los diseños, las líneas y los recuerdos del transporte
+      del Gran Concepción.
+    </p>
+  </div>
+</header>
+
+<main>
+  <div class="stats">
+    <div class="stat">
+      <strong id="total">6</strong>
+      <span>Fichas iniciales</span>
+    </div>
+    <div class="stat">
+      <strong>01</strong>
+      <span>Archivo regional</span>
+    </div>
+    <div class="stat">
+      <strong>2026</strong>
+      <span>Proyecto independiente</span>
+    </div>
+  </div>
+
+  <div class="section-heading">
+    <h2>Explorar colección</h2>
+    <span id="result-count">6 resultados</span>
+  </div>
+
+  <div class="filters">
+    <input id="search" type="search"
+      placeholder="Buscar boleto, línea o tema..."
+      aria-label="Buscar en el catálogo">
+    <select id="company" aria-label="Filtrar por empresa">
+      <option value="">Todas las líneas</option>
+    </select>
+    <select id="theme" aria-label="Filtrar por temática">
+      <option value="">Todas las temáticas</option>
+    </select>
+  </div>
+
+  <div class="catalog" id="catalog"></div>
+  <div class="empty" id="empty">No se encontraron boletos con esos filtros.</div>
+
+  <div class="note">
+    <strong>Sobre este catálogo</strong><br>
+    Esta es una versión inicial de demostración. Las ilustraciones de
+    los boletos son representaciones provisionales, no fotografías
+    originales. Los datos históricos se irán completando y verificando
+    a medida que avance la documentación de la colección.
+  </div>
+</main>
+
+<footer>
+  <strong>BOLECCIONA CONCEPCIÓN</strong><br>
+  Archivo digital independiente de boletos coleccionables.<br>
+  Un proyecto dedicado a la memoria visual del transporte local.
+</footer>
+
+<dialog id="modal">
+  <div class="modal-content">
+    <div class="eyebrow">Ficha de colección</div>
+    <h2 id="modal-title"></h2>
+    <div id="modal-body"></div>
+    <button class="close" id="close-modal">Cerrar ficha</button>
+  </div>
+</dialog>
+
+<script>
+const tickets = [
+  {
+    id: 1,
+    title: "Festival REC 2026 · Vía Futuro",
+    company: "Vía Futuro",
+    theme: "Eventos y festivales",
+    color: "purple",
+    serial: "00204131",
+    art: "♫",
+    short: "Boleto de adulto con diseño conmemorativo del Festival REC.",
+    description: "Boleto de adulto de Vía Futuro asociado al Festival REC 2026, con gráfica musical en tonos morados. La impresión incluye la referencia a marzo 28/29. Ejemplar de interés por la unión entre transporte público y un evento cultural regional.",
+    year: "2026"
+  },
+  {
+    id: 2,
+    title: "Festival REC 2026 · Vía Siglo XXI",
+    company: "Vía Siglo XXI S.A.",
+    theme: "Eventos y festivales",
+    color: "orange",
+    serial: "00143767",
+    art: "♫",
+    short: "Boleto de adulto en tonos anaranjados con gráfica del REC.",
+    description: "Boleto de adulto de Vía Siglo XXI S.A. con diseño especial vinculado al Festival REC 2026. Presenta gráfica musical y referencia a marzo 28/29. Se conserva como pieza de una edición conmemorativa.",
+    year: "2026"
+  },
+  {
+    id: 3,
+    title: "Llacolén · Gráfica musical",
+    company: "Llacolén",
+    theme: "Diseños gráficos",
+    color: "red",
+    serial: "1637284",
+    art: "🤘",
+    short: "Boleto con ilustración de una mano haciendo el gesto rockero.",
+    description: "Boleto de Llacolén con una ilustración de una mano haciendo el gesto asociado al rock. La pieza destaca por su estilo gráfico y su relación visual con la música. El número se transcribe según la fotografía disponible.",
+    year: "Por determinar"
+  },
+  {
+    id: 4,
+    title: "Ruta Las Galaxias · Feliz Noche Buena",
+    company: "Ruta Las Galaxias",
+    theme: "Fiestas y celebraciones",
+    color: "blue",
+    serial: "2752995",
+    art: "🕯️",
+    short: "Diseño navideño con vela y saludo de Noche Buena.",
+    description: "Boleto de Ruta Las Galaxias con ilustración navideña, vela encendida y el saludo 'Feliz Noche Buena'. Es un ejemplo de boleto temático que incorpora una celebración al diseño cotidiano del transporte.",
+    year: "Por determinar"
+  },
+  {
+    id: 5,
+    title: "Las Galaxias · Carreta tradicional",
+    company: "Las Galaxias",
+    theme: "Ilustraciones y cultura",
+    color: "orange",
+    serial: "7344650",
+    art: "🐎",
+    short: "Ilustración de una carreta tirada por un caballo.",
+    description: "Boleto de Las Galaxias con una escena ilustrada de una carreta tirada por un caballo. Su composición y colores lo distinguen de los boletos de tarifa más simples. Fecha de emisión pendiente de documentación.",
+    year: "Por determinar"
+  },
+  {
+    id: 6,
+    title: "Buses Campanil · Escolar",
+    company: "Buses Campanil",
+    theme: "Transporte escolar",
+    color: "green",
+    serial: "0683766",
+    art: "♟",
+    short: "Boleto escolar verde con personaje ilustrado y mensaje educativo.",
+    description: "Boleto escolar de Buses Campanil, con predominio del verde y un personaje ilustrado. Incluye un mensaje sobre ceder el asiento a personas adultas mayores y una referencia a la puntualidad y el respeto. Ejemplar relevante para documentar los mensajes impresos en boletos.",
+    year: "Por determinar"
+  },
+  {
+    id: 7,
+    title: "Expresos Plaza del Mall · Inspector",
+    company: "Expresos Plaza del Mall",
+    theme: "Diseños gráficos",
+    color: "red",
+    serial: "17525783",
+    art: "▤",
+    short: "Boleto de inspector con gráfica roja y azul.",
+    description: "Boleto identificado como 'Expresos Plaza del Mall', con la palabra 'Inspector' y una gráfica central en tonos azules y rojos. La pieza registra una variante de boleto vinculada a funciones de inspección. La transcripción del número debe cotejarse con el original.",
+    year: "Por determinar"
+  }
+];
+
+const catalog = document.getElementById("catalog");
+const search = document.getElementById("search");
+const company = document.getElementById("company");
+const theme = document.getElementById("theme");
+const modal = document.getElementById("modal");
+
+function fillOptions(select, values) {
+  [...new Set(values)].sort().forEach(value => {
+    const option = document.createElement("option");
+    option.value = value;
+    option.textContent = value;
+    select.appendChild(option);
+  });
+}
+
+fillOptions(company, tickets.map(t => t.company));
+fillOptions(theme, tickets.map(t => t.theme));
+
+function escapeHTML(value) {
+  return String(value).replace(/[&<>"']/g, char => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;"
+  })[char]);
+}
+
+function render() {
+  const query = search.value.trim().toLocaleLowerCase("es");
+  const selectedCompany = company.value;
+  const selectedTheme = theme.value;
+
+  const filtered = tickets.filter(t => {
+    const text = [
+      t.title, t.company, t.theme, t.serial, t.short, t.description
+    ].join(" ").toLocaleLowerCase("es");
+
+    return text.includes(query) &&
+      (!selectedCompany || t.company === selectedCompany) &&
+      (!selectedTheme || t.theme === selectedTheme);
+  });
+
+  catalog.innerHTML = filtered.map(t => `
+    <article class="card">
+      <div class="ticket-stage">
+        <div class="ticket ${escapeHTML(t.color)}">
+          <div class="serial">N.º ${escapeHTML(t.serial)}</div>
+          <div class="ticket-title">${escapeHTML(t.company)}</div>
+          <div class="ticket-sub">${escapeHTML(t.theme)}</div>
+          <div class="art">${escapeHTML(t.art)}</div>
+          <div class="foot">BOLECCIONA · ${escapeHTML(t.year)}</div>
+        </div>
+      </div>
+      <div class="card-info">
+        <span class="tag">${escapeHTML(t.theme)}</span>
+        <h3>${escapeHTML(t.title)}</h3>
+        <p>${escapeHTML(t.short)}</p>
+        <button class="details" data-id="${t.id}">Ver ficha completa ↗</button>
+      </div>
+    </article>
+  `).join("");
+
+  document.getElementById("result-count").textContent =
+    `${filtered.length} ${filtered.length === 1 ? "resultado" : "resultados"}`;
+  document.getElementById("empty").style.display =
+    filtered.length ? "none" : "block";
+}
+
+catalog.addEventListener("click", event => {
+  const button = event.target.closest("button[data-id]");
+  if (!button) return;
+
+  const ticket = tickets.find(t => t.id === Number(button.dataset.id));
+  if (!ticket) return;
+
+  document.getElementById("modal-title").textContent = ticket.title;
+  document.getElementById("modal-body").innerHTML = `
+    <p>${escapeHTML(ticket.description)}</p>
+    <p><strong>Empresa o línea:</strong> ${escapeHTML(ticket.company)}</p>
+    <p><strong>Temática:</strong> ${escapeHTML(ticket.theme)}</p>
+    <p><strong>Número impreso:</strong> ${escapeHTML(ticket.serial)}</p>
+    <p><strong>Año:</strong> ${escapeHTML(ticket.year)}</p>
+    <p><strong>Estado del registro:</strong> Ficha inicial; datos pendientes de verificación.</p>
+  `;
+  modal.showModal();
+});
+
+document.getElementById("close-modal").addEventListener("click", () => {
+  modal.close();
+});
+search.addEventListener("input", render);
+company.addEventListener("change", render);
+theme.addEventListener("change", render);
+
+document.getElementById("total").textContent = tickets.length;
+render();
+</script>
+</body>
+</html>
