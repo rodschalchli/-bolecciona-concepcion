@@ -274,6 +274,49 @@ details.acc .bd2 p { margin: 0 0 8px; }
 a.src { color: var(--accent); text-decoration: underline; word-break: break-word; }
 .row .bd { flex: none; }
 .info .v div { word-break: break-word; }
+
+/* ---------- Responsivo: tablet y computador ---------- */
+@media (min-width: 700px) {
+  #app { max-width: 780px; }
+  .grid2 { grid-template-columns: repeat(3, 1fr); gap: 22px 18px; }
+  .fpanel { grid-template-columns: repeat(3, 1fr); }
+  .feat { width: 150px; }
+  .banner { height: 150px; }
+  .banner .t { font-size: 19px; left: 22px; max-width: 60%; }
+  nav button { font-size: 11.5px; padding: 9px 0 8px; }
+  nav button svg { width: 24px; height: 24px; }
+  #main[data-view="signup"] > *, #main[data-view="login"] > *, #main[data-view="forgot"] > *, #main[data-view="chpass"] > *, #main[data-view="delacct"] > *,
+  #main[data-view="add"] > *, #main[data-view="editent"] > *, #main[data-view="editrec"] > *, #main[data-view="proposeev"] > *, #main[data-view="legal"] > *, #main[data-view="about"] > *, #main[data-view="plans"] > *, #main[data-view="advertise"] > * { width: 100%; max-width: 620px; margin-left: auto !important; margin-right: auto !important; }
+  #main[data-view="ticket"] .heroimg { max-height: 60vh; }
+  .evcard { padding: 14px; }
+  .cal { max-width: 560px; }
+}
+@media (min-width: 1100px) {
+  #app { max-width: 1220px; display: grid; grid-template-columns: 232px minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); column-gap: 32px; }
+  nav { grid-column: 1; grid-row: 1; align-self: start; flex-direction: column; margin: 16px 0; padding: 10px; gap: 4px; border-radius: 22px; position: sticky; top: 16px; }
+  nav button { flex-direction: row; justify-content: flex-start; gap: 14px; padding: 13px 16px; font-size: 14.5px; border-radius: 14px; }
+  nav button:hover { background: var(--surface2); }
+  #main { grid-column: 2; grid-row: 1; padding-right: 4px; }
+  #main::-webkit-scrollbar { display: block; width: 8px; }
+  #main::-webkit-scrollbar-thumb { background: var(--line); border-radius: 8px; }
+  #main { scrollbar-width: thin; }
+  .grid2 { grid-template-columns: repeat(4, 1fr); }
+  .fpanel { grid-template-columns: repeat(4, 1fr); }
+  .feat { width: 168px; }
+  .banner { height: 180px; }
+  .banner .c { width: 92px; }
+  #toast { left: calc(232px + 32px + 50%); }
+  /* ficha: foto a la izquierda, datos a la derecha */
+  #main[data-view="ticket"] { display: grid; grid-template-columns: minmax(0, 380px) minmax(0, 1fr); column-gap: 36px; align-content: start; }
+  #main[data-view="ticket"] > * { grid-column: 2; min-width: 0; }
+  #main[data-view="ticket"] > .top { grid-column: 1 / -1; }
+  #main[data-view="ticket"] > .hero { grid-column: 1; grid-row: 2 / span 30; position: sticky; top: 0; align-self: start; }
+  /* eventos y catálogo de empresas en dos columnas cuando hay listas */
+  #main[data-view="event"] > *, #main[data-view="ent"] > *, #main[data-view="rec"] > * { max-width: 760px; }
+  #main[data-view="profile"] > *, #main[data-view="comm"] > * { max-width: 820px; }
+}
+@media (min-width: 1500px) { #app { max-width: 1360px; } .grid2 { grid-template-columns: repeat(5, 1fr); } }
+@media (max-width: 360px) { .grid2 { gap: 14px 10px; } .fpanel { grid-template-columns: 1fr; } }
 </style>
 <style>
 :root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
@@ -1295,6 +1338,7 @@ img { max-width: 100%; }
   function render(keep) {
     var v = S.stack[S.stack.length - 1], top = main.scrollTop;
     try { main.innerHTML = VIEWS[v.name](v) + storageNotice(); } catch (err) { console.error('Error al mostrar la pantalla', err); main.innerHTML = '<div class="note"><h2>No se pudo abrir esta pantalla</h2><p>Vuelve al inicio o recarga la página. Tus datos locales no se han borrado.</p><div class="btns" style="margin-top:12px"><button class="btn" data-a="tab" data-id="home">Volver al inicio</button></div></div>'; }
+    main.setAttribute('data-view', v.name);
     main.scrollTop = keep ? top : 0;
     navEl.innerHTML = TABS.map(function (t) { return '<button data-a="tab" data-id="' + t[0] + '"' + (S.tab === t[0] ? ' aria-current="true"' : '') + '>' + t[2] + t[1] + '</button>'; }).join('');
   }
@@ -1612,6 +1656,6 @@ img { max-width: 100%; }
 })();
 
 </script>
-<!-- Bolecciona Concepción · prototipo v12: catálogo de empresas y recorridos; funciona en el navegador, requiere backend para cuentas y datos compartidos -->
+<!-- Bolecciona Concepción · prototipo v13: catálogo de empresas y recorridos; funciona en el navegador, requiere backend para cuentas y datos compartidos -->
 </body>
 </html>
