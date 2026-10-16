@@ -3,10 +3,6 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#06122a">
-<meta name="description" content="Bolecciona Concepción: archivo digital en desarrollo para preservar la memoria de los boletos del transporte público del Gran Concepción.">
-<meta property="og:title" content="Bolecciona Concepción">
-<meta property="og:description" content="Memoria del transporte público del Gran Concepción, a través de sus boletos.">
 <title>Bolecciona Concepción</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -267,6 +263,11 @@ details.acc[open] summary::after { content: "–"; }
 details.acc .bd2 { padding: 0 14px 12px; color: var(--muted); font-size: 13.5px; }
 details.acc .bd2 p { margin: 0 0 8px; }
 .row.dng b { color: var(--bad); }
+.lcode { flex: none; min-width: 38px; height: 34px; padding: 0 7px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; background: var(--surface2); color: var(--accent); font-family: var(--f-display); font-weight: 600; font-size: 12.5px; }
+.lcode.big { min-width: 44px; height: 44px; border-radius: 14px; font-size: 16px; }
+a.src { color: var(--accent); text-decoration: underline; word-break: break-word; }
+.row .bd { flex: none; }
+.info .v div { word-break: break-word; }
 </style>
 <style>
 :root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
@@ -328,13 +329,13 @@ img { max-width: 100%; }
 
   /* ---------- Fichas: solo lo que se ve en cada boleto; lo demás queda pendiente ---------- */
   var TICKETS = [
-    { n: 1, img: 't1', title: 'Vía Futuro', emp: 'Vía Futuro', tipo: 'Adulto', color: 'Morado', tema: 'Festival REC 2026', anio: '2026', imp: '', num: '00204131',
+    { n: 1, img: 't1', title: 'Vía Futuro', emp: 'Vía Futuro', tipo: 'Adulto', color: 'Morado', tema: 'Festival REC 2026', anio: '2026', imp: '', era: 'actual', num: '00204131',
       ilus: 'Guitarra eléctrica y logotipo “REC” en una nube', estado: 'Pliegue en la esquina superior y borde inferior dañado',
       st: { imp: 'pend' },
       texto: ['Vía Futuro', 'Adulto', 'Festival REC 2026', 'Marzo 28/29', 'El festival gratuito más grande de Chile', '00204131 (arriba y abajo)', 'Letra A a los costados del logotipo'],
       nota: 'Comparte diseño y fecha con el boleto de Vía Siglo XXI: cambian el nombre de la empresa y el color. Conviene tratarlos como la misma edición del Festival REC 2026. Junto al logotipo hay un texto pequeño que no se lee bien en la foto.',
       rel: [2] },
-    { n: 2, img: 't2', title: 'Vía Siglo XXI S.A.', emp: 'Vía Siglo XXI S.A.', tipo: 'Adulto', color: 'Naranjo', tema: 'Festival REC 2026', anio: '2026', imp: '', num: '00142767',
+    { n: 2, img: 't2', title: 'Vía Siglo XXI S.A.', emp: 'Vía Siglo XXI S.A.', tipo: 'Adulto', color: 'Naranjo', tema: 'Festival REC 2026', anio: '2026', imp: '', era: 'actual', num: '00142767',
       ilus: 'Guitarra eléctrica y logotipo “REC” en una nube', estado: 'Borde inferior rasgado',
       st: {},
       texto: ['Vía Siglo XXI S.A.', 'Adulto', 'Festival REC 2026', 'Marzo 28/29', 'El festival gratuito más grande de Chile', '00142767 (arriba y abajo)', 'Letra A a los costados del logotipo'],
@@ -375,14 +376,22 @@ img { max-width: 100%; }
   TICKETS.forEach(function (t) { t.id = 'BC-' + String(t.n).padStart(4, '0'); BYID[t.id] = t; BYN[t.n] = t; });
 
   function fields(t) {
-    var st = t.st || {};
+    var st = t.st || {}, u = t.un ? uById(t.un) : null, ee = t.empId ? eById(t.empId) : null;
+    var unTxt = u ? u.id + ' · ' + unName(u) : (ee ? 'Empresa histórica: ' + ee.nombre : '');
+    var vs = t.verif === 'confirmado' ? 'ok' : 'ver';
     var rows = [
-      ['Código interno', t.id, 'id'], ['Empresa', t.emp, 'emp'], ['Tipo de boleto', t.tipo, 'tipo'], ['Edición o temática', t.tema, 'tema'],
+      ['Código interno', t.id, 'id'], ['Empresa impresa', t.emp, 'emp'], ['Tipo de boleto', t.tipo, 'tipo'], ['Edición o temática', t.tema, 'tema'],
       ['Año', t.anio, 'anio'], ['Numeración impresa', t.num, 'num'], ['Color', t.color, 'color'], ['Ilustración', t.ilus, 'ilus'],
-      ['Imprenta o marca', t.imp, 'imp'], ['Recorrido', '', 'rec'], ['Comuna', '', 'com'], ['Material', 'Papel', 'mat'],
+      ['Imprenta o marca', t.imp, 'imp'], ['Recorrido', t.recTxt || '', 'rec'], ['Comuna', '', 'com'], ['Material', 'Papel', 'mat'],
       ['Medidas', '', 'med'], ['Estado observado', t.estado, 'estado'], ['Procedencia', 'Colección del proyecto', 'proc']
     ];
-    return rows.map(function (r) { return [r[0], r[1], r[1] ? (st[r[2]] || 'ok') : 'pend']; });
+    var out = rows.map(function (r) { return [r[0], r[1], r[1] ? (st[r[2]] || 'ok') : 'pend']; });
+    out.push(['Unidad de negocio', unTxt, unTxt ? vs : 'pend']);
+    out.push(['Verificación del dato', t.verif ? cap(t.verif) : '', t.verif ? 'opt' : 'opt']);
+    out.push(['Observaciones históricas', t.hist || '', 'opt']);
+    out.push(['Fuente de información', t.fuente || '', 'opt']);
+    out.push(['Época del boleto', eraLabel(eraOf(t)), 'opt']);
+    return out;
   }
   function pendCount(t) { return fields(t).filter(function (x) { return x[2] === 'pend'; }).length; }
 
@@ -403,11 +412,11 @@ img { max-width: 100%; }
   }
   function storageNotice() {
     if (storageOK) return '';
-    return '<div class="notice" role="alert"><b>Atención:</b> este navegador no pudo guardar los cambios. Exporta una copia de tus datos y libera espacio o prueba otro navegador.</div>';
+    return '<div class="notice" role="alert"><span><b>Atención:</b> este navegador no pudo guardar los cambios. Descarga una copia de tus datos o prueba con otro navegador.</span></div>';
   }
   var S = {
     tab: 'home', stack: [{ name: 'home' }], query: '', explore: 'emp',
-    F: { emp: '', tipo: '', color: '', tema: '', imp: '', orden: 'reciente' }, fopen: false,
+    F: { emp: '', un: '', rec: '', per: '', verif: '', tipo: '', color: '', tema: '', imp: '', orden: 'reciente' }, fopen: false, era: '',
     sugg: false, pv: { front: '', back: '' }, formMsg: null, confirmReset: false, su: { int: [] }, confirmOut: false, suggField: ''
   };
 
@@ -454,15 +463,16 @@ img { max-width: 100%; }
     var el = document.getElementById('toast'); el.textContent = msg; el.classList.add('show');
     clearTimeout(toast.t); toast.t = setTimeout(function () { el.classList.remove('show'); }, 2200);
   }
-  function stBadge(st) { return st === 'ok' ? '<span class="bd ok">Confirmado</span>' : st === 'est' ? '<span class="bd est">Estimado</span>' : '<span class="bd pend">Pendiente</span>'; }
+  function stBadge(st) { return st === 'opt' ? '' : st === 'ver' ? '<span class="bd est">Por verificar</span>' : st === 'ok' ? '<span class="bd ok">Confirmado</span>' : st === 'est' ? '<span class="bd est">Estimado</span>' : '<span class="bd pend">Pendiente</span>'; }
 
   /* ---------- Catálogo ---------- */
-  var FLABEL = { emp: 'Empresa', tipo: 'Tipo', color: 'Color', tema: 'Temática', imp: 'Imprenta' };
+  var FLABEL = { emp: 'Empresa', un: 'Unidad (UN)', rec: 'Recorrido', per: 'Período', verif: 'Verificación', tipo: 'Tipo', color: 'Color', tema: 'Temática', imp: 'Imprenta' };
   function filtered() {
     var F = S.F, list = TICKETS.filter(function (t) {
-      return (!F.emp || (function(){ var elegido = empresaFiltroValor(F.emp); var chosen = norm(elegido.replace(/^[A-Z0-9]+\s+/, '')); var actual = norm((t.emp || '').replace(/\s+(S\.A\.|Ltda\.|SpA|S\.A)$/i, '')); return actual && (actual === chosen || actual.indexOf(chosen) >= 0 || chosen.indexOf(actual) >= 0); })()) && (!F.tipo || t.tipo === F.tipo) && (!F.color || t.color === F.color) && (!F.tema || t.tema === F.tema) && (!F.imp || t.imp === F.imp);
+      return (!F.emp || t.emp === F.emp || tcName(t) === F.emp) && (!F.un || t.un === F.un) && (!F.rec || t.rec === F.rec) && (!F.per || perOf(t) === F.per) && (!F.verif || tVerif(t) === F.verif) && (!F.tipo || t.tipo === F.tipo) && (!F.color || t.color === F.color) && (!F.tema || t.tema === F.tema) && (!F.imp || t.imp === F.imp);
     });
-    if (!D.acct && (F.emp || F.tipo || F.color || F.tema || F.imp)) list = list.filter(canSee);
+    if (S.era) list = list.filter(function (t) { return (eraOf(t) || 'sin') === S.era; });
+    if (!D.acct && FKEYS.some(function (k) { return F[k]; })) list = list.filter(canSee);
     if (F.orden === 'nombre') list.sort(function (a, b) { return a.title.localeCompare(b.title); });
     else list.sort(function (a, b) { return b.n - a.n; });
     return list;
@@ -474,51 +484,19 @@ img { max-width: 100%; }
     h += list.length ? '<div class="grid2">' + list.map(card).join('') + '</div>' : '<div class="empty">Ninguna ficha coincide con estos filtros.</div>';
     return h;
   }
-  var LINEAS_BUS_GRAN_CONCEPCION = [
-    '10 Vía Láctea', '11 Vía Futuro', '12 Nueva Sotrapel', '13 Vía Siglo XXI', '14 Chiguayante Sur', '16 Vía Universo', '17 Expresos Chiguayante', '18 Buses Palomares',
-    '20 Nueva Llacolén', '21 Riviera Biobío', '22 San Pedro', '23 Buses Michaihue', '24 San Remo',
-    '30 Ruta Las Playas', '31 Ruta del Mar', '32 Transportes del Mar',
-    '40 Las Golondrinas', '41 Buses Mini Verde', '42 Minibuses Hualpencillo', '43 Flota Las Lilas', '44 Flota Centauro',
-    '50 Buses Campanil', '52 Géminis Sur', '56 Buses Base Naval', '57 Transporte Colón',
-    '60 Buses Tucapel', '62 Mi Expreso', '63 Rengo Lientur', '65 Buses Chillancito',
-    '70 Las Bahías', '71 Buses Puchacay', '72 Pedro de Valdivia',
-    '80 Las Galaxias', '81 Vía del Sol',
-    'Rural: Buses Tomé (Tomé, Dichato y Cocholgüe)', 'Rural: Buses Coronel / Lota'
-  ];
-  var GRUPOS_LINEAS = [
-    { titulo: 'Líneas 10 a 18 · Chiguayante / Oriente', desde: 0, hasta: 8 },
-    { titulo: 'Líneas 20 a 24 · San Pedro de la Paz / Sur', desde: 8, hasta: 13 },
-    { titulo: 'Líneas 30 a 32 · Penco / Lirquén / Norte', desde: 13, hasta: 16 },
-    { titulo: 'Líneas 40 a 44 · Hualpén / Talcahuano / Poniente', desde: 16, hasta: 21 },
-    { titulo: 'Líneas 50 a 57 · Talcahuano / Centro / Hualpén', desde: 21, hasta: 25 },
-    { titulo: 'Líneas 60 a 65 · Urbanas e intercomunales', desde: 25, hasta: 29 },
-    { titulo: 'Líneas 70 a 72 · Urbanas de Concepción', desde: 29, hasta: 32 },
-    { titulo: 'Líneas 80 a 81 · Zona Hualqui', desde: 32, hasta: 34 },
-    { titulo: 'Líneas rurales / interurbanas', desde: 34, hasta: 36 }
-  ];
-  function lineasChips() {
-    return GRUPOS_LINEAS.map(function (g) {
-      return '<div style="width:100%;margin-top:10px"><h3 style="font-size:13px;margin:0 0 8px;color:var(--muted)">' + esc(g.titulo) + '</h3><div class="chips" style="flex-wrap:wrap;overflow:visible;padding-bottom:0">' + LINEAS_BUS_GRAN_CONCEPCION.slice(g.desde, g.hasta).map(function (v) { return '<button class="chip" data-a="goexplore" data-id="emp" data-val="' + esc(v) + '">' + esc(v) + '</button>'; }).join('') + '</div></div>';
-    }).join('');
-  }
-  function empresaFiltroValor(v) {
-    var aliases = { '17 Expresos Chiguayante': 'Plaza del Mall S.A.', '18 Buses Palomares': 'Expreso Concepción–Chiguayante', '21 Riviera Biobío': 'Riviera', '23 Buses Michaihue': 'San Pedro Sur', '32 Transportes del Mar': 'Del Mar', '41 Buses Mini Verde': 'Mini Verde', '42 Minibuses Hualpencillo': 'Mini Buses Hualpencillo', '43 Flota Las Lilas': 'Centauro Repuestos', '44 Flota Centauro': 'Comercial Centauro', '50 Buses Campanil': 'Buses Campanil', '62 Mi Expreso': 'Buses Primavera', '65 Buses Chillancito': 'Buses Cóndor', '71 Buses Puchacay': 'Puchacay', '72 Pedro de Valdivia': 'Pedro de Valdivia Universidad', '80 Las Galaxias': 'Ruta Las Galaxias' };
-    return aliases[v] || v;
-  }
   function sel(key, label) {
-    var opciones = key === 'emp' ? LINEAS_BUS_GRAN_CONCEPCION : uniq(key);
-    return '<label class="fld">' + label + '<select data-f="' + key + '"><option value="">Todos</option>' + opciones.map(function (o) { return '<option value="' + esc(o) + '"' + (S.F[key] === o ? ' selected' : '') + '>' + esc(o) + '</option>'; }).join('') + '</select></label>';
+    return '<label class="fld">' + label + '<select data-f="' + key + '"><option value="">Todos</option>' + fOpts(key).map(function (p) { return '<option value="' + esc(p[0]) + '"' + (S.F[key] === p[0] ? ' selected' : '') + '>' + esc(p[1]) + '</option>'; }).join('') + '</select></label>';
   }
 
   /* ---------- Inicio ---------- */
   function homeBody() {
     var q = norm(S.query.trim());
     if (q) {
-      var res = TICKETS.filter(function (t) { return norm((canSee(t) ? [t.id, t.title, t.emp, t.tipo, t.color, t.tema, t.imp, t.num, t.texto.join(' ')] : [t.id]).join(' ')).indexOf(q) > -1; });
+      var res = TICKETS.filter(function (t) { return norm((canSee(t) ? [t.id, t.title, t.emp, t.un || '', tcName(t), t.tipo, t.color, t.tema, t.imp, t.num, t.texto.join(' ')] : [t.id]).join(' ')).indexOf(q) > -1; });
       if (!res.length) return '<div class="empty">No hay fichas para “' + esc(S.query) + '”.<br>Prueba con empresa, tipo o parte de la numeración.</div>';
       return '<div class="cnt">' + res.length + (res.length === 1 ? ' ficha' : ' fichas') + '</div><div class="grid2">' + res.map(card).join('') + '</div>';
     }
-    var key = S.explore, vals = key === 'emp' ? LINEAS_BUS_GRAN_CONCEPCION : uniq(key), h = '';
+    var key = S.explore, vals = uniq(key), h = '';
     h += '<button class="banner" data-a="tab" data-id="cat" aria-label="Abrir el catálogo">' +
       '<span class="c" style="left:16px;top:12px;transform:rotate(-9deg)"><img alt="" src="' + IMG.t4 + '"></span>' +
       '<span class="c" style="left:88px;top:26px;transform:rotate(6deg)"><img alt="" src="' + IMG.t5 + '"></span>' +
@@ -529,7 +507,8 @@ img { max-width: 100%; }
     h += adSlot();
     h += '<div class="sec"><h2>Explorar por</h2></div>';
     h += '<div class="seg"><button data-a="explore" data-id="emp" aria-pressed="' + (key === 'emp') + '">Empresas</button><button data-a="explore" data-id="tipo" aria-pressed="' + (key === 'tipo') + '">Tipos</button><button data-a="explore" data-id="imp" aria-pressed="' + (key === 'imp') + '">Imprentas</button></div>';
-    h += key === 'emp' ? lineasChips() : '<div class="chips" style="flex-wrap:wrap;overflow:visible">' + vals.map(function (v) { return '<button class="chip" data-a="goexplore" data-id="' + key + '" data-val="' + esc(v) + '">' + esc(v) + '</button>'; }).join('') + '</div>';
+    h += '<div class="chips" style="flex-wrap:wrap;overflow:visible">' + vals.map(function (v) { return '<button class="chip" data-a="goexplore" data-id="' + key + '" data-val="' + esc(v) + '">' + esc(v) + '</button>'; }).join('') + '</div>';
+    h += '<div class="rows" style="margin-bottom:12px"><button class="row" data-a="catemp"><span class="tx"><b>Empresas y recorridos</b><small>Unidades de negocio, recorridos y empresas históricas</small></span>' + ICON.chev + '</button></div>';
     var up = EVENTS.filter(function (e) { return !isPast(e); }).sort(function (a, b) { return a.ini < b.ini ? -1 : 1; }).slice(0, 2);
     h += '<div class="sec"><h2>Próximos eventos</h2><button data-a="tab" data-id="ev">Ver calendario</button></div>' + up.map(function (e) { return evCard(e); }).join('');
     h += '<div class="sec"><h2>Piezas destacadas</h2><button data-a="tab" data-id="cat">Ver catálogo</button></div>';
@@ -741,54 +720,147 @@ img { max-width: 100%; }
     }
   };
 
-  /* ---------- Directorio de operadores de transporte (fuente pública DTPR 2025) ---------- */
-  var OPERADORES = [
-    ['Centauro Repuestos Ltda.','UN43','Operador identificado en documentación DTPR; recorrido por verificar'],
-    ['Comercial Centauro Ltda.','UN44','Operador identificado en documentación DTPR; recorrido por verificar'],
-    ['Comercial San Pedro Sur S.A.','UN56','Operador identificado en documentación DTPR; recorrido por verificar'],
-    ['Comercializadora y Servicios de Locomoción Colectiva San Pedro S.A.','UN65','Operador identificado en documentación DTPR; recorrido por verificar'],
-    ['Empresa de Transportes Rengo Lientur Ltda.','','Aparición en listado histórico; vigencia por verificar'],
-    ['Expresos Plaza del Mall S.A.','UN17','Operador identificado en documentación DTPR; recorrido por verificar'],
-    ['Nueva Sol Yet S.A.','UN53','Operador identificado en documentación DTPR; recorrido por verificar'],
-    ['Primavera S.A.','UN46','Operador identificado en documentación DTPR; recorrido por verificar'],
-    ['Rutas Las Galaxias S.A.','UN59','Operador identificado en documentación DTPR; recorrido por verificar'],
-    ['Servicio de Locomoción Colectiva Las Golondrinas S.A.','','Aparición en listado histórico; vigencia por verificar'],
-    ['Servicio de Locomoción Colectiva Minibuses Hualpencillo S.A.','UN42','Operador identificado en documentación DTPR; recorrido por verificar'],
-    ['Servicio de Locomoción Colectiva Puchacay S.A.','UN71','Operador identificado en documentación DTPR; recorrido por verificar'],
-    ['Transportes Vía Láctea S.A.','UN10','Operador identificado en documentación DTPR; recorrido por verificar'],
-    ['Locomoción Colectiva Pedro de Valdivia Universidad S.A.','UN55','Operador identificado en documentación DTPR; recorrido por verificar'],
-    ['Servicios de Transporte Intermodal S.A. (Bio Bus)','UN30','Operador identificado en documentación DTPR; recorrido por verificar'],
-    ['Locomoción Colectiva San Remo S.A.','UN58','Operador identificado en documentación DTPR; recorrido por verificar'],
-    ['Géminis del Sur Ltda.','UN52','Operador identificado en documentación DTPR; recorrido por verificar'],
-    ['Mini Verde SpA','UN41','Operador identificado en documentación DTPR; recorrido por verificar'],
-    ['Buses Puerto - Las Canchas - Tumbes Ltda.','','Aparición en listado histórico; vigencia por verificar'],
-    ['Sociedad Comercial Inmobiliaria del Mar Ltda.','UN38','Operador identificado en documentación DTPR; recorrido por verificar'],
-    ['Nueva Llacolén S.A.','UN60','Operador identificado en documentación DTPR; recorrido por verificar'],
-    ['Buses Expreso Concepción Chiguayante S.A.','UN18','Operador identificado en documentación DTPR; recorrido por verificar'],
-    ['Buses Base Naval Ltda.','UN43','Operador identificado en documentación DTPR; recorrido por verificar'],
-    ['Transportes Cóndor S.A.','','Aparición en listado histórico; vigencia por verificar'],
-    ['Vía del Sol S.A.','UN81','Operador identificado en documentación DTPR; recorrido por verificar'],
-    ['Nueva Sotrapel S.A.','UN12','Operador identificado en documentación DTPR; recorrido por verificar'],
-    ['Vía Futuro S.A.','UN11','Operador identificado en documentación DTPR; recorrido por verificar'],
-    ['Huertos Familiares S.A.','','Aparición en listado histórico; vigencia por verificar'],
-    ['Riviera Ltda.','UN42','Operador identificado en documentación DTPR; código por confirmar'],
-    ['Taxibuses Nueva Lan B Puerto San Vicente S.A.','','Aparición en listado histórico; vigencia por verificar'],
-    ['Buses Tucapel S.A.','UN60','Operador identificado en documentación DTPR; recorrido por verificar'],
-    ['Transporte y Administración Las Bahías S.A.','','Aparición en listado histórico; vigencia por verificar'],
-    ['Transportes Colectivos Penco Chiguayante Sur S.A.','UN14','Operador identificado en documentación DTPR; recorrido por verificar'],
-    ['Transportes Hualpensan S.A.','UN02','Operador identificado en documentación DTPR; recorrido por verificar'],
-    ['Ruta Las Playas S.A.','UN50','Operador identificado en documentación DTPR; recorrido por verificar'],
-    ['Vía Siglo XXI S.A.','UN13','Operador identificado en documentación DTPR; recorrido por verificar'],
-    ['Vía Universo S.A.','UN16','Operador identificado en documentación DTPR; recorrido por verificar']
-  ];
-  function operatorDirectory() {
-    return '<section class="note" style="margin-top:18px"><h2>Directorio de empresas de buses</h2><p class="muted small">Listado inicial basado en documentos públicos de la DTPR. No equivale a un padrón completo y actualizado: los nombres históricos, códigos y vigencia requieren confirmación oficial.</p><label class="fld">Buscar empresa o código<input id="operatorSearch" type="search" placeholder="Ej. Tucapel, UN14..."></label><div id="operatorList">' + operatorRows('') + '</div><p class="muted small">Fuente de referencia: DTPR, documentos del sistema regulado del Gran Concepción (2025) y listado histórico regional. Los recorridos específicos no se muestran como confirmados hasta verificarlos.</p></section>';
+  var CATSEED = {"emp":[{"id":"e-transportes-hualpensan-s-a","nombre":"Transportes Hualpensan S.A.","estado":"vigente","verif":"por verificar","periodo":"","obs":"","alias":[{"t":"Buses Hualpensán","tipo":"variante","f":"wper","nota":"Escritura según Wikipedia."}],"suc":"","sucFuente":"","org":"inicial","fuente":"u"},{"id":"e-servicio-de-locomocion-colectiva-via-lac","nombre":"Servicio de locomoción colectiva Vía Láctea S.A.","estado":"vigente","verif":"por verificar","periodo":"","obs":"","alias":[],"suc":"","sucFuente":"","org":"inicial","fuente":"u"},{"id":"e-sociedad-de-transportes-via-futuro-s-a","nombre":"Sociedad de Transportes Vía Futuro S.A.","estado":"vigente","verif":"por verificar","periodo":"","obs":"","alias":[],"suc":"","sucFuente":"","org":"inicial","fuente":"u"},{"id":"e-sociedad-de-transportes-nueva-sotrapel-s","nombre":"Sociedad de Transportes Nueva Sotrapel S.A.","estado":"vigente","verif":"por verificar","periodo":"","obs":"","alias":[],"suc":"","sucFuente":"","org":"inicial","fuente":"u"},{"id":"e-transportes-via-siglo-xxi-s-a","nombre":"Transportes Vía Siglo XXI S.A.","estado":"vigente","verif":"por verificar","periodo":"","obs":"","alias":[],"suc":"","sucFuente":"","org":"inicial","fuente":"u"},{"id":"e-transportes-colectivos-penco-chiguayante","nombre":"Transportes Colectivos Penco - Chiguayante Sur S.A.","estado":"vigente","verif":"por verificar","periodo":"","obs":"","alias":[{"t":"Chiguayante Sur","tipo":"nombre comercial","f":"p-chiguayante-sur","nota":"Nombre de la línea en la Asociación Provincial de Taxibuses."}],"suc":"","sucFuente":"","org":"inicial","fuente":"u"},{"id":"e-transportes-via-universo-s-a","nombre":"Transportes Vía Universo S.A.","estado":"vigente","verif":"por verificar","periodo":"","obs":"","alias":[],"suc":"","sucFuente":"","org":"inicial","fuente":"u"},{"id":"e-expresos-plaza-del-mall-s-a","nombre":"Expresos Plaza del Mall S.A.","estado":"vigente","verif":"por verificar","periodo":"","obs":"","alias":[{"t":"Expresos Chiguayante","tipo":"nombre comercial","f":"u","nota":"Indicado por el proyecto. También figura así en la Asociación Provincial de Taxibuses y en Wikipedia."}],"suc":"","sucFuente":"","org":"inicial","fuente":"u"},{"id":"e-sociedad-de-buses-expreso-concepcion-chi","nombre":"Sociedad de Buses Expreso Concepción - Chiguayante S.A.","estado":"vigente","verif":"por verificar","periodo":"","obs":"","alias":[{"t":"Buses Palomares","tipo":"nombre según otra fuente","f":"wper","nota":"Wikipedia nombra así a la UN18, distinto de la razón social entregada por el proyecto. Verificar."}],"suc":"","sucFuente":"","org":"inicial","fuente":"u"},{"id":"e-sociedad-comercializadora-y-servicio-de-","nombre":"Sociedad Comercializadora y Servicio de Locomoción Colectiva Nueva Llacolén S.A.","estado":"vigente","verif":"por verificar","periodo":"","obs":"","alias":[],"suc":"","sucFuente":"","org":"inicial","fuente":"u"},{"id":"e-sociedad-riviera-ltda","nombre":"Sociedad Riviera Ltda.","estado":"vigente","verif":"por verificar","periodo":"","obs":"","alias":[{"t":"Riviera Bío Bío","tipo":"nombre comercial","f":"p-riviera-bio-bio","nota":""}],"suc":"","sucFuente":"","org":"inicial","fuente":"u"},{"id":"e-comercializadora-y-servicios-de-locomoci","nombre":"Comercializadora y Servicios de Locomoción Colectiva San Pedro S.A.","estado":"vigente","verif":"por verificar","periodo":"","obs":"","alias":[],"suc":"","sucFuente":"","org":"inicial","fuente":"u"},{"id":"e-comercial-san-pedro-sur-s-a","nombre":"Comercial San Pedro Sur S.A.","estado":"vigente","verif":"por verificar","periodo":"","obs":"","alias":[{"t":"Buses San Pedro del Mar","tipo":"nombre según otra fuente","f":"wper","nota":"Wikipedia nombra así a la UN23, distinto de la razón social entregada por el proyecto. Verificar."}],"suc":"","sucFuente":"","org":"inicial","fuente":"u"},{"id":"e-servicio-de-locomocion-colectiva-san-rem","nombre":"Servicio de Locomoción Colectiva San Remo S.A.","estado":"vigente","verif":"por verificar","periodo":"","obs":"","alias":[],"suc":"","sucFuente":"","org":"inicial","fuente":"u"},{"id":"e-transportes-publico-de-pasajeros-ruta-la","nombre":"Transportes Público de Pasajeros Ruta Las Playas S.A.","estado":"vigente","verif":"por verificar","periodo":"","obs":"","alias":[],"suc":"","sucFuente":"","org":"inicial","fuente":"u"},{"id":"e-sociedad-de-transporte-de-pasajeros-ruta","nombre":"Sociedad de Transporte de Pasajeros Ruta del Mar SpA","estado":"vigente","verif":"por verificar","periodo":"","obs":"","alias":[],"suc":"","sucFuente":"","org":"inicial","fuente":"u"},{"id":"e-sociedad-comercial-inmobiliaria-del-mar-","nombre":"Sociedad Comercial Inmobiliaria Del Mar Ltda.","estado":"vigente","verif":"por verificar","periodo":"","obs":"","alias":[{"t":"Buses Ruta del Mar","tipo":"nombre según otra fuente","f":"wper","nota":"Wikipedia usa este nombre para la UN32; el proyecto la registra como Del Mar. Verificar."}],"suc":"","sucFuente":"","org":"inicial","fuente":"u"},{"id":"e-servicio-de-locomocion-colectiva-las-gol","nombre":"Servicio de Locomoción Colectiva Las Golondrinas S.A.","estado":"vigente","verif":"por verificar","periodo":"","obs":"","alias":[],"suc":"","sucFuente":"","org":"inicial","fuente":"u"},{"id":"e-sociedad-de-transportes-mini-verde-spa","nombre":"Sociedad de Transportes Mini Verde SpA","estado":"vigente","verif":"por verificar","periodo":"","obs":"","alias":[],"suc":"","sucFuente":"","org":"inicial","fuente":"u"},{"id":"e-servicio-de-locomocion-colectiva-mini-bu","nombre":"Servicio de Locomoción Colectiva Mini Buses Hualpencillo S.A.","estado":"vigente","verif":"por verificar","periodo":"","obs":"","alias":[],"suc":"","sucFuente":"","org":"inicial","fuente":"u"},{"id":"e-centauro-repuestos-ltda","nombre":"Centauro Repuestos Ltda.","estado":"vigente","verif":"por verificar","periodo":"","obs":"","alias":[{"t":"Flota Las Lilas","tipo":"nombre comercial","f":"p-flota-las-lilas","nota":"Nombre de la línea en la Asociación Provincial de Taxibuses, con código 43."}],"suc":"","sucFuente":"","org":"inicial","fuente":"u"},{"id":"e-comercial-centauro-ltda","nombre":"Comercial Centauro Ltda.","estado":"vigente","verif":"por verificar","periodo":"","obs":"","alias":[{"t":"Flota Centauro","tipo":"nombre comercial","f":"p-flota-centauro","nota":"Nombre de la línea en la Asociación Provincial de Taxibuses, con código 44."}],"suc":"","sucFuente":"","org":"inicial","fuente":"u"},{"id":"e-servicios-de-locomocion-colectiva-gemini","nombre":"Servicios de Locomoción Colectiva Géminis Sur Ltda.","estado":"vigente","verif":"por verificar","periodo":"","obs":"","alias":[],"suc":"","sucFuente":"","org":"inicial","fuente":"u"},{"id":"e-sociedad-de-transportes-buses-base-naval","nombre":"Sociedad de Transportes Buses Base Naval Ltda.","estado":"vigente","verif":"por verificar","periodo":"","obs":"","alias":[],"suc":"","sucFuente":"","org":"inicial","fuente":"u"},{"id":"e-transportes-de-pasajeros-buses-tucapel-s","nombre":"Transportes de Pasajeros Buses Tucapel S.A.","estado":"vigente","verif":"por verificar","periodo":"","obs":"","alias":[],"suc":"","sucFuente":"","org":"inicial","fuente":"u"},{"id":"e-buses-primavera-s-a","nombre":"Buses Primavera S.A.","estado":"vigente","verif":"por verificar","periodo":"","obs":"","alias":[{"t":"Mi Expreso","tipo":"nombre comercial","f":"wper","nota":"Según Wikipedia."}],"suc":"","sucFuente":"","org":"inicial","fuente":"u"},{"id":"e-servicio-de-locomocion-colectiva-rengo-l","nombre":"Servicio de Locomoción Colectiva Rengo Lientur SpA","estado":"vigente","verif":"por verificar","periodo":"","obs":"","alias":[],"suc":"","sucFuente":"","org":"inicial","fuente":"u"},{"id":"e-sociedad-de-transportes-buses-condor-spa","nombre":"Sociedad de Transportes Buses Cóndor SpA","estado":"vigente","verif":"por verificar","periodo":"","obs":"","alias":[],"suc":"","sucFuente":"","org":"inicial","fuente":"u"},{"id":"e-transporte-y-administracion-las-bahias-s","nombre":"Transporte y Administración Las Bahías S.A.","estado":"vigente","verif":"por verificar","periodo":"","obs":"","alias":[],"suc":"","sucFuente":"","org":"inicial","fuente":"u"},{"id":"e-servicio-de-locomocion-colectiva-puchaca","nombre":"Servicio de Locomoción Colectiva Puchacay S.A.","estado":"vigente","verif":"por verificar","periodo":"","obs":"","alias":[],"suc":"","sucFuente":"","org":"inicial","fuente":"u"},{"id":"e-servicio-de-locomocion-colectiva-y-comer","nombre":"Servicio de Locomoción Colectiva y Comercial Pedro de Valdivia Universidad S.A.","estado":"vigente","verif":"por verificar","periodo":"","obs":"","alias":[],"suc":"","sucFuente":"","org":"inicial","fuente":"u"},{"id":"e-ruta-las-galaxias-s-a","nombre":"Ruta Las Galaxias S.A.","estado":"vigente","verif":"por verificar","periodo":"","obs":"","alias":[{"t":"Las Galaxias","tipo":"variante impresa","f":"bol","nota":"Así aparece impreso en el boleto BC-0007. Falta confirmar que sea la misma empresa."}],"suc":"","sucFuente":"","org":"inicial","fuente":"u"},{"id":"e-sociedad-de-transportes-e-inversiones-vi","nombre":"Sociedad de Transportes e Inversiones Vía del Sol S.A.","estado":"vigente","verif":"por verificar","periodo":"","obs":"","alias":[],"suc":"","sucFuente":"","org":"inicial","fuente":"u"},{"id":"e-sociedad-comercial-de-servicios-y-transp","nombre":"Sociedad Comercial de Servicios y Transportes Nueva Sol Yet S.A.","estado":"vigente","verif":"por verificar","periodo":"","obs":"","alias":[],"suc":"","sucFuente":"","org":"inicial","fuente":"u"},{"id":"e-servicio-de-transporte-intermodal-s-a","nombre":"Servicio de Transporte Intermodal S.A.","estado":"vigente","verif":"por verificar","periodo":"","obs":"","alias":[{"t":"Bío Bus","tipo":"variante","f":"p-bio-bus","nota":"Escritura según la Asociación Provincial de Taxibuses."}],"suc":"","sucFuente":"","org":"inicial","fuente":"u"},{"id":"e-buses-campanil","nombre":"Buses Campanil","estado":"histórico","verif":"por verificar","periodo":"Hasta 2023 (según Wikipedia)","obs":"Línea 50. Según Wikipedia, Ruta Las Playas la adquirió en 2023. Aparece impreso en el boleto BC-0005.","alias":[],"suc":"e-transportes-publico-de-pasajeros-ruta-la","sucFuente":"wbl","org":"inicial","fuente":"wbl"},{"id":"e-transportes-denavi-sur","nombre":"Transportes Denavi Sur","estado":"histórico","verif":"por verificar","periodo":"Hasta 2011 (según Wikipedia)","obs":"Línea 57. Según Wikipedia, Ruta Las Playas la compró en 2011.","alias":[],"suc":"e-transportes-publico-de-pasajeros-ruta-la","sucFuente":"wbl","org":"inicial","fuente":"wbl"}],"un":[{"id":"UN02","emp":"e-transportes-hualpensan-s-a","corto":"Hualpensan","estado":"vigente","verif":"por verificar","obs":"","org":"inicial","fuente":"u"},{"id":"UN10","emp":"e-servicio-de-locomocion-colectiva-via-lac","corto":"Vía Láctea","estado":"vigente","verif":"por verificar","obs":"","org":"inicial","fuente":"u"},{"id":"UN11","emp":"e-sociedad-de-transportes-via-futuro-s-a","corto":"Vía Futuro","estado":"vigente","verif":"por verificar","obs":"","org":"inicial","fuente":"u"},{"id":"UN12","emp":"e-sociedad-de-transportes-nueva-sotrapel-s","corto":"Nueva Sotrapel","estado":"vigente","verif":"por verificar","obs":"","org":"inicial","fuente":"u"},{"id":"UN13","emp":"e-transportes-via-siglo-xxi-s-a","corto":"Vía Siglo XXI","estado":"vigente","verif":"por verificar","obs":"","org":"inicial","fuente":"u"},{"id":"UN14","emp":"e-transportes-colectivos-penco-chiguayante","corto":"Chiguayante Sur","estado":"vigente","verif":"por verificar","obs":"","org":"inicial","fuente":"u"},{"id":"UN16","emp":"e-transportes-via-universo-s-a","corto":"Vía Universo","estado":"vigente","verif":"por verificar","obs":"","org":"inicial","fuente":"u"},{"id":"UN17","emp":"e-expresos-plaza-del-mall-s-a","corto":"Expresos Plaza del Mall","estado":"vigente","verif":"por verificar","obs":"Nombre comercial asociado: Expresos Chiguayante.","org":"inicial","fuente":"u"},{"id":"UN18","emp":"e-sociedad-de-buses-expreso-concepcion-chi","corto":"Buses Expreso Concepción–Chiguayante","estado":"vigente","verif":"por verificar","obs":"Las fuentes difieren en el nombre de esta unidad (ver nombres alternativos).","org":"inicial","fuente":"u"},{"id":"UN20","emp":"e-sociedad-comercializadora-y-servicio-de-","corto":"Nueva Llacolén","estado":"vigente","verif":"por verificar","obs":"","org":"inicial","fuente":"u"},{"id":"UN21","emp":"e-sociedad-riviera-ltda","corto":"Riviera","estado":"vigente","verif":"por verificar","obs":"","org":"inicial","fuente":"u"},{"id":"UN22","emp":"e-comercializadora-y-servicios-de-locomoci","corto":"San Pedro","estado":"vigente","verif":"por verificar","obs":"","org":"inicial","fuente":"u"},{"id":"UN23","emp":"e-comercial-san-pedro-sur-s-a","corto":"San Pedro Sur","estado":"vigente","verif":"por verificar","obs":"Las fuentes difieren en el nombre de esta unidad (ver nombres alternativos).","org":"inicial","fuente":"u"},{"id":"UN24","emp":"e-servicio-de-locomocion-colectiva-san-rem","corto":"San Remo","estado":"vigente","verif":"por verificar","obs":"","org":"inicial","fuente":"u"},{"id":"UN30","emp":"e-transportes-publico-de-pasajeros-ruta-la","corto":"Ruta Las Playas","estado":"vigente","verif":"por verificar","obs":"Comparte empresa con UN50. Son dos unidades de negocio distintas y se conservan por separado.","org":"inicial","fuente":"u"},{"id":"UN31","emp":"e-sociedad-de-transporte-de-pasajeros-ruta","corto":"Ruta del Mar","estado":"vigente","verif":"por verificar","obs":"","org":"inicial","fuente":"u"},{"id":"UN32","emp":"e-sociedad-comercial-inmobiliaria-del-mar-","corto":"Del Mar","estado":"vigente","verif":"por verificar","obs":"","org":"inicial","fuente":"u"},{"id":"UN40","emp":"e-servicio-de-locomocion-colectiva-las-gol","corto":"Las Golondrinas","estado":"vigente","verif":"por verificar","obs":"","org":"inicial","fuente":"u"},{"id":"UN41","emp":"e-sociedad-de-transportes-mini-verde-spa","corto":"Mini Verde","estado":"vigente","verif":"por verificar","obs":"","org":"inicial","fuente":"u"},{"id":"UN42","emp":"e-servicio-de-locomocion-colectiva-mini-bu","corto":"Mini Buses Hualpencillo","estado":"vigente","verif":"por verificar","obs":"","org":"inicial","fuente":"u"},{"id":"UN43","emp":"e-centauro-repuestos-ltda","corto":"Centauro Repuestos","estado":"vigente","verif":"por verificar","obs":"","org":"inicial","fuente":"u"},{"id":"UN44","emp":"e-comercial-centauro-ltda","corto":"Comercial Centauro","estado":"vigente","verif":"por verificar","obs":"","org":"inicial","fuente":"u"},{"id":"UN50","emp":"e-transportes-publico-de-pasajeros-ruta-la","corto":"Ruta Las Playas","estado":"vigente","verif":"por verificar","obs":"Comparte empresa con UN30. Son dos unidades de negocio distintas y se conservan por separado.","org":"inicial","fuente":"u"},{"id":"UN52","emp":"e-servicios-de-locomocion-colectiva-gemini","corto":"Géminis Sur","estado":"vigente","verif":"por verificar","obs":"","org":"inicial","fuente":"u"},{"id":"UN56","emp":"e-sociedad-de-transportes-buses-base-naval","corto":"Buses Base Naval","estado":"vigente","verif":"por verificar","obs":"","org":"inicial","fuente":"u"},{"id":"UN60","emp":"e-transportes-de-pasajeros-buses-tucapel-s","corto":"Buses Tucapel","estado":"vigente","verif":"por verificar","obs":"","org":"inicial","fuente":"u"},{"id":"UN62","emp":"e-buses-primavera-s-a","corto":"Buses Primavera","estado":"vigente","verif":"por verificar","obs":"","org":"inicial","fuente":"u"},{"id":"UN63","emp":"e-servicio-de-locomocion-colectiva-rengo-l","corto":"Rengo Lientur","estado":"vigente","verif":"por verificar","obs":"","org":"inicial","fuente":"u"},{"id":"UN65","emp":"e-sociedad-de-transportes-buses-condor-spa","corto":"Buses Cóndor","estado":"vigente","verif":"por verificar","obs":"","org":"inicial","fuente":"u"},{"id":"UN70","emp":"e-transporte-y-administracion-las-bahias-s","corto":"Las Bahías","estado":"vigente","verif":"por verificar","obs":"","org":"inicial","fuente":"u"},{"id":"UN71","emp":"e-servicio-de-locomocion-colectiva-puchaca","corto":"Puchacay","estado":"vigente","verif":"por verificar","obs":"","org":"inicial","fuente":"u"},{"id":"UN72","emp":"e-servicio-de-locomocion-colectiva-y-comer","corto":"Pedro de Valdivia Universidad","estado":"vigente","verif":"por verificar","obs":"","org":"inicial","fuente":"u"},{"id":"UN80","emp":"e-ruta-las-galaxias-s-a","corto":"Ruta Las Galaxias","estado":"vigente","verif":"por verificar","obs":"","org":"inicial","fuente":"u"},{"id":"UN81","emp":"e-sociedad-de-transportes-e-inversiones-vi","corto":"Vía del Sol","estado":"vigente","verif":"por verificar","obs":"","org":"inicial","fuente":"u"},{"id":"UN90","emp":"e-sociedad-comercial-de-servicios-y-transp","corto":"Nueva Sol Yet","estado":"vigente","verif":"por verificar","obs":"","org":"inicial","fuente":"u"},{"id":"UNB0","emp":"e-servicio-de-transporte-intermodal-s-a","corto":"Biobús","estado":"vigente","verif":"por verificar","obs":"","org":"inicial","fuente":"u"}],"rec":[{"id":"R-UN14-14HT","cod":"14HT","un":"UN14","nombre":"Chiguayante–Talcahuano","ori":"","des":"","ter":"","ida":"14H: Los Castaños → Av. Latorre","reg":"14T: Av. Latorre → Los Castaños","estado":"por verificar","periodo":"","fuente":"p-chiguayante-sur","consulta":"2026-10-16","oficial":"","obs":"Publicado por la Asociación Provincial de Taxibuses; no contrastado con una fuente oficial.","tipo":"servicio","trazado":"Calle por calle en la fuente (enlace).","org":"inicial"},{"id":"R-UN14-14ZU","cod":"14ZU","un":"UN14","nombre":"Chiguayante–Concepción","ori":"","des":"","ter":"","ida":"14Z: Los Castaños → Teguralda","reg":"14U: Teguralda → Los Castaños","estado":"por verificar","periodo":"","fuente":"p-chiguayante-sur","consulta":"2026-10-16","oficial":"","obs":"Publicado por la Asociación Provincial de Taxibuses; no contrastado con una fuente oficial. La fuente escribe “Teguralda” en esta página y “Tegualda” en otras.","tipo":"servicio","trazado":"Calle por calle en la fuente (enlace).","org":"inicial"},{"id":"R-UN16-16HK","cod":"16HK","un":"UN16","nombre":"Chiguayante–Talcahuano","ori":"","des":"","ter":"","ida":"16H: Leonera Vieja → Av. Latorre","reg":"16K: La Marina → Leonera Vieja","estado":"por verificar","periodo":"","fuente":"p-via-universo","consulta":"2026-10-16","oficial":"","obs":"Publicado por la Asociación Provincial de Taxibuses; no contrastado con una fuente oficial.","tipo":"servicio","trazado":"Calle por calle en la fuente (enlace).","org":"inicial"},{"id":"R-UN16-16IV","cod":"16IV","un":"UN16","nombre":"Chiguayante–Talcahuano","ori":"","des":"","ter":"","ida":"16I: Leonera Vieja → Av. Latorre","reg":"16V: La Marina → Leonera Vieja","estado":"por verificar","periodo":"","fuente":"p-via-universo","consulta":"2026-10-16","oficial":"","obs":"Publicado por la Asociación Provincial de Taxibuses; no contrastado con una fuente oficial.","tipo":"servicio","trazado":"Calle por calle en la fuente (enlace).","org":"inicial"},{"id":"R-UN17-17AW","cod":"17AW","un":"UN17","nombre":"Chiguayante–Penco","ori":"","des":"","ter":"","ida":"17A: Los Boldos → Rotonda Puerto Lirquén","reg":"17W: Ruta 150 → Los Boldos","estado":"por verificar","periodo":"","fuente":"p-expresos-chiguayante","consulta":"2026-10-16","oficial":"","obs":"Publicado por la Asociación Provincial de Taxibuses; no contrastado con una fuente oficial.","tipo":"servicio","trazado":"Calle por calle en la fuente (enlace).","org":"inicial"},{"id":"R-UN17-17OX","cod":"17OX","un":"UN17","nombre":"Chiguayante–Concepción","ori":"","des":"","ter":"","ida":"17O: Los Boldos → Camino Nonguén (hasta la altura del 1950)","reg":"17X: Camino Nonguén → Los Boldos","estado":"por verificar","periodo":"","fuente":"p-expresos-chiguayante","consulta":"2026-10-16","oficial":"","obs":"Publicado por la Asociación Provincial de Taxibuses; no contrastado con una fuente oficial.","tipo":"servicio","trazado":"Calle por calle en la fuente (enlace).","org":"inicial"},{"id":"R-UN17-17MC","cod":"17MC","un":"UN17","nombre":"","ori":"","des":"","ter":"","ida":"","reg":"","estado":"por verificar","periodo":"","fuente":"u","consulta":"2026-10-16","oficial":"","obs":"Código entregado por el proyecto. No aparece en la página de la Asociación Provincial de Taxibuses (que lista 17AW y 17OX). Pendiente de verificar.","tipo":"servicio","trazado":"","org":"inicial"},{"id":"R-UN56-56OV","cod":"56OV","un":"UN56","nombre":"Concepción–Talcahuano","ori":"","des":"","ter":"","ida":"56O: Venecia → Calle 4","reg":"56V: Calle 2 → Venecia","estado":"por verificar","periodo":"","fuente":"p-base-naval","consulta":"2026-10-16","oficial":"","obs":"Publicado por la Asociación Provincial de Taxibuses; no contrastado con una fuente oficial. Wikipedia escribe este código como “56VO”.","tipo":"servicio","trazado":"Calle por calle en la fuente (enlace).","org":"inicial"},{"id":"R-UN60-60XK","cod":"60XK","un":"UN60","nombre":"Concepción–Hualpén","ori":"","des":"","ter":"","ida":"60X: Abdón Cifuentes → Navarra","reg":"60K: Av. 2 → Abdón Cifuentes","estado":"por verificar","periodo":"","fuente":"p-tucapel","consulta":"2026-10-16","oficial":"","obs":"Publicado por la Asociación Provincial de Taxibuses; no contrastado con una fuente oficial.","tipo":"servicio","trazado":"Calle por calle en la fuente (enlace).","org":"inicial"},{"id":"R-UN60-60YL","cod":"60YL","un":"UN60","nombre":"Concepción–Hualpén","ori":"","des":"","ter":"","ida":"60Y: Abdón Cifuentes → Amsterdam","reg":"60L: Toulusse → Abdón Cifuentes","estado":"por verificar","periodo":"","fuente":"p-tucapel","consulta":"2026-10-16","oficial":"","obs":"Publicado por la Asociación Provincial de Taxibuses; no contrastado con una fuente oficial. El código “60L” entregado por el proyecto corresponde al tramo de regreso de este recorrido en la fuente.","tipo":"servicio","trazado":"Calle por calle en la fuente (enlace).","org":"inicial"},{"id":"R-UN60-60ZM","cod":"60ZM","un":"UN60","nombre":"Concepción–Concepción","ori":"","des":"","ter":"","ida":"60Z: Abdón Cifuentes → Sanders","reg":"60M: Av. Pedro de Valdivia → Abdón Cifuentes","estado":"por verificar","periodo":"","fuente":"p-tucapel","consulta":"2026-10-16","oficial":"","obs":"Publicado por la Asociación Provincial de Taxibuses; no contrastado con una fuente oficial.","tipo":"servicio","trazado":"Calle por calle en la fuente (enlace).","org":"inicial"},{"id":"R-UNB0-B02","cod":"B02","un":"UNB0","nombre":"","ori":"","des":"","ter":"","ida":"B02: EIM EFE (Concepción) → Vasco Núñez de Balboa","reg":"B02: Calle 1 → EIM EFE (Concepción)","estado":"por verificar","periodo":"","fuente":"p-bio-bus","consulta":"2026-10-16","oficial":"","obs":"Publicado por la Asociación Provincial de Taxibuses; no contrastado con una fuente oficial. La fuente no da nombre al recorrido ni separa letras de ida y regreso.","tipo":"servicio","trazado":"Calle por calle en la fuente (enlace).","org":"inicial"},{"id":"R-UN44-44EU","cod":"44EU","un":"UN44","nombre":"Hualpén–Concepción","ori":"","des":"","ter":"","ida":"44E: Av. Las Golondrinas → Retorno Alessandri (Clínica Biobío)","reg":"44U: Retorno Alessandri (Clínica Biobío) → Av. Las Golondrinas","estado":"por verificar","periodo":"","fuente":"p-flota-centauro","consulta":"2026-10-16","oficial":"","obs":"Publicado por la Asociación Provincial de Taxibuses; no contrastado con una fuente oficial. La fuente titula la línea “Flota Centauro”; se asocia a la UN44 por el prefijo 44. Confirmar.","tipo":"servicio","trazado":"Calle por calle en la fuente (enlace).","org":"inicial"},{"id":"R-UN43-43JT","cod":"43JT","un":"UN43","nombre":"","ori":"","des":"","ter":"","ida":"43J: Av. Central → Calle 5","reg":"43T: Juan de Dios Vial → Av. Central","estado":"por verificar","periodo":"","fuente":"p-flota-las-lilas","consulta":"2026-10-16","oficial":"","obs":"Publicado por la Asociación Provincial de Taxibuses; no contrastado con una fuente oficial. La fuente no da nombre ni código completo: el código 43JT se arma con los tramos 43J y 43T. La línea se asocia a la UN43 por el prefijo 43. Confirmar.","tipo":"servicio","trazado":"Calle por calle en la fuente (enlace).","org":"inicial"},{"id":"R-UN40-40GN","cod":"40GN","un":"UN40","nombre":"Hualpén–San Pedro de la Paz","ori":"","des":"","ter":"","ida":"40G: Av. Gran Bretaña → Carabineros","reg":"40N: Av. Central → Av. Gran Bretaña","estado":"por verificar","periodo":"","fuente":"p-las-golondrinas","consulta":"2026-10-16","oficial":"","obs":"Publicado por la Asociación Provincial de Taxibuses; no contrastado con una fuente oficial.","tipo":"servicio","trazado":"Calle por calle en la fuente (enlace).","org":"inicial"},{"id":"R-UN40-40BP","cod":"40BP","un":"UN40","nombre":"Hualpén–Concepción","ori":"","des":"","ter":"","ida":"40B: Londres → Los Canelos","reg":"40P: Los Canelos → Av. Gran Bretaña","estado":"por verificar","periodo":"","fuente":"p-las-golondrinas","consulta":"2026-10-16","oficial":"","obs":"Publicado por la Asociación Provincial de Taxibuses; no contrastado con una fuente oficial.","tipo":"servicio","trazado":"Calle por calle en la fuente (enlace).","org":"inicial"},{"id":"R-UN20-20JL","cod":"20JL","un":"UN20","nombre":"San Pedro de la Paz–Talcahuano","ori":"","des":"","ter":"","ida":"20J: Venus → Almirante Villarroel","reg":"20L: Almirante Villarroel → Venus","estado":"por verificar","periodo":"","fuente":"p-nueva-llacolen","consulta":"2026-10-16","oficial":"","obs":"Publicado por la Asociación Provincial de Taxibuses; no contrastado con una fuente oficial.","tipo":"servicio","trazado":"Calle por calle en la fuente (enlace).","org":"inicial"},{"id":"R-UN20-20VA","cod":"20VA","un":"UN20","nombre":"San Pedro de la Paz–Talcahuano","ori":"","des":"","ter":"","ida":"20V: Venus → Almirante Villarroel","reg":"20A: Almirante Villarroel → Venus","estado":"por verificar","periodo":"","fuente":"p-nueva-llacolen","consulta":"2026-10-16","oficial":"","obs":"Publicado por la Asociación Provincial de Taxibuses; no contrastado con una fuente oficial. El título de este recorrido en la fuente dice “175”, que parece un error. El código 20VA se arma con los tramos 20V y 20A. Verificar.","tipo":"servicio","trazado":"Calle por calle en la fuente (enlace).","org":"inicial"},{"id":"R-UN20-20ZW","cod":"20ZW","un":"UN20","nombre":"San Pedro de la Paz–Talcahuano","ori":"","des":"","ter":"","ida":"20Z: Venus → Almirante Villarroel","reg":"20W: Almirante Villarroel → Venus","estado":"por verificar","periodo":"","fuente":"p-nueva-llacolen","consulta":"2026-10-16","oficial":"","obs":"Publicado por la Asociación Provincial de Taxibuses; no contrastado con una fuente oficial.","tipo":"servicio","trazado":"Calle por calle en la fuente (enlace).","org":"inicial"},{"id":"R-UN90-90EJ","cod":"90EJ","un":"UN90","nombre":"Hualpén–Concepción","ori":"","des":"","ter":"","ida":"90E: Las Palomas → Lagos de Chile","reg":"90J: Villarrica → Las Palomas","estado":"por verificar","periodo":"","fuente":"p-nueva-sol-yet","consulta":"2026-10-16","oficial":"","obs":"Publicado por la Asociación Provincial de Taxibuses; no contrastado con una fuente oficial.","tipo":"servicio","trazado":"Calle por calle en la fuente (enlace).","org":"inicial"},{"id":"R-UN90-90YX","cod":"90YX","un":"UN90","nombre":"Hualpén–Concepción","ori":"","des":"","ter":"","ida":"90Y: Las Palomas → Costanera","reg":"90X: Eleuterio Ramírez → Las Palomas","estado":"por verificar","periodo":"","fuente":"p-nueva-sol-yet","consulta":"2026-10-16","oficial":"","obs":"Publicado por la Asociación Provincial de Taxibuses; no contrastado con una fuente oficial.","tipo":"servicio","trazado":"Calle por calle en la fuente (enlace).","org":"inicial"},{"id":"R-UN21-21QB","cod":"21QB","un":"UN21","nombre":"San Pedro de la Paz–Concepción","ori":"","des":"","ter":"","ida":"21Q: El Estero → Tegualda","reg":"21B: Av. Collao → El Estero","estado":"por verificar","periodo":"","fuente":"p-riviera-bio-bio","consulta":"2026-10-16","oficial":"","obs":"Publicado por la Asociación Provincial de Taxibuses; no contrastado con una fuente oficial.","tipo":"servicio","trazado":"Calle por calle en la fuente (enlace).","org":"inicial"},{"id":"R-UN22-22JO","cod":"22JO","un":"UN22","nombre":"San Pedro de la Paz–Concepción","ori":"","des":"","ter":"","ida":"22J: Galvarino → Los Lirios","reg":"22O: Av. Collao → Galvarino","estado":"por verificar","periodo":"","fuente":"p-san-pedro","consulta":"2026-10-16","oficial":"","obs":"Publicado por la Asociación Provincial de Taxibuses; no contrastado con una fuente oficial.","tipo":"servicio","trazado":"Calle por calle en la fuente (enlace).","org":"inicial"},{"id":"R-UN22-22KD","cod":"22KD","un":"UN22","nombre":"San Pedro de la Paz–Concepción","ori":"","des":"","ter":"","ida":"22K: Galvarino → Los Copihues","reg":"22D: Los Canelos → Galvarino","estado":"por verificar","periodo":"","fuente":"p-san-pedro","consulta":"2026-10-16","oficial":"","obs":"Publicado por la Asociación Provincial de Taxibuses; no contrastado con una fuente oficial.","tipo":"servicio","trazado":"Calle por calle en la fuente (enlace).","org":"inicial"},{"id":"R-UN22-22RC","cod":"22RC","un":"UN22","nombre":"San Pedro de la Paz–Concepción","ori":"","des":"","ter":"","ida":"22R: Venus → Almirante Villarroel","reg":"22C: Almirante Villarroel → Venus","estado":"por verificar","periodo":"","fuente":"p-san-pedro","consulta":"2026-10-16","oficial":"","obs":"Publicado por la Asociación Provincial de Taxibuses; no contrastado con una fuente oficial.","tipo":"servicio","trazado":"Calle por calle en la fuente (enlace).","org":"inicial"},{"id":"R-UN22-22SN","cod":"22SN","un":"UN22","nombre":"San Pedro de la Paz–Concepción","ori":"","des":"","ter":"","ida":"22S: Galvarino → Los Copihues","reg":"22N: Los Canelos → Galvarino","estado":"por verificar","periodo":"","fuente":"p-san-pedro","consulta":"2026-10-16","oficial":"","obs":"Publicado por la Asociación Provincial de Taxibuses; no contrastado con una fuente oficial.","tipo":"servicio","trazado":"Calle por calle en la fuente (enlace).","org":"inicial"},{"id":"R-UN22-22XE","cod":"22XE","un":"UN22","nombre":"San Pedro de la Paz–Concepción","ori":"","des":"","ter":"","ida":"22X: Av. Central → Galvarino","reg":"22E: Av. Bernardo O’Higgins → Av. Las Torres","estado":"por verificar","periodo":"","fuente":"p-san-pedro","consulta":"2026-10-16","oficial":"","obs":"Publicado por la Asociación Provincial de Taxibuses; no contrastado con una fuente oficial.","tipo":"servicio","trazado":"Calle por calle en la fuente (enlace).","org":"inicial"},{"id":"R-UN24-24MF","cod":"24MF","un":"UN24","nombre":"San Pedro de la Paz–Concepción","ori":"","des":"","ter":"","ida":"24M: Av. Central → Calle 5","reg":"24F: Juan de Dios Vial → Av. Central","estado":"por verificar","periodo":"","fuente":"p-san-remo","consulta":"2026-10-16","oficial":"","obs":"Publicado por la Asociación Provincial de Taxibuses; no contrastado con una fuente oficial. La fuente no rotula inicio y fin: se tomaron la primera y la última calle de cada tramo. Terminal Collao y Estadio Municipal Ester Roa figuran como lugares de interés.","tipo":"servicio","trazado":"Calle por calle en la fuente (enlace).","org":"inicial"},{"id":"R-UN24-24TR","cod":"24TR","un":"UN24","nombre":"San Pedro de la Paz–Concepción","ori":"","des":"","ter":"","ida":"24T: Av. Central → Calle 5","reg":"24R: Juan de Dios Vial → Av. Central","estado":"por verificar","periodo":"","fuente":"p-san-remo","consulta":"2026-10-16","oficial":"","obs":"Publicado por la Asociación Provincial de Taxibuses; no contrastado con una fuente oficial. La fuente no rotula inicio y fin: se tomaron la primera y la última calle de cada tramo.","tipo":"servicio","trazado":"Calle por calle en la fuente (enlace).","org":"inicial"},{"id":"R-UN02-02A","cod":"02A","un":"UN02","nombre":"","ori":"","des":"","ter":"","ida":"","reg":"","estado":"por verificar","periodo":"","fuente":"wper","consulta":"2026-10-16","oficial":"","obs":"Código de una letra tal como lo lista Wikipedia. Puede ser un tramo y no el código completo del recorrido. Pendiente de verificar con una fuente oficial.","tipo":"tramo","trazado":"","org":"inicial"},{"id":"R-UN02-02K","cod":"02K","un":"UN02","nombre":"","ori":"","des":"","ter":"","ida":"","reg":"","estado":"por verificar","periodo":"","fuente":"wper","consulta":"2026-10-16","oficial":"","obs":"Código de una letra tal como lo lista Wikipedia. Puede ser un tramo y no el código completo del recorrido. Pendiente de verificar con una fuente oficial.","tipo":"tramo","trazado":"","org":"inicial"},{"id":"R-UN02-02P","cod":"02P","un":"UN02","nombre":"","ori":"","des":"","ter":"","ida":"","reg":"","estado":"por verificar","periodo":"","fuente":"wper","consulta":"2026-10-16","oficial":"","obs":"Código de una letra tal como lo lista Wikipedia. Puede ser un tramo y no el código completo del recorrido. Pendiente de verificar con una fuente oficial.","tipo":"tramo","trazado":"","org":"inicial"},{"id":"R-UN10-10A","cod":"10A","un":"UN10","nombre":"","ori":"","des":"","ter":"","ida":"","reg":"","estado":"por verificar","periodo":"","fuente":"wper","consulta":"2026-10-16","oficial":"","obs":"Código de una letra tal como lo lista Wikipedia. Puede ser un tramo y no el código completo del recorrido. Pendiente de verificar con una fuente oficial.","tipo":"tramo","trazado":"","org":"inicial"},{"id":"R-UN10-10B","cod":"10B","un":"UN10","nombre":"","ori":"","des":"","ter":"","ida":"","reg":"","estado":"por verificar","periodo":"","fuente":"wper","consulta":"2026-10-16","oficial":"","obs":"Código de una letra tal como lo lista Wikipedia. Puede ser un tramo y no el código completo del recorrido. Pendiente de verificar con una fuente oficial.","tipo":"tramo","trazado":"","org":"inicial"},{"id":"R-UN10-10C","cod":"10C","un":"UN10","nombre":"","ori":"","des":"","ter":"","ida":"","reg":"","estado":"por verificar","periodo":"","fuente":"wper","consulta":"2026-10-16","oficial":"","obs":"Código de una letra tal como lo lista Wikipedia. Puede ser un tramo y no el código completo del recorrido. Pendiente de verificar con una fuente oficial.","tipo":"tramo","trazado":"","org":"inicial"},{"id":"R-UN10-10D","cod":"10D","un":"UN10","nombre":"","ori":"","des":"","ter":"","ida":"","reg":"","estado":"por verificar","periodo":"","fuente":"wper","consulta":"2026-10-16","oficial":"","obs":"Código de una letra tal como lo lista Wikipedia. Puede ser un tramo y no el código completo del recorrido. Pendiente de verificar con una fuente oficial.","tipo":"tramo","trazado":"","org":"inicial"},{"id":"R-UN10-10J","cod":"10J","un":"UN10","nombre":"","ori":"","des":"","ter":"","ida":"","reg":"","estado":"por verificar","periodo":"","fuente":"wper","consulta":"2026-10-16","oficial":"","obs":"Código de una letra tal como lo lista Wikipedia. Puede ser un tramo y no el código completo del recorrido. Pendiente de verificar con una fuente oficial. Destino según un ejemplo de letrero: Centinela.","tipo":"tramo","trazado":"","org":"inicial"},{"id":"R-UN10-10K","cod":"10K","un":"UN10","nombre":"","ori":"","des":"","ter":"","ida":"","reg":"","estado":"por verificar","periodo":"","fuente":"wper","consulta":"2026-10-16","oficial":"","obs":"Código de una letra tal como lo lista Wikipedia. Puede ser un tramo y no el código completo del recorrido. Pendiente de verificar con una fuente oficial.","tipo":"tramo","trazado":"","org":"inicial"},{"id":"R-UN10-10M","cod":"10M","un":"UN10","nombre":"","ori":"","des":"","ter":"","ida":"","reg":"","estado":"por verificar","periodo":"","fuente":"wper","consulta":"2026-10-16","oficial":"","obs":"Código de una letra tal como lo lista Wikipedia. Puede ser un tramo y no el código completo del recorrido. Pendiente de verificar con una fuente oficial.","tipo":"tramo","trazado":"","org":"inicial"},{"id":"R-UN10-10T","cod":"10T","un":"UN10","nombre":"","ori":"","des":"","ter":"","ida":"","reg":"","estado":"por verificar","periodo":"","fuente":"wper","consulta":"2026-10-16","oficial":"","obs":"Código de una letra tal como lo lista Wikipedia. Puede ser un tramo y no el código completo del recorrido. Pendiente de verificar con una fuente oficial.","tipo":"tramo","trazado":"","org":"inicial"},{"id":"R-UN11-11M","cod":"11M","un":"UN11","nombre":"","ori":"","des":"","ter":"","ida":"","reg":"","estado":"por verificar","periodo":"","fuente":"wper","consulta":"2026-10-16","oficial":"","obs":"Código de una letra tal como lo lista Wikipedia. Puede ser un tramo y no el código completo del recorrido. Pendiente de verificar con una fuente oficial.","tipo":"tramo","trazado":"","org":"inicial"},{"id":"R-UN23-23B","cod":"23B","un":"UN23","nombre":"","ori":"","des":"","ter":"","ida":"","reg":"","estado":"por verificar","periodo":"","fuente":"wper","consulta":"2026-10-16","oficial":"","obs":"Código de una letra tal como lo lista Wikipedia. Puede ser un tramo y no el código completo del recorrido. Pendiente de verificar con una fuente oficial.","tipo":"tramo","trazado":"","org":"inicial"},{"id":"R-UN23-23C","cod":"23C","un":"UN23","nombre":"","ori":"","des":"","ter":"","ida":"","reg":"","estado":"por verificar","periodo":"","fuente":"wper","consulta":"2026-10-16","oficial":"","obs":"Código de una letra tal como lo lista Wikipedia. Puede ser un tramo y no el código completo del recorrido. Pendiente de verificar con una fuente oficial.","tipo":"tramo","trazado":"","org":"inicial"},{"id":"R-UN31-31D","cod":"31D","un":"UN31","nombre":"","ori":"","des":"","ter":"","ida":"","reg":"","estado":"por verificar","periodo":"","fuente":"wper","consulta":"2026-10-16","oficial":"","obs":"Código de una letra tal como lo lista Wikipedia. Puede ser un tramo y no el código completo del recorrido. Pendiente de verificar con una fuente oficial.","tipo":"tramo","trazado":"","org":"inicial"},{"id":"R-UN31-31F","cod":"31F","un":"UN31","nombre":"","ori":"","des":"","ter":"","ida":"","reg":"","estado":"por verificar","periodo":"","fuente":"wper","consulta":"2026-10-16","oficial":"","obs":"Código de una letra tal como lo lista Wikipedia. Puede ser un tramo y no el código completo del recorrido. Pendiente de verificar con una fuente oficial. Destino según un ejemplo de letrero: Lirquén.","tipo":"tramo","trazado":"","org":"inicial"},{"id":"R-UN32-32E","cod":"32E","un":"UN32","nombre":"","ori":"","des":"","ter":"","ida":"","reg":"","estado":"por verificar","periodo":"","fuente":"wper","consulta":"2026-10-16","oficial":"","obs":"Código de una letra tal como lo lista Wikipedia. Puede ser un tramo y no el código completo del recorrido. Pendiente de verificar con una fuente oficial.","tipo":"tramo","trazado":"","org":"inicial"},{"id":"R-UN32-32J","cod":"32J","un":"UN32","nombre":"","ori":"","des":"","ter":"","ida":"","reg":"","estado":"por verificar","periodo":"","fuente":"wper","consulta":"2026-10-16","oficial":"","obs":"Código de una letra tal como lo lista Wikipedia. Puede ser un tramo y no el código completo del recorrido. Pendiente de verificar con una fuente oficial. Destino según un ejemplo de letrero: Lobos Viejos.","tipo":"tramo","trazado":"","org":"inicial"},{"id":"R-UN41-41C","cod":"41C","un":"UN41","nombre":"","ori":"","des":"","ter":"","ida":"","reg":"","estado":"por verificar","periodo":"","fuente":"wper","consulta":"2026-10-16","oficial":"","obs":"Código de una letra tal como lo lista Wikipedia. Puede ser un tramo y no el código completo del recorrido. Pendiente de verificar con una fuente oficial.","tipo":"tramo","trazado":"","org":"inicial"},{"id":"R-UN62-62S","cod":"62S","un":"UN62","nombre":"","ori":"","des":"","ter":"","ida":"","reg":"","estado":"por verificar","periodo":"","fuente":"wper","consulta":"2026-10-16","oficial":"","obs":"Código de una letra tal como lo lista Wikipedia. Puede ser un tramo y no el código completo del recorrido. Pendiente de verificar con una fuente oficial.","tipo":"tramo","trazado":"","org":"inicial"},{"id":"R-UN63-63L","cod":"63L","un":"UN63","nombre":"","ori":"","des":"","ter":"","ida":"","reg":"","estado":"por verificar","periodo":"","fuente":"wper","consulta":"2026-10-16","oficial":"","obs":"Código de una letra tal como lo lista Wikipedia. Puede ser un tramo y no el código completo del recorrido. Pendiente de verificar con una fuente oficial.","tipo":"tramo","trazado":"","org":"inicial"},{"id":"R-UN70-70I","cod":"70I","un":"UN70","nombre":"","ori":"","des":"","ter":"","ida":"","reg":"","estado":"por verificar","periodo":"","fuente":"wper","consulta":"2026-10-16","oficial":"","obs":"Código de una letra tal como lo lista Wikipedia. Puede ser un tramo y no el código completo del recorrido. Pendiente de verificar con una fuente oficial.","tipo":"tramo","trazado":"","org":"inicial"},{"id":"R-UN70-70J","cod":"70J","un":"UN70","nombre":"","ori":"","des":"","ter":"","ida":"","reg":"","estado":"por verificar","periodo":"","fuente":"wper","consulta":"2026-10-16","oficial":"","obs":"Código de una letra tal como lo lista Wikipedia. Puede ser un tramo y no el código completo del recorrido. Pendiente de verificar con una fuente oficial. Destino según un ejemplo de letrero: Los Copihues.","tipo":"tramo","trazado":"","org":"inicial"},{"id":"R-UN70-70K","cod":"70K","un":"UN70","nombre":"","ori":"","des":"","ter":"","ida":"","reg":"","estado":"por verificar","periodo":"","fuente":"wper","consulta":"2026-10-16","oficial":"","obs":"Código de una letra tal como lo lista Wikipedia. Puede ser un tramo y no el código completo del recorrido. Pendiente de verificar con una fuente oficial.","tipo":"tramo","trazado":"","org":"inicial"},{"id":"R-UN72-72Z","cod":"72Z","un":"UN72","nombre":"","ori":"","des":"","ter":"","ida":"","reg":"","estado":"por verificar","periodo":"","fuente":"wper","consulta":"2026-10-16","oficial":"","obs":"Código de una letra tal como lo lista Wikipedia. Puede ser un tramo y no el código completo del recorrido. Pendiente de verificar con una fuente oficial.","tipo":"tramo","trazado":"","org":"inicial"},{"id":"R-UN80-80J","cod":"80J","un":"UN80","nombre":"","ori":"","des":"","ter":"","ida":"","reg":"","estado":"por verificar","periodo":"","fuente":"wper","consulta":"2026-10-16","oficial":"","obs":"Código de una letra tal como lo lista Wikipedia. Puede ser un tramo y no el código completo del recorrido. Pendiente de verificar con una fuente oficial.","tipo":"tramo","trazado":"","org":"inicial"},{"id":"R-UN81-81S","cod":"81S","un":"UN81","nombre":"","ori":"","des":"","ter":"","ida":"","reg":"","estado":"por verificar","periodo":"","fuente":"wper","consulta":"2026-10-16","oficial":"","obs":"Código de una letra tal como lo lista Wikipedia. Puede ser un tramo y no el código completo del recorrido. Pendiente de verificar con una fuente oficial.","tipo":"tramo","trazado":"","org":"inicial"},{"id":"R-UNB0-B01","cod":"B01","un":"UNB0","nombre":"","ori":"","des":"","ter":"","ida":"","reg":"","estado":"por verificar","periodo":"","fuente":"wper","consulta":"2026-10-16","oficial":"","obs":"Código de una letra tal como lo lista Wikipedia. Puede ser un tramo y no el código completo del recorrido. Pendiente de verificar con una fuente oficial.","tipo":"tramo","trazado":"","org":"inicial"}],"fue":{"u":{"t":"Lista de unidades y recorridos aportada por el proyecto","url":"","f":"2026-10-16","tipo":"proyecto"},"bol":{"t":"Boletos de la colección del proyecto","url":"","f":"2026-10-16","tipo":"colección"},"wbl":{"t":"Wikipedia: Buses licitados del Gran Concepción","url":"https://es.wikipedia.org/wiki/Buses_licitados_del_Gran_Concepci%C3%B3n","f":"2026-10-16","tipo":"secundaria"},"wper":{"t":"Wikipedia: Perímetro de Exclusión del Gran Concepción","url":"https://es.wikipedia.org/wiki/Per%C3%ADmetro_de_Exclusi%C3%B3n_del_Gran_Concepci%C3%B3n","f":"2026-10-16","tipo":"secundaria"},"p-base-naval":{"t":"Asociación Provincial de Taxibuses de Concepción: Base Naval","url":"https://provincialdetaxibuses.cl/concepcion/base-naval/","f":"2026-10-16","tipo":"asociación gremial"},"p-bio-bus":{"t":"Asociación Provincial de Taxibuses de Concepción: Bío Bus","url":"https://provincialdetaxibuses.cl/concepcion/bio-bus/","f":"2026-10-16","tipo":"asociación gremial"},"p-chiguayante-sur":{"t":"Asociación Provincial de Taxibuses de Concepción: Chiguayante Sur","url":"https://provincialdetaxibuses.cl/concepcion/chiguayante-sur/","f":"2026-10-16","tipo":"asociación gremial"},"p-expresos-chiguayante":{"t":"Asociación Provincial de Taxibuses de Concepción: Expresos Chiguayante","url":"https://provincialdetaxibuses.cl/concepcion/expresos-chiguayante/","f":"2026-10-16","tipo":"asociación gremial"},"p-flota-centauro":{"t":"Asociación Provincial de Taxibuses de Concepción: Flota Centauro","url":"https://provincialdetaxibuses.cl/concepcion/flota-centauro/","f":"2026-10-16","tipo":"asociación gremial"},"p-flota-las-lilas":{"t":"Asociación Provincial de Taxibuses de Concepción: Flota Las Lilas","url":"https://provincialdetaxibuses.cl/concepcion/flota-las-lilas/","f":"2026-10-16","tipo":"asociación gremial"},"p-las-golondrinas":{"t":"Asociación Provincial de Taxibuses de Concepción: Las Golondrinas","url":"https://provincialdetaxibuses.cl/concepcion/las-golondrinas/","f":"2026-10-16","tipo":"asociación gremial"},"p-nueva-llacolen":{"t":"Asociación Provincial de Taxibuses de Concepción: Nueva Llacolén","url":"https://provincialdetaxibuses.cl/concepcion/nueva-llacolen/","f":"2026-10-16","tipo":"asociación gremial"},"p-nueva-sol-yet":{"t":"Asociación Provincial de Taxibuses de Concepción: Nueva Sol Yet","url":"https://provincialdetaxibuses.cl/concepcion/nueva-sol-yet/","f":"2026-10-16","tipo":"asociación gremial"},"p-riviera-bio-bio":{"t":"Asociación Provincial de Taxibuses de Concepción: Riviera Bío Bío","url":"https://provincialdetaxibuses.cl/concepcion/riviera-bio-bio/","f":"2026-10-16","tipo":"asociación gremial"},"p-san-pedro":{"t":"Asociación Provincial de Taxibuses de Concepción: San Pedro","url":"https://provincialdetaxibuses.cl/concepcion/san-pedro/","f":"2026-10-16","tipo":"asociación gremial"},"p-san-remo":{"t":"Asociación Provincial de Taxibuses de Concepción: San Remo","url":"https://provincialdetaxibuses.cl/concepcion/san-remo/","f":"2026-10-16","tipo":"asociación gremial"},"p-tucapel":{"t":"Asociación Provincial de Taxibuses de Concepción: Tucapel","url":"https://provincialdetaxibuses.cl/concepcion/tucapel-3/","f":"2026-10-16","tipo":"asociación gremial"},"p-via-universo":{"t":"Asociación Provincial de Taxibuses de Concepción: Vía Universo","url":"https://provincialdetaxibuses.cl/concepcion/via-universo/","f":"2026-10-16","tipo":"asociación gremial"}},"tk":{"1":{"un":"UN11","verif":"por verificar","fuente":"Lectura del boleto; unidad deducida por el nombre impreso"},"2":{"un":"UN13","verif":"por verificar","fuente":"Lectura del boleto; unidad deducida por el nombre impreso"},"4":{"un":"UN17","verif":"por verificar","fuente":"Lectura del boleto; unidad deducida por el nombre impreso"},"5":{"empId":"e-buses-campanil","verif":"por verificar","fuente":"Lectura del boleto"},"6":{"un":"UN80","verif":"por verificar","fuente":"Lectura del boleto; unidad deducida por el nombre impreso"},"7":{"un":"UN80","verif":"por verificar","fuente":"Lectura del boleto; falta confirmar que “Las Galaxias” sea la misma empresa"}}};
+  /* ---------- Catálogo normalizado: empresas, unidades de negocio, recorridos, alias, fuentes ---------- */
+  var CATKEY = 'bolecciona-cat-v1';
+  var CO = { emp: {}, un: {}, rec: {}, fue: {} };
+  try { var rcat = localStorage.getItem(CATKEY); if (rcat) { var ocat = JSON.parse(rcat); ['emp', 'un', 'rec', 'fue'].forEach(function (k) { CO[k] = ocat[k] || {}; }); } } catch (e) {}
+  function saveCat() { try { localStorage.setItem(CATKEY, JSON.stringify(CO)); } catch (e) { storageOK = false; } }
+  function cmerge(k) {
+    if (k === 'fue') { var o = {}; Object.keys(CATSEED.fue).forEach(function (i) { o[i] = CATSEED.fue[i]; }); Object.keys(CO.fue).forEach(function (i) { o[i] = CO.fue[i]; }); return o; }
+    var out = [], seen = {};
+    CATSEED[k].forEach(function (x) { out.push(CO[k][x.id] || x); seen[x.id] = 1; });
+    Object.keys(CO[k]).forEach(function (i) { if (!seen[i]) out.push(CO[k][i]); });
+    return out;
   }
-  function operatorRows(q) {
-    q = norm(q || '');
-    var rows = OPERADORES.filter(function(o){ return norm(o.join(' ')).indexOf(q) >= 0; });
-    if (!rows.length) return '<div class="empty">No hay empresas que coincidan.</div>';
-    return '<div style="display:grid;gap:8px;margin-top:10px">' + rows.map(function(o){ return '<div style="padding:10px;border:1px solid var(--line);border-radius:12px;background:var(--surface)"><b>' + esc(o[0]) + '</b><div class="muted small">' + (o[1] ? 'Unidad: ' + esc(o[1]) + ' · ' : '') + esc(o[2]) + '</div></div>'; }).join('') + '</div>';
+  function pick(arr, id) { for (var i = 0; i < arr.length; i++) if (arr[i].id === id) return arr[i]; return null; }
+  function eById(id) { return pick(cmerge('emp'), id); }
+  function uById(id) { return pick(cmerge('un'), id); }
+  function rById(id) { return pick(cmerge('rec'), id); }
+  function fById(id) { return cmerge('fue')[id] || null; }
+  function unName(u) { var e = eById(u.emp); return u.corto || (e ? e.nombre : u.id); }
+  function unsOf(eid) { return cmerge('un').filter(function (u) { return u.emp === eid; }); }
+  function recsOf(un) { return cmerge('rec').filter(function (r) { return r.un === un; }).sort(function (a, b) { return a.cod < b.cod ? -1 : a.cod > b.cod ? 1 : 0; }); }
+  function slug(s) { return norm(s).replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40); }
+  function isVer(x) { return x.verif === 'verificado' || !!x.oficial; }
+  function stKey(x) { var s = x.estado || 'por verificar'; if (s === 'histórico' || s === 'desconocido') return s; return (s === 'vigente' && isVer(x)) ? 'vigente' : 'por verificar'; }
+  function stBd(x) { var k = stKey(x); return '<span class="bd ' + (k === 'vigente' ? 'ok' : k === 'histórico' ? 'est' : 'pend') + '">' + cap(k) + '</span>'; }
+  function tcName(t) { if (t.un) { var u = uById(t.un); return u ? unName(u) : ''; } if (t.empId) { var e = eById(t.empId); return e ? e.nombre : ''; } return ''; }
+  function tVerif(t) { return t.verif || 'desconocido'; }
+  function eraOf(t) {
+    if (t.era === 'antiguo' || t.era === 'actual') return t.era;
+    var e = t.empId ? eById(t.empId) : null; if (e && e.estado === 'histórico') return 'antiguo';
+    var m = String(t.anio || t.periodo || '').match(/\d{4}/);
+    if (m) return +m[0] >= 2020 ? 'actual' : 'antiguo';
+    return '';
+  }
+  var ERAOPTS = [['', 'Sin clasificar'], ['antiguo', 'Boleto antiguo'], ['actual', 'Boleto actual']];
+  function eraLabel(k) { return k === 'antiguo' ? 'Boleto antiguo' : k === 'actual' ? 'Boleto actual' : ''; }
+  function eraCount(k) { return TICKETS.filter(function (t) { return (eraOf(t) || 'sin') === k; }).length; }
+  function perOf(t) { var m = String(t.anio || t.periodo || '').match(/\d{4}/); return m ? (Math.floor(+m[0] / 10) * 10) + 's' : 'Sin fecha'; }
+  var FKEYS = ['emp', 'un', 'rec', 'per', 'verif', 'tipo', 'color', 'tema', 'imp'];
+  TICKETS.forEach(function (t) { var x = CATSEED.tk[t.n]; if (x) Object.keys(x).forEach(function (k) { t[k] = x[k]; }); });
+  function fOpts(key) {
+    var o = [], seen = {};
+    if (key === 'emp') {
+      cmerge('un').forEach(function (u) { var n = unName(u); if (!seen[n]) { seen[n] = 1; o.push([n, n]); } });
+      cmerge('emp').filter(function (e) { return e.estado === 'histórico'; }).forEach(function (e) { if (!seen[e.nombre]) { seen[e.nombre] = 1; o.push([e.nombre, e.nombre]); } });
+      TICKETS.forEach(function (t) { if (t.emp && !seen[t.emp] && !tcName(t)) { seen[t.emp] = 1; o.push([t.emp, t.emp]); } });
+      return o.sort(function (a, b) { return a[1].localeCompare(b[1]); });
+    }
+    if (key === 'un') return cmerge('un').map(function (u) { return [u.id, u.id + ' · ' + unName(u)]; }).sort(function (a, b) { return a[0] < b[0] ? -1 : 1; });
+    if (key === 'rec') return cmerge('rec').map(function (r) { return [r.id, r.cod + ' · ' + r.un + (r.nombre ? ' · ' + r.nombre : '')]; }).sort(function (a, b) { return a[1] < b[1] ? -1 : 1; });
+    if (key === 'per') return ['1950s', '1960s', '1970s', '1980s', '1990s', '2000s', '2010s', '2020s', 'Sin fecha'].map(function (x) { return [x, x]; });
+    if (key === 'verif') return [['confirmado', 'Confirmado'], ['por verificar', 'Por verificar'], ['desconocido', 'Desconocido']];
+    return uniq(key).map(function (x) { return [x, x]; });
+  }
+  function ticketsOf(kind, id) {
+    return TICKETS.filter(function (t) {
+      if (kind === 'un') return t.un === id;
+      if (kind === 'rec') return t.rec === id;
+      var u = t.un ? uById(t.un) : null; return t.empId === id || (u && u.emp === id);
+    });
+  }
+  function srcHtml(fid) {
+    var f = fById(fid); if (!f) return '';
+    return f.url ? '<a class="src" href="' + esc(f.url) + '" target="_blank" rel="noopener noreferrer">' + esc(f.t) + '</a>' : esc(f.t);
+  }
+  /* búsqueda y listas del catálogo */
+  S.cat = { mode: 'un', q: '', est: '' }; S.edit = null; S.fd = {}; S.aliasOpen = false;
+  function rowUn(u) {
+    var e = eById(u.emp) || {}, n = recsOf(u.id).length, al = (e.alias || []).filter(function (a) { return a.tipo === 'nombre comercial'; }).map(function (a) { return a.t; });
+    return '<button class="row" data-a="ent" data-id="' + esc(u.id) + '"><span class="lcode">' + esc(u.id.replace(/^UN/, '')) + '</span><span class="tx"><b>' + esc(unName(u)) + (al.length && norm(al[0]) !== norm(unName(u)) ? ' · ' + esc(al[0]) : '') + '</b><small>' + esc(u.id) + ' · ' + n + (n === 1 ? ' recorrido' : ' recorridos') + '</small></span>' + stBd(u) + ICON.chev + '</button>';
+  }
+  function rowRec(r) {
+    var u = uById(r.un);
+    return '<button class="row" data-a="rec" data-id="' + esc(r.id) + '"><span class="lcode">' + esc(r.cod) + '</span><span class="tx"><b>' + esc(r.nombre || 'Sin nombre registrado') + '</b><small>' + esc(r.un || 'Sin unidad') + (u ? ' · ' + esc(unName(u)) : '') + (r.tipo === 'tramo' ? ' · código de una letra' : '') + '</small></span>' + stBd(r) + ICON.chev + '</button>';
+  }
+  function rowEmp(e) {
+    var us = unsOf(e.id);
+    return '<button class="row" data-a="ent" data-id="' + esc(e.id) + '"><span class="lcode">' + esc(us.length ? us[0].id.replace(/^UN/, '') : '—') + '</span><span class="tx"><b>' + esc(e.nombre) + '</b><small>' + (e.periodo ? esc(e.periodo) : 'Período sin datos') + '</small></span>' + stBd(e) + ICON.chev + '</button>';
+  }
+  function catBody() {
+    var K = S.cat, q = norm(K.q.trim()), rows = [], total = 0;
+    function hit(a) { return !q || norm(a.join(' ')).indexOf(q) > -1; }
+    function est(x) { return !K.est || stKey(x) === K.est; }
+    if (K.mode === 'un') {
+      cmerge('un').sort(function (a, b) { return a.id < b.id ? -1 : 1; }).forEach(function (u) {
+        var e = eById(u.emp) || {};
+        if (est(u) && hit([u.id, u.corto, e.nombre, (e.alias || []).map(function (a) { return a.t; }).join(' '), recsOf(u.id).map(function (r) { return r.cod; }).join(' ')])) rows.push(rowUn(u));
+      });
+    } else if (K.mode === 'rec') {
+      cmerge('rec').sort(function (a, b) { return (a.un + a.cod) < (b.un + b.cod) ? -1 : 1; }).forEach(function (r) {
+        var u = uById(r.un);
+        if (est(r) && hit([r.cod, r.un, r.nombre, r.ida, r.reg, r.ori, r.des, r.ter, u ? unName(u) : ''])) rows.push(rowRec(r));
+      });
+    } else {
+      cmerge('emp').filter(function (e) { return e.estado === 'histórico'; }).forEach(function (e) {
+        if (est(e) && hit([e.nombre, (e.alias || []).map(function (a) { return a.t; }).join(' ')])) rows.push(rowEmp(e));
+      });
+    }
+    var lab = K.mode === 'un' ? ['unidad', 'unidades'] : K.mode === 'rec' ? ['recorrido', 'recorridos'] : ['empresa histórica', 'empresas históricas'];
+    return '<div class="cnt">' + rows.length + ' ' + (rows.length === 1 ? lab[0] : lab[1]) + '</div>' +
+      (rows.length ? '<div class="rows">' + rows.join('') + '</div>' : '<div class="empty">No hay resultados. Prueba con otro nombre, un código UN (UN14) o un código de recorrido (14HT).</div>');
+  }
+  function infoRow(k, v) { return '<div><span>' + k + '</span><span class="v">' + v + '</span></div>'; }
+  function aliasList(e) {
+    if (!e || !(e.alias || []).length) return '<i>Sin nombres alternativos</i>';
+    return e.alias.map(function (a) { var f = fById(a.f); return '<div style="margin-bottom:4px">' + esc(a.t) + ' <span class="muted small">(' + esc(a.tipo) + (f ? ' · ' + esc(f.t) : '') + ')</span>' + (a.nota ? '<br><span class="muted small">' + esc(a.nota) + '</span>' : '') + '</div>'; }).join('');
+  }
+  function today() { return isoOf(new Date()); }
+  function gv(id) { var x = document.getElementById(id); return x ? x.value.trim() : ''; }
+  function newFuente(titulo, url) {
+    if (!titulo && !url) return '';
+    var id = 'f-u-' + Date.now().toString(36); CO.fue[id] = { t: titulo || url, url: url || '', f: today(), tipo: 'aportada por ' + (D.acct ? '@' + D.acct.alias : 'usuario') };
+    return id;
+  }
+  function selOpts(list, cur, blank) { return (blank ? '<option value="">' + blank + '</option>' : '') + list.map(function (p) { return '<option value="' + esc(p[0]) + '"' + (cur === p[0] ? ' selected' : '') + '>' + esc(p[1]) + '</option>'; }).join(''); }
+  var ESTOPTS = [['vigente', 'Vigente'], ['histórico', 'Histórico'], ['por verificar', 'Por verificar'], ['desconocido', 'Desconocido']];
+  function recSelHtml() {
+    var un = S.fd['f-un'] || '', cur = S.fd['f-recsel'] || '', recs = /^UN/.test(un) ? recsOf(un) : [];
+    return '<select id="f-recsel"><option value="">Elegir (opcional)</option><option value="__desc"' + (cur === '__desc' ? ' selected' : '') + '>Recorrido desconocido o por identificar</option>' +
+      recs.map(function (r) { return '<option value="' + esc(r.id) + '"' + (cur === r.id ? ' selected' : '') + '>' + esc(r.cod + (r.nombre ? ' · ' + r.nombre : '') + (r.tipo === 'tramo' ? ' (código de una letra)' : '')) + '</option>'; }).join('') +
+      '<option value="__otro"' + (cur === '__otro' ? ' selected' : '') + '>Otro: escribir el código abajo</option></select>';
+  }
+  function unOptsHtml(cur) {
+    var uns = cmerge('un').sort(function (a, b) { return a.id < b.id ? -1 : 1; }), hs = cmerge('emp').filter(function (e) { return e.estado === 'histórico'; });
+    return '<option value="">Elegir (opcional)</option><option value="__desc"' + (cur === '__desc' ? ' selected' : '') + '>Empresa desconocida</option><option value="__otra"' + (cur === '__otra' ? ' selected' : '') + '>Otra: no está en el catálogo</option>' +
+      '<optgroup label="Unidades de negocio">' + uns.map(function (u) { return '<option value="' + esc(u.id) + '"' + (cur === u.id ? ' selected' : '') + '>' + esc(u.id + ' · ' + unName(u)) + '</option>'; }).join('') + '</optgroup>' +
+      (hs.length ? '<optgroup label="Empresas históricas">' + hs.map(function (e) { return '<option value="' + esc(e.id) + '"' + (cur === e.id ? ' selected' : '') + '>' + esc(e.nombre) + '</option>'; }).join('') + '</optgroup>' : '');
+  }
+  function catLinks(t) {
+    var u = t.un ? uById(t.un) : null, e = t.empId ? eById(t.empId) : null;
+    if (!u && !e) return '';
+    return '<div class="btns" style="margin:12px 0"><button class="btn ghost" data-a="ent" data-id="' + esc(u ? u.id : e.id) + '">Ver ' + (u ? 'la unidad ' + esc(u.id) : 'la empresa') + ' en el catálogo</button></div>';
+  }
+
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
+  function uniqId(base, arr) { var id = base, n = 2; while (pick(arr, id)) id = base + '-' + n++; return id; }
+  function setF(id, val) { var x = document.getElementById(id); if (x) { x.value = val; S.fd[id] = val; } }
+  function subRow(s, i) {
+    var sm = esc(s.when) + (s.f && /^UN/.test(s.f['f-un'] || '') ? ' · ' + esc(s.f['f-un']) : '') + (s.f && s.f['f-reccod'] ? ' · ' + esc(s.f['f-reccod']) : '');
+    if (!s.f) return '<div class="row"><span class="tx"><b>' + esc(s.title) + '</b><small>' + esc(s.when) + '</small></span><span class="bd rev">En revisión</span></div>';
+    return '<button class="row" data-a="editsub" data-id="' + i + '"><span class="tx"><b>' + esc(s.title) + '</b><small>' + sm + ' · toca para editar</small></span><span class="bd rev">En revisión</span>' + ICON.chev + '</button>';
   }
 
   /* ---------- Pantallas ---------- */
@@ -802,10 +874,12 @@ img { max-width: 100%; }
       var nAct = Object.keys(FLABEL).filter(function (k) { return S.F[k]; }).length;
       return head('Catálogo') +
         (D.acct ? '' : '<div class="notice"><span><b>Vista previa.</b> Ves ' + Object.keys(PREVIEW).length + ' de ' + TICKETS.length + ' fichas. <button style="display:inline;color:var(--accent)" data-a="signup">Crea tu cuenta</button> para ver el catálogo completo.</span></div>') +
+        '<div class="seg" role="tablist" aria-label="Época del boleto">' + [['', 'Todos', TICKETS.length], ['antiguo', 'Antiguos', eraCount('antiguo')], ['actual', 'Actuales', eraCount('actual')]].map(function (x) { return '<button data-a="era" data-id="' + x[0] + '" aria-pressed="' + (S.era === x[0]) + '">' + x[1] + ' (' + x[2] + ')</button>'; }).join('') + '</div>' +
+        (eraCount('sin') ? '<div class="chips" style="margin-bottom:8px"><button class="chip" data-a="era" data-id="sin" aria-pressed="' + (S.era === 'sin') + '">Sin clasificar (' + eraCount('sin') + ')</button></div>' : '') +
         '<div class="fbar"><button class="chip grow" data-a="ftoggle" aria-pressed="' + S.fopen + '">Filtros' + (nAct ? ' (' + nAct + ')' : '') + '</button>' +
         '<label class="fld" style="flex:1"><select data-f="orden" aria-label="Ordenar"><option value="reciente"' + (S.F.orden === 'reciente' ? ' selected' : '') + '>Más recientes</option><option value="nombre"' + (S.F.orden === 'nombre' ? ' selected' : '') + '>Por nombre</option></select></label></div>' +
-        (S.fopen ? '<div class="fpanel">' + sel('emp', 'Empresa') + sel('tipo', 'Tipo') + sel('color', 'Color') + sel('tema', 'Temática') + sel('imp', 'Imprenta') + '</div>' : '') +
-        adSlot() + '<div id="catList">' + catResults() + '</div>';
+        (S.fopen ? '<div class="fpanel">' + sel('emp', 'Empresa') + sel('un', 'Unidad de negocio (UN)') + sel('rec', 'Recorrido') + sel('per', 'Período') + sel('verif', 'Verificación del dato') + sel('tipo', 'Tipo') + sel('color', 'Color') + sel('tema', 'Temática') + sel('imp', 'Imprenta') + '</div>' : '') +
+        '<div class="rows" style="margin-bottom:12px"><button class="row" data-a="catemp"><span class="tx"><b>Empresas y recorridos</b><small>Catálogo de unidades de negocio y recorridos</small></span>' + ICON.chev + '</button></div>' + adSlot() + '<div id="catList">' + catResults() + '</div>';
     },
     ticket: function (v) {
       var t = BYID[v.id];
@@ -824,7 +898,7 @@ img { max-width: 100%; }
       var h = head('Ficha del boleto', true) +
         '<div class="hero">' + pic(t, 'heroimg') + '<div class="tag">Fotografía del anverso · Reverso aún sin fotografiar</div></div>' +
         '<h1>' + esc(t.title) + '</h1><div class="muted small" style="margin-top:2px">' + (t.tipo ? esc(t.tipo) : 'Tipo pendiente') + ' · ' + t.id + '</div>' +
-        '<div class="info">' + rows + '</div>';
+        '<div class="info">' + rows + '</div>' + catLinks(t);
       if (!acct) {
         return h + '<div class="note"><h2>Completa la ficha con tu cuenta</h2><p>Con cuenta ves el texto impreso, las hipótesis, las fichas relacionadas y todos los datos. También guardas el boleto en tu colección y aportas datos.</p><div class="btns" style="margin-top:12px"><button class="btn" data-a="signup">Crear cuenta de boleccionador</button></div></div>';
       }
@@ -839,23 +913,6 @@ img { max-width: 100%; }
         '<button class="btn ghost" data-a="fav" data-id="' + t.id + '">' + (fav ? 'Quitar de favoritos' : 'Guardar en favoritos') + '</button>' +
         (S.sugg ? '<div class="note" style="margin:0"><label class="fld" for="sg">' + (S.suggField ? 'Dato que aportas: <b style="color:var(--fg)">' + esc(S.suggField) + '</b>' : 'Qué dato aportas o corriges') + '<textarea id="sg" placeholder="Ej.: la numeración termina en 5, no en 6"></textarea></label><div class="btns row2" style="margin-top:10px"><button class="btn" data-a="sendsugg" data-id="' + t.id + '">Enviar a revisión</button><button class="btn ghost" data-a="cancelsugg">Cancelar</button></div></div>' : '<button class="btn ghost" data-a="sugg">Aportar o corregir un dato</button>') + '</div>';
     },
-    add: function () {
-      if (!D.acct) return head('Añadir boleto') + gateNote('Aportar boletos es para boleccionadores', 'Con tu cuenta puedes enviar fotos y datos de tus boletos y seguir el estado de cada aporte hasta que se publique.');
-      var m = S.formMsg;
-      return head('Añadir boleto') +
-        '<p class="muted small" style="margin:-4px 0 14px">Envía fotos y los datos que conozcas. Lo que no sepas, déjalo vacío: quedará como pendiente. Cada aporte se revisa antes de publicarse.</p>' + acctLine() +
-        '<form class="form" id="addform" novalidate>' +
-        '<div class="photos"><label class="drop" id="dropF"><span>' + (S.pv.front ? '' : 'Foto del frente<br>(obligatoria)') + '</span><input type="file" accept="image/*" id="f-front" aria-label="Foto del frente">' + (S.pv.front ? '<img alt="Vista previa del frente" src="' + S.pv.front + '">' : '') + '</label>' +
-        '<label class="drop" id="dropB"><span>' + (S.pv.back ? '' : 'Foto del reverso<br>(si existe)') + '</span><input type="file" accept="image/*" id="f-back" aria-label="Foto del reverso">' + (S.pv.back ? '<img alt="Vista previa del reverso" src="' + S.pv.back + '">' : '') + '</label></div>' +
-        '<label class="fld" for="f-emp">Empresa o línea<input type="text" id="f-emp" placeholder="Nombre impreso en el boleto"></label>' +
-        '<label class="fld" for="f-rec">Recorrido o localidad<input type="text" id="f-rec" placeholder="Ej.: Concepción – Talcahuano"></label>' +
-        '<label class="fld" for="f-fecha">Fecha o período<input type="text" id="f-fecha" placeholder="Fecha impresa o década estimada"></label>' +
-        '<label class="fld" for="f-notas">Notas o procedencia<textarea id="f-notas" placeholder="Donación, colección personal, cualquier detalle"></textarea></label>' +
-        '<label class="check"><input type="checkbox" id="f-der"><span>Confirmo que tengo derecho a compartir estas imágenes y que pueden mostrarse en el catálogo.</span></label>' +
-        (m ? '<div class="msg ' + m.k + '" role="alert">' + esc(m.t) + '</div>' : '') +
-        '<button class="btn" type="submit">Enviar a revisión</button></form>' +
-        '<p class="muted small" style="margin-top:12px">En este prototipo las fotos solo se previsualizan y no se guardan. La carga real y la revisión por parte de personas autorizadas llegan en la fase 2.</p>';
-    },
     comm: function () {
       return head('Comunidad') +
         (D.acct ? '<div class="notice"><span><b>Ejemplos.</b> Las publicaciones son ficticias. Los comentarios, reportes y la moderación llegan con el servicio de cuentas (fase 3).</span></div>' : gateNote('Participar es para boleccionadores', 'Puedes leer los temas de ejemplo. Para pedir ayuda a identificar un boleto o comentar necesitas cuenta.')) +
@@ -868,6 +925,7 @@ img { max-width: 100%; }
       var rowsEnd = '<div class="sec"><h2>Proyecto</h2></div><div class="rows">' +
         '<button class="row" data-a="plans"><span class="tx"><b>Planes y beneficios</b><small>Qué incluye cada acceso</small></span>' + ICON.chev + '</button>' +
         '<button class="row" data-a="advertise"><span class="tx"><b>Anunciar en Bolecciona</b><small>Publicidad y auspicios</small></span>' + ICON.chev + '</button>' +
+        '<button class="row" data-a="catemp"><span class="tx"><b>Empresas y recorridos</b><small>Catálogo de unidades y recorridos</small></span>' + ICON.chev + '</button>' +
         '<button class="row" data-a="legal" data-id="priv"><span class="tx"><b>Política de privacidad</b><small>Tus datos y tus derechos</small></span>' + ICON.chev + '</button>' +
         '<button class="row" data-a="legal" data-id="terms"><span class="tx"><b>Condiciones de uso</b><small>Reglas del servicio</small></span>' + ICON.chev + '</button>' +
         '<button class="row" data-a="about"><span class="tx"><b>Acerca del proyecto y contacto</b><small>Propósito, fases, criterios y colaboración</small></span>' + ICON.chev + '</button></div>';
@@ -882,7 +940,7 @@ img { max-width: 100%; }
         '<div class="sec"><h2>Favoritos</h2></div>' +
         (favs.length ? '<div class="grid2" style="margin-bottom:14px">' + favs.map(card).join('') + '</div>' : '<div class="note"><p style="margin:0">Aún no guardas favoritos.</p></div>') +
         '<div class="sec"><h2>Mis aportes</h2></div>' +
-        (D.subs.length ? '<div class="rows" style="margin-bottom:10px">' + D.subs.map(function (s) { return '<div class="row"><span class="tx"><b>' + esc(s.title) + '</b><small>' + esc(s.when) + '</small></span><span class="bd rev">En revisión</span></div>'; }).join('') + '</div>' : '<div class="note"><p style="margin:0">Todavía no has enviado aportes.</p></div>') +
+        (D.subs.length ? '<div class="rows" style="margin-bottom:10px">' + D.subs.map(subRow).join('') + '</div>' : '<div class="note"><p style="margin:0">Todavía no has enviado aportes.</p></div>') +
         '<div class="sec"><h2>Cuenta y seguridad</h2></div><div class="rows" style="margin-bottom:6px">' +
         '<button class="row" data-a="chpass"><span class="tx"><b>Cambiar contraseña</b><small>Necesitas tu contraseña actual</small></span>' + ICON.chev + '</button>' +
         '<button class="row" data-a="dldata"><span class="tx"><b>Descargar mis datos</b><small>Una copia en archivo JSON</small></span>' + ICON.chev + '</button>' +
@@ -979,7 +1037,7 @@ img { max-width: 100%; }
         '<div class="note"><h2>Cómo se accede</h2><ul class="plain"><li>Visitantes: vista previa de algunas fichas con datos básicos</li><li>Boleccionadores: cuenta gratuita con catálogo completo, colección guardada y aportes</li><li>Boleccionador Plus: opciones de pago en estudio para más adelante</li></ul></div>' +
         '<div class="note"><h2>Criterios de catalogación</h2><p>Se prefiere un dato pendiente a uno inventado. Cada dato lleva una de estas marcas:</p><div class="legend" style="margin-top:10px"><span class="bd ok">Confirmado</span><span class="bd est">Estimado</span><span class="bd pend">Pendiente</span></div></div>' +
         '<div class="note"><h2>Fases de desarrollo</h2><div style="margin-top:6px">' +
-        '<div class="phase"><em>1</em><div><b>Prototipo</b> (esta versión)<span>Navegación, ' + TICKETS.length + ' fichas reales de la colección, cuentas simuladas (usuario, contraseña, recuperación y eliminación), calendario de eventos y espacios publicitarios de muestra.</span></div></div>' +
+        '<div class="phase"><em>1</em><div><b>Prototipo</b> (esta versión)<span>Navegación, ' + TICKETS.length + ' fichas reales de la colección, cuentas simuladas, catálogo de empresas y recorridos editable, calendario de eventos y espacios publicitarios de muestra.</span></div></div>' +
         '<div class="phase"><em>2</em><div><b>Catálogo real</b><span>Base de datos, imágenes, buscador y panel de revisión.</span></div></div>' +
         '<div class="phase"><em>3</em><div><b>Cuentas y comunidad</b><span>Cuentas reales, colecciones guardadas, comentarios y moderación.</span></div></div>' +
         '<div class="phase"><em>4</em><div><b>Crecimiento</b><span>Búsqueda visual, estadísticas, planes de pago y alianzas culturales.</span></div></div></div></div>' +
@@ -1058,6 +1116,152 @@ img { max-width: 100%; }
         '<div class="note"><h2>Tarifas y condiciones</h2><p>Por definir. Escríbenos para conversar formatos, fechas y valores.</p><div class="copyline"><span>rodrigoschalchli.contacto@gmail.com</span><button data-a="copy" data-val="rodrigoschalchli.contacto@gmail.com">Copiar</button></div></div>' +
         '<div class="note"><p style="margin:0">Los anuncios que ves hoy en el prototipo son espacios de ejemplo, sin anunciantes reales.</p></div>';
     },
+    catemp: function () {
+      var K = S.cat, tab = function (id, t) { return '<button data-a="cmode" data-id="' + id + '" aria-pressed="' + (K.mode === id) + '">' + t + '</button>'; };
+      var est = function (id, t) { return '<button class="chip" data-a="cest" data-id="' + id + '" aria-pressed="' + (K.est === id) + '">' + t + '</button>'; };
+      return head('Empresas y recorridos', true) +
+        '<div class="notice"><span><b>Catálogo en construcción.</b> Los datos iniciales vienen de la lista del proyecto y de páginas públicas. Casi todo figura “por verificar” hasta contrastarlo con fuentes oficiales.</span></div>' +
+        '<label class="search">' + ICON.search + '<input id="catq" type="search" placeholder="Buscar: nombre, UN14, 14HT..." autocomplete="off" value="' + esc(K.q) + '"></label>' +
+        '<div class="seg">' + tab('un', 'Unidades') + tab('rec', 'Recorridos') + tab('hist', 'Históricas') + '</div>' +
+        '<div class="chips">' + est('', 'Todos') + est('vigente', 'Vigente') + est('por verificar', 'Por verificar') + est('histórico', 'Histórico') + '</div>' +
+        '<div id="catBody">' + catBody() + '</div>' +
+        '<div class="btns" style="margin-top:12px"><button class="btn" data-a="neweant" data-id="">Agregar empresa o unidad</button><button class="btn ghost" data-a="newrec" data-id="">Agregar recorrido</button><button class="btn ghost" data-a="fuentes">Fuentes usadas</button></div>' +
+        '<div class="note" style="margin-top:12px"><p style="margin:0">Una empresa puede tener varias unidades de negocio (UN), y cada unidad varios recorridos. El código de recorrido (14HT) no es el de la unidad (UN14). Los boletos conservan siempre el nombre impreso, aunque hoy la empresa se llame distinto.</p></div>';
+    },
+    ent: function (v) {
+      var u = /^UN/.test(v.id) ? uById(v.id) : null, e = u ? eById(u.emp) : eById(v.id);
+      if (!e) return head('Catálogo', true) + '<div class="empty">No se encontró este registro.</div>';
+      var X = u || e, recs = u ? recsOf(u.id) : [], sibs = unsOf(e.id).filter(function (x) { return !u || x.id !== u.id; });
+      var ant = cmerge('emp').filter(function (x) { return x.suc === e.id; }), suc = e.suc ? eById(e.suc) : null, tk = u ? ticketsOf('un', u.id) : ticketsOf('emp', e.id);
+      var evid = e.sucFuente ? srcHtml(e.sucFuente) : esc(e.sucEv || '');
+      var obs = [u && u.obs, e.obs].filter(Boolean).map(esc).join('<br>');
+      var h = head(u ? u.id : 'Empresa', true) +
+        '<div class="note"><div class="acct"><span class="avatar lcode big">' + esc(u ? u.id.replace(/^UN/, '') : '—') + '</span><div class="tx"><b>' + esc(u ? unName(u) : e.nombre) + '</b><span class="muted small">' + (u ? esc(e.nombre) : 'Empresa sin unidad de negocio vigente') + '</span></div></div></div>' +
+        '<div class="info">' +
+        infoRow('Estado', stBd(X)) +
+        (u ? infoRow('Unidad de negocio', esc(u.id)) : '') +
+        infoRow('Razón social', esc(e.nombre)) +
+        infoRow('Nombres alternativos', aliasList(e)) +
+        infoRow('Período', e.periodo ? esc(e.periodo) : '<i>Sin datos</i>') +
+        (suc ? infoRow('Empresa sucesora', '<button class="lnkb" data-a="ent" data-id="' + esc(suc.id) + '">' + esc(suc.nombre) + '</button><br><span class="muted small">Evidencia: ' + (evid || '<i>sin indicar</i>') + '</span>') : '') +
+        (ant.length ? infoRow('Antecesoras', ant.map(function (a) { return '<button class="lnkb" data-a="ent" data-id="' + esc(a.id) + '">' + esc(a.nombre) + '</button>'; }).join('<br>')) : '') +
+        (sibs.length ? infoRow(u ? 'Otras unidades de esta empresa' : 'Unidades', sibs.map(function (s) { return '<button class="lnkb" data-a="ent" data-id="' + esc(s.id) + '">' + esc(s.id + ' · ' + unName(s)) + '</button>'; }).join('<br>')) : '') +
+        infoRow('Observaciones', obs || '<i>Sin observaciones</i>') +
+        infoRow('Fuente', srcHtml(X.fuente || e.fuente) || '<i>Sin fuente</i>') +
+        infoRow('Origen del dato', X.org === 'usuario' ? 'Aportado por @' + esc(X.por || '') + ' el ' + esc(X.cuando || '') : 'Dato inicial del proyecto') +
+        '</div>';
+      if (u) h += '<div class="sec"><h2>Recorridos</h2></div>' + (recs.length ? '<div class="rows">' + recs.map(rowRec).join('') + '</div>' : '<div class="empty" style="padding:14px 0">Aún no hay recorridos registrados para esta unidad. No se rellenan con suposiciones.</div>');
+      if (tk.length) h += '<div class="sec"><h2>Boletos de la colección</h2></div><div class="grid2" style="margin-bottom:12px">' + tk.map(card).join('') + '</div>';
+      h += '<div class="btns" style="margin-top:12px">' + (u ? '<button class="btn" data-a="newrec" data-id="' + esc(u.id) + '">Agregar recorrido</button>' : '') +
+        '<button class="btn ghost" data-a="edit" data-kind="ent" data-id="' + esc(v.id) + '">Editar o marcar como histórica</button>' +
+        '<button class="btn ghost" data-a="aliasopen">Agregar nombre alternativo</button>' +
+        '<button class="btn ghost" data-a="neweant" data-id="' + esc(e.id) + '">Agregar otra unidad a esta empresa</button></div>';
+      if (S.aliasOpen) h += '<form class="form note" id="aliasform" novalidate style="margin-top:12px"><h2>Nuevo nombre alternativo</h2>' +
+        '<label class="fld" for="al-t">Nombre<input type="text" id="al-t" autocomplete="off"></label>' +
+        '<label class="fld" for="al-tipo">Tipo<select id="al-tipo">' + selOpts([['nombre comercial', 'Nombre comercial'], ['nombre anterior', 'Nombre anterior'], ['variante ortográfica', 'Variante ortográfica'], ['variante impresa', 'Variante impresa en un boleto']], '') + '</select></label>' +
+        '<label class="fld" for="al-n">Nota o evidencia (opcional)<input type="text" id="al-n" autocomplete="off"></label>' +
+        '<div class="msg err" id="alMsg" role="alert" hidden></div><button class="btn" type="submit">Guardar nombre</button></form>';
+      return h;
+    },
+    rec: function (v) {
+      var r = rById(v.id);
+      if (!r) return head('Recorrido', true) + '<div class="empty">No se encontró este recorrido.</div>';
+      var u = r.un ? uById(r.un) : null, f = fById(r.fuente), tk = ticketsOf('rec', r.id);
+      return head('Recorrido ' + r.cod, true) +
+        '<div class="note"><div class="acct"><span class="avatar lcode big" style="min-width:56px">' + esc(r.cod) + '</span><div class="tx"><b>' + esc(r.nombre || 'Sin nombre registrado') + '</b><span class="muted small">' + (u ? esc(u.id + ' · ' + unName(u)) : 'Sin unidad asignada') + '</span></div></div></div>' +
+        (r.tipo === 'tramo' ? '<div class="notice"><span><b>Código de una letra.</b> Puede ser un tramo y no el código completo del recorrido. Pendiente de verificar.</span></div>' : '') +
+        '<div class="info">' +
+        infoRow('Estado', stBd(r)) +
+        infoRow('Código del recorrido', esc(r.cod)) +
+        infoRow('Unidad de negocio', u ? '<button class="lnkb" data-a="ent" data-id="' + esc(u.id) + '">' + esc(u.id + ' · ' + unName(u)) + '</button>' : '<i>Sin unidad</i>') +
+        infoRow('Origen', r.ori ? esc(r.ori) : '<i>Sin datos</i>') +
+        infoRow('Destino', r.des ? esc(r.des) : '<i>Sin datos</i>') +
+        infoRow('Terminal', r.ter ? esc(r.ter) : '<i>Sin datos</i>') +
+        infoRow('Tramo de ida', r.ida ? esc(r.ida) : '<i>Sin datos</i>') +
+        infoRow('Tramo de regreso', r.reg ? esc(r.reg) : '<i>Sin datos</i>') +
+        infoRow('Trazado', r.trazado ? esc(r.trazado) : '<i>Sin datos</i>') +
+        infoRow('Período de vigencia', r.periodo ? esc(r.periodo) : '<i>Sin datos</i>') +
+        infoRow('Fuente', f ? srcHtml(r.fuente) : '<i>Sin fuente</i>') +
+        infoRow('Fecha de consulta', r.consulta ? esc(r.consulta) : '<i>Sin datos</i>') +
+        infoRow('Verificación oficial', r.oficial ? esc(r.oficial) : '<i>Pendiente</i>') +
+        infoRow('Observaciones', r.obs ? esc(r.obs) : '<i>Sin observaciones</i>') +
+        '</div>' +
+        '<p class="muted small" style="margin:8px 0 12px">Un código de recorrido no identifica para siempre el mismo trazado: si conoces un cambio, agrégalo con su período.</p>' +
+        (tk.length ? '<div class="sec"><h2>Boletos de la colección</h2></div><div class="grid2" style="margin-bottom:12px">' + tk.map(card).join('') + '</div>' : '') +
+        '<div class="btns"><button class="btn ghost" data-a="edit" data-kind="rec" data-id="' + esc(r.id) + '">Editar o completar datos</button></div>';
+    },
+    fuentes: function () {
+      var F = cmerge('fue');
+      return head('Fuentes usadas', true) +
+        '<p class="muted small" style="margin:-4px 0 12px">Cada dato del catálogo remite a una de estas fuentes. Las fuentes secundarias no sustituyen la verificación oficial.</p>' +
+        '<div class="rows">' + Object.keys(F).map(function (k) { var f = F[k]; return '<div class="row" style="align-items:flex-start"><span class="tx"><b>' + (f.url ? '<a class="src" href="' + esc(f.url) + '" target="_blank" rel="noopener noreferrer">' + esc(f.t) + '</a>' : esc(f.t)) + '</b><small>' + esc(f.tipo || '') + ' · consultada ' + esc(f.f || '') + '</small></span></div>'; }).join('') + '</div>' +
+        '<div class="note" style="margin-top:12px"><h2>Pendiente de revisar</h2><p>Fichas y resoluciones oficiales del Ministerio de Transportes y de la Dirección de Transporte Público Regional para el Perímetro de Exclusión del Gran Concepción, y archivos municipales o institucionales para recorridos históricos.</p></div>';
+    },
+    editent: function (v) {
+      var u = v.id && /^UN/.test(v.id) ? uById(v.id) : null, e = v.id ? (u ? eById(u.emp) : eById(v.id)) : null, nuevo = !v.id, X = u || e || {}, emps = cmerge('emp');
+      return head(nuevo ? 'Agregar empresa o unidad' : 'Editar', true) +
+        '<p class="muted small" style="margin:-4px 0 14px">Distingue empresa, unidad de negocio y recorrido. Los cambios quedan guardados solo en este dispositivo hasta que exista una base de datos.</p>' +
+        '<form class="form" id="entform" novalidate>' +
+        (nuevo ? '<label class="fld" for="ee-emp">Empresa<select id="ee-emp">' + selOpts(emps.map(function (x) { return [x.id, x.nombre]; }), v.empId || '', 'Nueva empresa (escríbela abajo)') + '</select><span class="hint">Para agregar otra unidad a una empresa que ya existe, elígela aquí.</span></label>' : '') +
+        '<label class="fld" for="ee-nom">Razón social o nombre de la empresa<input type="text" id="ee-nom" autocomplete="off" value="' + esc(e ? e.nombre : '') + '"></label>' +
+        '<label class="fld" for="ee-un">Código de unidad de negocio (opcional)<input type="text" id="ee-un" maxlength="4" autocapitalize="characters" autocomplete="off" placeholder="UN14"' + (u ? ' readonly' : '') + ' value="' + esc(u ? u.id : '') + '"></label>' +
+        '<label class="fld" for="ee-corto">Nombre de la línea o nombre comercial<input type="text" id="ee-corto" autocomplete="off" value="' + esc(u ? u.corto : '') + '"></label>' +
+        '<label class="fld" for="ee-est">Estado<select id="ee-est">' + selOpts(ESTOPTS, X.estado || 'por verificar') + '</select><span class="hint">Una empresa que ya no opera se conserva como histórica, no se borra.</span></label>' +
+        '<label class="fld" for="ee-per">Período de funcionamiento (si se conoce)<input type="text" id="ee-per" autocomplete="off" placeholder="Ej.: 1990–2011" value="' + esc(e ? e.periodo : '') + '"></label>' +
+        '<label class="fld" for="ee-suc">Empresa sucesora (solo con evidencia)<select id="ee-suc">' + selOpts(emps.filter(function (x) { return !e || x.id !== e.id; }).map(function (x) { return [x.id, x.nombre]; }), e ? e.suc : '', 'Ninguna o desconocida') + '</select></label>' +
+        '<label class="fld" for="ee-sucev">Evidencia de la sucesión<input type="text" id="ee-sucev" autocomplete="off" placeholder="Documento, noticia o enlace" value="' + esc(e ? e.sucEv || '' : '') + '"></label>' +
+        '<label class="fld" for="ee-obs">Observaciones<textarea id="ee-obs">' + esc(X.obs || '') + '</textarea></label>' +
+        '<label class="fld" for="ee-ft">Fuente: título (opcional)<input type="text" id="ee-ft" autocomplete="off"></label>' +
+        '<label class="fld" for="ee-fu">Fuente: enlace (opcional)<input type="text" id="ee-fu" inputmode="url" autocapitalize="none" autocomplete="off" placeholder="https://..."></label>' +
+        '<div class="msg err" id="eeMsg" role="alert" hidden></div><button class="btn" type="submit">Guardar</button></form>';
+    },
+    editrec: function (v) {
+      var r = v.id ? rById(v.id) : null, X = r || {}, uns = cmerge('un').sort(function (a, b) { return a.id < b.id ? -1 : 1; });
+      return head(r ? 'Editar recorrido' : 'Agregar recorrido', true) +
+        '<p class="muted small" style="margin:-4px 0 14px">Completa solo lo que esté documentado. Lo demás se deja vacío: queda pendiente.</p>' +
+        '<form class="form" id="recform" novalidate>' +
+        '<label class="fld" for="er-un">Unidad de negocio<select id="er-un">' + selOpts(uns.map(function (u) { return [u.id, u.id + ' · ' + unName(u)]; }), r ? r.un : (v.un || ''), 'Sin unidad asignada') + '</select></label>' +
+        '<label class="fld" for="er-cod">Código completo del recorrido<input type="text" id="er-cod" maxlength="6" autocapitalize="characters" autocomplete="off" placeholder="Ej.: 14HT"' + (r ? ' readonly' : '') + ' value="' + esc(X.cod || '') + '"><span class="hint">No es el código de unidad (UN14).</span></label>' +
+        '<label class="fld" for="er-nom">Nombre del recorrido<input type="text" id="er-nom" autocomplete="off" placeholder="Ej.: Chiguayante–Talcahuano" value="' + esc(X.nombre || '') + '"></label>' +
+        '<label class="fld" for="er-ori">Origen<input type="text" id="er-ori" autocomplete="off" value="' + esc(X.ori || '') + '"></label>' +
+        '<label class="fld" for="er-des">Destino<input type="text" id="er-des" autocomplete="off" value="' + esc(X.des || '') + '"></label>' +
+        '<label class="fld" for="er-ter">Terminal<input type="text" id="er-ter" autocomplete="off" value="' + esc(X.ter || '') + '"></label>' +
+        '<label class="fld" for="er-ida">Tramo de ida<input type="text" id="er-ida" autocomplete="off" placeholder="14H: inicio → fin" value="' + esc(X.ida || '') + '"></label>' +
+        '<label class="fld" for="er-reg">Tramo de regreso<input type="text" id="er-reg" autocomplete="off" placeholder="14T: inicio → fin" value="' + esc(X.reg || '') + '"></label>' +
+        '<label class="fld" for="er-tra">Descripción del trazado<textarea id="er-tra">' + esc(X.trazado || '') + '</textarea></label>' +
+        '<label class="fld" for="er-est">Estado<select id="er-est">' + selOpts(ESTOPTS, X.estado || 'por verificar') + '</select></label>' +
+        '<label class="fld" for="er-per">Período de vigencia (solo si se conoce)<input type="text" id="er-per" autocomplete="off" value="' + esc(X.periodo || '') + '"></label>' +
+        '<label class="fld" for="er-of">Fuente oficial que lo confirma (obligatoria para “Vigente”)<input type="text" id="er-of" autocomplete="off" value="' + esc(X.oficial || '') + '"></label>' +
+        '<label class="fld" for="er-ft">Fuente: título<input type="text" id="er-ft" autocomplete="off"></label>' +
+        '<label class="fld" for="er-fu">Fuente: enlace<input type="text" id="er-fu" inputmode="url" autocapitalize="none" autocomplete="off" placeholder="https://..."></label>' +
+        '<label class="fld" for="er-fc">Fecha de consulta o verificación<input type="date" id="er-fc" value="' + esc(X.consulta || '') + '"></label>' +
+        '<label class="fld" for="er-obs">Observaciones<textarea id="er-obs">' + esc(X.obs || '') + '</textarea></label>' +
+        '<div class="msg err" id="erMsg" role="alert" hidden></div><button class="btn" type="submit">Guardar recorrido</button></form>';
+    },
+    add: function () {
+      if (!D.acct) return head('Añadir boleto') + gateNote('Aportar boletos es para boleccionadores', 'Con tu cuenta puedes enviar fotos y datos de tus boletos y seguir el estado de cada aporte hasta que se publique.');
+      var m = S.formMsg, ed = S.edit != null && D.subs[S.edit] && D.subs[S.edit].f, fd = S.fd, v = function (id, d) { return fd[id] !== undefined ? fd[id] : (d || ''); };
+      return head(ed ? 'Editar aporte' : 'Añadir boleto', !!ed) +
+        '<p class="muted small" style="margin:-4px 0 14px">' + (ed ? 'Corrige los datos de tu aporte. Las fotos no se guardan en este prototipo.' : 'Envía fotos y los datos que conozcas. Lo que no sepas, déjalo vacío: quedará como pendiente. Cada aporte se revisa antes de publicarse.') + '</p>' + acctLine() +
+        '<form class="form" id="addform" novalidate>' +
+        (ed ? '' : '<div class="photos"><label class="drop" id="dropF"><span>' + (S.pv.front ? '' : 'Foto del frente<br>(obligatoria)') + '</span><input type="file" accept="image/*" id="f-front" aria-label="Foto del frente">' + (S.pv.front ? '<img alt="Vista previa del frente" src="' + S.pv.front + '">' : '') + '</label>' +
+          '<label class="drop" id="dropB"><span>' + (S.pv.back ? '' : 'Foto del reverso<br>(si existe)') + '</span><input type="file" accept="image/*" id="f-back" aria-label="Foto del reverso">' + (S.pv.back ? '<img alt="Vista previa del reverso" src="' + S.pv.back + '">' : '') + '</label></div>') +
+        '<label class="fld" for="f-emp">Empresa o nombre impreso en el boleto<input type="text" id="f-emp" autocomplete="off" placeholder="Tal como aparece impreso" value="' + esc(v('f-emp')) + '"><span class="hint">Escríbelo igual que en el boleto, aunque hoy la empresa se llame distinto. Este texto no se reemplaza.</span></label>' +
+        '<label class="fld" for="f-un">Unidad de negocio o empresa del catálogo<select id="f-un">' + unOptsHtml(v('f-un')) + '</select><span class="hint">Si no la conoces, elige “Empresa desconocida”. <button type="button" class="lnkb" data-a="catemp">Ver el catálogo</button></span></label>' +
+        '<label class="fld" for="f-recsel">Recorrido del catálogo<span id="recWrap">' + recSelHtml() + '</span></label>' +
+        '<label class="fld" for="f-reccod">Código del recorrido (si se conoce)<input type="text" id="f-reccod" maxlength="6" autocapitalize="characters" autocomplete="off" placeholder="Ej.: 14HT" value="' + esc(v('f-reccod')) + '"><span class="hint" id="recHint">No es el código de la unidad (UN14).</span></label>' +
+        '<label class="fld" for="f-recnom">Nombre del recorrido<input type="text" id="f-recnom" autocomplete="off" placeholder="Ej.: Chiguayante–Talcahuano" value="' + esc(v('f-recnom')) + '"></label>' +
+        '<label class="fld" for="f-era">Época del boleto<select id="f-era">' + selOpts(ERAOPTS, v('f-era', '')) + '</select><span class="hint">Antiguo: de circulación pasada. Actual: en uso hoy. Si no lo sabes, déjalo sin clasificar.</span></label>' +
+        '<label class="fld" for="f-fecha">Fecha o período aproximado<input type="text" id="f-fecha" autocomplete="off" placeholder="Fecha impresa o década estimada" value="' + esc(v('f-fecha')) + '"></label>' +
+        '<label class="fld" for="f-verif">Estado de verificación del dato<select id="f-verif">' + selOpts([['confirmado', 'Confirmado en el boleto'], ['por verificar', 'Por verificar'], ['desconocido', 'Desconocido']], v('f-verif', 'por verificar')) + '</select></label>' +
+        '<label class="fld" for="f-hist">Observaciones históricas<textarea id="f-hist" placeholder="Nombres anteriores, cambios de empresa o de recorrido">' + esc(v('f-hist')) + '</textarea></label>' +
+        '<label class="fld" for="f-fuente">Fuente de información (opcional)<input type="text" id="f-fuente" autocomplete="off" placeholder="Libro, archivo, persona o enlace" value="' + esc(v('f-fuente')) + '"></label>' +
+        '<label class="fld" for="f-notas">Notas o procedencia<textarea id="f-notas" placeholder="Donación, colección personal, cualquier detalle">' + esc(v('f-notas')) + '</textarea></label>' +
+        (ed ? '' : '<label class="check"><input type="checkbox" id="f-der"' + (fd['f-der'] ? ' checked' : '') + '><span>Confirmo que tengo derecho a compartir estas imágenes y que pueden mostrarse en el catálogo.</span></label>') +
+        (m ? '<div class="msg ' + m.k + '" role="alert">' + esc(m.t) + '</div>' : '') +
+        '<button class="btn" type="submit">' + (ed ? 'Guardar cambios' : 'Enviar a revisión') + '</button></form>' +
+        (ed ? '' : '<p class="muted small" style="margin-top:12px">En este prototipo las fotos solo se previsualizan y no se guardan. La carga real y la revisión por parte de personas autorizadas llegan en la fase 2.</p>');
+    },
     plans: function () {
       function tier(name, tag, tagCls, items) {
         return '<div class="note"><div class="hd"><h2>' + name + '</h2><span class="bd ' + tagCls + '">' + tag + '</span></div><ul class="plain">' + items.map(function (x) { return '<li>' + x + '</li>'; }).join('') + '</ul></div>';
@@ -1084,7 +1288,7 @@ img { max-width: 100%; }
   ];
   function render(keep) {
     var v = S.stack[S.stack.length - 1], top = main.scrollTop;
-    try { main.innerHTML = VIEWS[v.name](v) + storageNotice(); } catch (err) { console.error('Error al mostrar la pantalla', err); main.innerHTML = '<div class="note"><h2>No se pudo abrir esta pantalla</h2><p>Vuelve al inicio o recarga la página. Tus datos locales no se han borrado intencionalmente.</p><button class="btn primary" data-a="tab" data-id="home">Volver al inicio</button></div>'; }
+    try { main.innerHTML = VIEWS[v.name](v) + storageNotice(); } catch (err) { console.error('Error al mostrar la pantalla', err); main.innerHTML = '<div class="note"><h2>No se pudo abrir esta pantalla</h2><p>Vuelve al inicio o recarga la página. Tus datos locales no se han borrado.</p><div class="btns" style="margin-top:12px"><button class="btn" data-a="tab" data-id="home">Volver al inicio</button></div></div>'; }
     main.scrollTop = keep ? top : 0;
     navEl.innerHTML = TABS.map(function (t) { return '<button data-a="tab" data-id="' + t[0] + '"' + (S.tab === t[0] ? ' aria-current="true"' : '') + '>' + t[2] + t[1] + '</button>'; }).join('');
   }
@@ -1094,21 +1298,20 @@ img { max-width: 100%; }
     catch (e) { toast('Mantén presionado el correo para copiarlo'); }
   }
 
-  document.addEventListener('input', function(e) { if (e.target && e.target.id === 'operatorSearch') { var box = document.getElementById('operatorList'); if (box) box.innerHTML = operatorRows(e.target.value); } });
-
   document.addEventListener('click', function (e) {
     var el = e.target.closest('[data-a]');
     if (!el) return;
     var a = el.dataset.a, id = el.dataset.id;
-    if (a === 'tab') { S.tab = id; S.stack = [{ name: id }]; S.confirmReset = false; S.formMsg = null; S.sugg = false; render(false); }
+    if (a === 'tab') { S.tab = id; S.edit = null; S.fd = {}; S.aliasOpen = false; S.stack = [{ name: id }]; S.confirmReset = false; S.formMsg = null; S.sugg = false; render(false); }
     else if (a === 'back') { if (S.stack.length > 1) S.stack.pop(); S.sugg = false; render(false); }
     else if (a === 'ticket') push({ name: 'ticket', id: id });
     else if (a === 'about') push({ name: 'about' });
     else if (a === 'explore') { S.explore = id; render(true); }
-    else if (a === 'goexplore') { S.F = { emp: '', tipo: '', color: '', tema: '', imp: '', orden: S.F.orden }; S.F[id] = id === 'emp' ? empresaFiltroValor(el.dataset.val) : el.dataset.val; S.fopen = false; S.tab = 'cat'; S.stack = [{ name: 'cat' }]; render(false); }
+    else if (a === 'goexplore') { S.F = { emp: '', un: '', rec: '', per: '', verif: '', tipo: '', color: '', tema: '', imp: '', orden: S.F.orden }; S.F[id] = el.dataset.val; S.fopen = false; S.tab = 'cat'; S.stack = [{ name: 'cat' }]; render(false); }
     else if (a === 'ftoggle') { S.fopen = !S.fopen; render(true); }
+    else if (a === 'era') { S.era = id || ''; render(true); }
     else if (a === 'clearf') { S.F[id] = ''; render(true); }
-    else if (a === 'clearall') { ['emp', 'tipo', 'color', 'tema', 'imp'].forEach(function (k) { S.F[k] = ''; }); render(true); }
+    else if (a === 'clearall') { FKEYS.forEach(function (k) { S.F[k] = ''; }); render(true); }
     else if (a === 'fav') {
       if (!requireAcct('Crea tu cuenta para guardar favoritos')) return;
       var i = D.fav.indexOf(id);
@@ -1158,10 +1361,21 @@ img { max-width: 100%; }
       if (sf) { var vv = document.querySelector('input[name="vis"]:checked'); S.su.alias = document.getElementById('s-alias').value; S.su.mail = document.getElementById('s-mail').value; S.su.com = document.getElementById('s-com').value; S.su.vis = vv ? vv.value : '0'; S.su.terms = document.getElementById('s-terms').checked; }
       if (S.stack[S.stack.length - 1].name === 'legal') { S.stack[S.stack.length - 1] = { name: 'legal', id: id }; render(false); } else push({ name: 'legal', id: id });
     }
+    else if (a === 'catemp') push({ name: 'catemp' });
+    else if (a === 'cmode') { S.cat.mode = id; render(true); }
+    else if (a === 'cest') { S.cat.est = id || ''; render(true); }
+    else if (a === 'ent') { S.aliasOpen = false; push({ name: 'ent', id: id }); }
+    else if (a === 'rec') push({ name: 'rec', id: id });
+    else if (a === 'fuentes') push({ name: 'fuentes' });
+    else if (a === 'neweant') { if (!requireAcct('Crea tu cuenta para ampliar el catálogo')) return; push({ name: 'editent', empId: id || '' }); }
+    else if (a === 'newrec') { if (!requireAcct('Crea tu cuenta para ampliar el catálogo')) return; push({ name: 'editrec', un: id || '' }); }
+    else if (a === 'edit') { if (!requireAcct('Crea tu cuenta para corregir el catálogo')) return; push(el.dataset.kind === 'rec' ? { name: 'editrec', id: id } : { name: 'editent', id: id }); }
+    else if (a === 'aliasopen') { if (!requireAcct('Crea tu cuenta para ampliar el catálogo')) return; S.aliasOpen = !S.aliasOpen; render(true); }
+    else if (a === 'editsub') { var sb = D.subs[+id]; if (!sb || !sb.f) return; S.edit = +id; S.fd = clone(sb.f); S.pv = { front: '', back: '' }; S.formMsg = null; S.tab = 'add'; S.stack = [{ name: 'add' }]; render(false); }
     else if (a === 'copy') copyText(el.dataset.val);
     else if (a === 'askreset') { S.confirmReset = true; render(true); }
     else if (a === 'cancelreset') { S.confirmReset = false; render(true); }
-    else if (a === 'reset') { D = { fav: [], subs: [], acct: null, own: [] }; save(); S.confirmReset = false; render(true); toast('Prototipo restablecido'); }
+    else if (a === 'reset') { D = { fav: [], subs: [], acct: null, own: [] }; save(); CO = { emp: {}, un: {}, rec: {}, fue: {} }; try { localStorage.removeItem(CATKEY); } catch (x) {} S.confirmReset = false; render(true); toast('Prototipo restablecido'); }
   });
   document.addEventListener('input', function (e) {
     if (e.target.id === 'q') { S.query = e.target.value; document.getElementById('homeBody').innerHTML = homeBody(); }
@@ -1175,12 +1389,7 @@ img { max-width: 100%; }
       var fr = new FileReader();
       fr.onload = function () {
         S.pv[side] = String(fr.result);
-        var ids = ['f-emp', 'f-rec', 'f-fecha', 'f-notas'];
-        var vals = ids.map(function (id) { var x = document.getElementById(id); return x ? x.value : ''; });
-        var der = document.getElementById('f-der') && document.getElementById('f-der').checked;
         render(true);
-        ids.forEach(function (id, i) { var x = document.getElementById(id); if (x) x.value = vals[i]; });
-        var d = document.getElementById('f-der'); if (d) d.checked = der;
       };
       fr.readAsDataURL(file);
     }
@@ -1263,22 +1472,78 @@ img { max-width: 100%; }
       return;
     }
     if (e.target.id === 'signform') { e.preventDefault(); doSignup(); return; }
-    if (e.target.id !== 'addform') return;
-    e.preventDefault();
-    var emp = document.getElementById('f-emp').value.trim(), rec = document.getElementById('f-rec').value.trim(), fecha = document.getElementById('f-fecha').value.trim();
-    var der = document.getElementById('f-der').checked;
-    if (!S.pv.front) { S.formMsg = { k: 'err', t: 'Falta la foto del frente. Es obligatoria para publicar.' }; }
-    else if (!emp && !rec) { S.formMsg = { k: 'err', t: 'Indica al menos la empresa o el recorrido.' }; }
-    else if (!der) { S.formMsg = { k: 'err', t: 'Debes confirmar que tienes derecho a compartir las imágenes.' }; }
-    else {
-      D.subs.unshift({ title: emp || rec, when: (fecha ? fecha + ' · ' : '') + 'enviado hoy' });
-      save(); S.pv = { front: '', back: '' };
-      S.formMsg = { k: 'good', t: 'Aporte enviado a revisión. Lo verás en tu perfil con estado “En revisión”.' };
+    if (e.target.id === 'aliasform') {
+      e.preventDefault();
+      var atop = S.stack[S.stack.length - 1], au = /^UN/.test(atop.id) ? uById(atop.id) : null, ae = au ? eById(au.emp) : eById(atop.id), at = gv('al-t');
+      if (!ae) return;
+      if (at.length < 2) { showMsg('alMsg', 'Escribe el nombre.'); return; }
+      if (norm(at) === norm(ae.nombre) || (ae.alias || []).some(function (x) { return norm(x.t) === norm(at); })) { showMsg('alMsg', 'Ese nombre ya está registrado.'); return; }
+      var ae2 = clone(ae); ae2.alias = ae2.alias || []; ae2.alias.push({ t: at, tipo: gv('al-tipo'), f: '', nota: gv('al-n') });
+      CO.emp[ae2.id] = ae2; saveCat(); S.aliasOpen = false; render(true); toast('Nombre alternativo guardado'); return;
+    }
+    if (e.target.id === 'entform') {
+      e.preventDefault();
+      var et = S.stack[S.stack.length - 1], ex = et.id || '', exU = /^UN/.test(ex) ? uById(ex) : null, exE = ex ? (exU ? eById(exU.emp) : eById(ex)) : null, nuevo = !ex;
+      var nom = gv('ee-nom'), code = gv('ee-un').toUpperCase(), corto = gv('ee-corto'), est = gv('ee-est') || 'por verificar', per = gv('ee-per'), suc = gv('ee-suc'), sev = gv('ee-sucev'), obs = gv('ee-obs'), ft = gv('ee-ft'), fu = gv('ee-fu'), pre = nuevo ? gv('ee-emp') : '', er = '';
+      if (!pre && nom.length < 3) er = 'Escribe el nombre o la razón social de la empresa.';
+      else if (nuevo && code && !/^UN[0-9B][0-9]$/.test(code)) er = 'El código de unidad debe verse así: UN14 (o UNB0).';
+      else if (nuevo && code && uById(code)) er = 'Ya existe la unidad ' + code + '. Búscala en el catálogo y edítala.';
+      else if (nuevo && pre && !code) er = 'Para agregar una unidad a una empresa existente escribe su código UN.';
+      else if (nuevo && !pre && cmerge('emp').some(function (x) { return norm(x.nombre) === norm(nom); })) er = 'Ya existe una empresa con ese nombre. Elígela en “Empresa” para agregarle otra unidad.';
+      else if (suc && !sev) er = 'Para relacionar con una empresa sucesora indica la evidencia (documento, noticia o enlace).';
+      else if (fu && !/^https?:\/\//i.test(fu)) er = 'El enlace de la fuente debe empezar con http:// o https://.';
+      if (er) { showMsg('eeMsg', er); return; }
+      var fid = newFuente(ft, fu), meta = { org: 'usuario', por: D.acct ? D.acct.alias : '', cuando: today() };
+      var E2 = exE ? clone(exE) : (pre ? clone(eById(pre)) : { id: uniqId('e-' + slug(nom), cmerge('emp')), nombre: nom, alias: [], suc: '', sucFuente: '', sucEv: '', periodo: '', obs: '', verif: 'por verificar', estado: est, fuente: fid || '', org: meta.org, por: meta.por, cuando: meta.cuando });
+      if (!pre) {
+        E2.nombre = nom; E2.periodo = per; E2.suc = suc; E2.sucEv = suc ? sev : ''; E2.sucFuente = suc && fid ? fid : (suc ? E2.sucFuente || '' : '');
+        if (!exU) { E2.estado = est; E2.obs = obs; if (fid) E2.fuente = fid; }
+      }
+      CO.emp[E2.id] = E2;
+      var U2 = null;
+      if (exU) { U2 = clone(exU); U2.corto = corto; U2.estado = est; U2.obs = obs; if (fid) U2.fuente = fid; }
+      else if (nuevo && code) U2 = { id: code, emp: E2.id, corto: corto, estado: est, verif: 'por verificar', obs: obs, fuente: fid || '', org: meta.org, por: meta.por, cuando: meta.cuando };
+      if (U2) CO.un[U2.id] = U2;
+      saveCat(); S.stack[S.stack.length - 1] = { name: 'ent', id: U2 ? U2.id : E2.id }; render(false); toast('Catálogo actualizado en este dispositivo'); return;
+    }
+    if (e.target.id === 'recform') {
+      e.preventDefault();
+      var rt = S.stack[S.stack.length - 1], rex = rt.id ? rById(rt.id) : null;
+      var run = gv('er-un'), cod = gv('er-cod').toUpperCase(), est2 = gv('er-est') || 'por verificar', ofi = gv('er-of'), rfu = gv('er-fu'), rft = gv('er-ft'), rfc = gv('er-fc'), er2 = '';
+      if (!/^[A-Z0-9]{2,6}$/.test(cod)) er2 = 'El código del recorrido debe tener entre 2 y 6 letras o números, por ejemplo 14HT.';
+      else if (!rex && cmerge('rec').some(function (x) { return x.un === run && x.cod === cod; })) er2 = 'Ese recorrido ya existe en esa unidad. Búscalo y edítalo.';
+      else if (est2 === 'vigente' && !ofi) er2 = 'Para marcar un recorrido como vigente indica la fuente oficial que lo confirma. Si no la tienes, déjalo “Por verificar”.';
+      else if (rfu && !/^https?:\/\//i.test(rfu)) er2 = 'El enlace de la fuente debe empezar con http:// o https://.';
+      if (er2) { showMsg('erMsg', er2); return; }
+      var R2 = rex ? clone(rex) : { id: uniqId('R-' + (run || 'SN') + '-' + cod, cmerge('rec')), cod: cod, tipo: cod.length >= 4 ? 'servicio' : 'tramo', org: 'usuario', por: D.acct ? D.acct.alias : '', cuando: today(), fuente: '', consulta: '' };
+      R2.un = run; R2.nombre = gv('er-nom'); R2.ori = gv('er-ori'); R2.des = gv('er-des'); R2.ter = gv('er-ter'); R2.ida = gv('er-ida'); R2.reg = gv('er-reg'); R2.trazado = gv('er-tra');
+      R2.estado = est2; R2.periodo = gv('er-per'); R2.oficial = ofi; R2.obs = gv('er-obs');
+      var rfid = newFuente(rft, rfu); if (rfid) R2.fuente = rfid;
+      R2.consulta = rfc || (rfid ? today() : R2.consulta || '');
+      CO.rec[R2.id] = R2; saveCat(); S.stack[S.stack.length - 1] = { name: 'rec', id: R2.id }; render(false); toast('Recorrido guardado en este dispositivo'); return;
+    }
+    if (e.target.id === 'addform') {
+      e.preventDefault();
+      var fd2 = {};
+      ['f-emp', 'f-un', 'f-recsel', 'f-reccod', 'f-recnom', 'f-era', 'f-fecha', 'f-verif', 'f-hist', 'f-fuente', 'f-notas'].forEach(function (k) { fd2[k] = gv(k); });
+      fd2['f-reccod'] = fd2['f-reccod'].toUpperCase();
+      var edt = S.edit != null && D.subs[S.edit] && D.subs[S.edit].f, derEl = document.getElementById('f-der'), der = !!(derEl && derEl.checked), er3 = '';
+      fd2['f-der'] = der; S.fd = fd2;
+      if (!edt && !S.pv.front) er3 = 'Falta la foto del frente. Es obligatoria para publicar.';
+      else if (!fd2['f-emp'] && fd2['f-un'] !== '__desc') er3 = 'Escribe el nombre impreso en el boleto o elige “Empresa desconocida”.';
+      else if (fd2['f-reccod'] && !/^[A-Z0-9]{2,6}$/.test(fd2['f-reccod'])) er3 = 'El código del recorrido debe tener entre 2 y 6 letras o números, por ejemplo 14HT.';
+      else if (!edt && !der) er3 = 'Debes confirmar que tienes derecho a compartir las imágenes.';
+      if (er3) { S.formMsg = { k: 'err', t: er3 }; render(true); return; }
+      var un3 = /^UN/.test(fd2['f-un']) ? uById(fd2['f-un']) : null, ttl = fd2['f-emp'] || (un3 ? unName(un3) : 'Boleto sin empresa identificada');
+      var whn = (fd2['f-fecha'] ? fd2['f-fecha'] + ' · ' : '') + (edt ? 'actualizado hoy' : 'enviado hoy');
+      if (edt) {
+        D.subs[S.edit] = { title: ttl, when: whn, f: fd2 }; save(); S.edit = null; S.fd = {}; S.formMsg = null;
+        S.tab = 'profile'; S.stack = [{ name: 'profile' }]; render(false); toast('Aporte actualizado'); return;
+      }
+      D.subs.unshift({ title: ttl, when: whn, f: fd2 }); save(); S.pv = { front: '', back: '' }; S.fd = {};
+      S.formMsg = { k: 'good', t: 'Aporte enviado a revisión. Lo verás en tu perfil, donde podrás editarlo.' };
       render(false); toast('Aporte enviado a revisión'); return;
     }
-    var keep = { e: document.getElementById('f-emp').value, r: document.getElementById('f-rec').value, f: document.getElementById('f-fecha').value, n: document.getElementById('f-notas').value };
-    render(true);
-    document.getElementById('f-emp').value = keep.e; document.getElementById('f-rec').value = keep.r; document.getElementById('f-fecha').value = keep.f; document.getElementById('f-notas').value = keep.n; document.getElementById('f-der').checked = der;
   });
   function closeSplash() { var sp = document.getElementById('splash'); sp.classList.add('gone'); setTimeout(function () { sp.hidden = true; }, 400); }
   document.getElementById('enter').addEventListener('click', closeSplash);
@@ -1314,12 +1579,33 @@ img { max-width: 100%; }
     var er = aliasErr(v);
     h.textContent = er || 'Disponible (en la versión real se verifica en el servidor).'; h.style.color = er ? 'var(--bad)' : 'var(--good)';
   });
+  document.addEventListener('input', function (e) {
+    var t = e.target;
+    if (t.id === 'catq') { S.cat.q = t.value; var cb = document.getElementById('catBody'); if (cb) cb.innerHTML = catBody(); return; }
+    if (t.closest && t.closest('#addform') && t.id && t.type !== 'file') {
+      S.fd[t.id] = t.type === 'checkbox' ? t.checked : t.value;
+      if (t.id === 'f-reccod') {
+        var h = document.getElementById('recHint'), un = S.fd['f-un'] || '', c = t.value.toUpperCase();
+        if (h) h.textContent = (/^UN/.test(un) && c.length >= 2 && c.slice(0, 2) !== un.slice(2, 4)) ? 'Ojo: los dos primeros dígitos de un recorrido suelen coincidir con su unidad (' + un + ' → ' + un.slice(2, 4) + '…).' : 'No es el código de la unidad (UN14).';
+      }
+    }
+  });
+  document.addEventListener('change', function (e) {
+    var t = e.target;
+    if (!t.closest || !t.closest('#addform') || !t.id || t.type === 'file') return;
+    S.fd[t.id] = t.type === 'checkbox' ? t.checked : t.value;
+    if (t.id === 'f-un') { S.fd['f-recsel'] = ''; var w = document.getElementById('recWrap'); if (w) w.innerHTML = recSelHtml(); }
+    if (t.id === 'f-recsel') {
+      var r = rById(t.value);
+      if (r) { setF('f-reccod', r.cod); setF('f-recnom', r.nombre || ''); } else if (t.value === '__desc') { setF('f-reccod', ''); setF('f-recnom', ''); }
+    }
+  });
   window.addEventListener('error', function (ev) { console.error('Bolecciona Concepción:', ev.message || 'Error inesperado'); });
   window.addEventListener('unhandledrejection', function (ev) { console.error('Bolecciona Concepción: operación no completada', ev.reason); });
   render(false);
 })();
 
 </script>
-<!-- Bolecciona Concepción · prototipo mejorado: funciona en el navegador; requiere backend para cuentas y comunidad compartidas -->
+<!-- Bolecciona Concepción · prototipo v11: catálogo de empresas y recorridos; funciona en el navegador, requiere backend para cuentas y datos compartidos -->
 </body>
 </html>
