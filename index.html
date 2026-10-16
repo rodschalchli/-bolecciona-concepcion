@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script src="firebase-config.js"></script>
 <title>Bolecciona Concepción</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -317,12 +318,28 @@ a.src { color: var(--accent); text-decoration: underline; word-break: break-word
 }
 @media (min-width: 1500px) { #app { max-width: 1360px; } .grid2 { grid-template-columns: repeat(5, 1fr); } }
 @media (max-width: 360px) { .grid2 { gap: 14px 10px; } .fpanel { grid-template-columns: 1fr; } }
+
+[hidden] { display: none !important; }
+.strip { margin: 0 0 16px; }
+#main { padding: 0 3px 10px; margin: 0 -3px; }
+.post { display: block; width: 100%; text-align: left; color: inherit; }
+.post:hover { border-color: var(--accent); }
+.pic.noimg { display: grid; place-items: center; aspect-ratio: 4 / 5; background: var(--surface2); border-radius: 8px; color: var(--muted); font-size: 12px; }
+.reply { padding: 12px 0; border-top: 1px solid var(--line); }
+.reply:first-child { padding-top: 0; border-top: 0; }
+.reply:last-child { padding-bottom: 0; }
+.reply b { font-size: 13px; font-weight: 500; }
+.reply small { color: var(--muted); margin-left: 6px; font-size: 11.5px; }
+.reply p { margin: 4px 0 0; color: var(--fg); font-size: 14px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.copyline span { min-width: 0; overflow-wrap: anywhere; }
+.note, .form, .fld, .row, .card, .evcard { min-width: 0; }
+.fld input, .fld select, .fld textarea { max-width: 100%; }
+h1, h2, .row b, .card b, .evcard b { overflow-wrap: anywhere; }
 </style>
 <style>
 :root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
 body { margin: 0; }
 img { max-width: 100%; }
-[hidden] { display: none !important; }
 </style>
 </head>
 <body>
@@ -454,10 +471,12 @@ img { max-width: 100%; }
   var KEY = 'bolecciona-v3';
   var storageOK = true;
   var D = { fav: [], subs: [], acct: null, own: [] };
-  try { var raw = localStorage.getItem(KEY); if (raw) { var o = JSON.parse(raw); D.fav = Array.isArray(o.fav) ? o.fav : []; D.subs = Array.isArray(o.subs) ? o.subs : []; D.acct = o.acct || null; D.own = Array.isArray(o.own) ? o.own : []; D.saved = o.saved || null; } } catch (e) { storageOK = false; }
+  try { var raw = localStorage.getItem(KEY); if (raw) { var o = JSON.parse(raw); D.fav = Array.isArray(o.fav) ? o.fav : []; D.subs = Array.isArray(o.subs) ? o.subs : []; D.acct = o.acct || null; D.own = Array.isArray(o.own) ? o.own : []; D.saved = o.saved || null; D.posts = Array.isArray(o.posts) ? o.posts : []; D.evp = Array.isArray(o.evp) ? o.evp : []; } } catch (e) { storageOK = false; }
   function save() {
-    try { localStorage.setItem(KEY, JSON.stringify(D)); storageOK = true; return true; }
-    catch (e) { storageOK = false; return false; }
+    var ok = true;
+    try { localStorage.setItem(KEY, JSON.stringify(D)); storageOK = true; } catch (e) { storageOK = false; ok = false; }
+    try { if (CLOUD.on) cloudSaveProfile(); } catch (e) {}
+    return ok;
   }
   function storageNotice() {
     if (storageOK) return '';
@@ -518,7 +537,7 @@ img { max-width: 100%; }
   var FLABEL = { emp: 'Empresa', un: 'Unidad (UN)', rec: 'Recorrido', per: 'Período', verif: 'Verificación', tipo: 'Tipo', color: 'Color', tema: 'Temática', imp: 'Imprenta' };
   function filtered() {
     var F = S.F, list = TICKETS.filter(function (t) {
-      return (!F.emp || t.emp === F.emp || tcName(t) === F.emp) && (!F.un || t.un === F.un) && (!F.rec || t.rec === F.rec) && (!F.per || perOf(t) === F.per) && (!F.verif || tVerif(t) === F.verif) && (!F.tipo || t.tipo === F.tipo) && (!F.color || t.color === F.color) && (!F.tema || t.tema === F.tema) && (!F.imp || t.imp === F.imp);
+      return (!F.emp || t.emp === F.emp || tcName(t) === F.emp) && (!F.un || t.un === F.un) && (!F.rec || t.rec === F.rec) && (!F.per || perOf(t) === F.per) && (!F.verif || tVerif(t) === F.verif) && (!F.tipo || t.tipo === F.tipo) && (!F.color || t.color === F.color) && (!F.tema || t.tema === F.tema) && (!F.imp || t.imp === F.imp) && (!S.cq || ticketMatch(t, S.cq));
     });
     if (S.era) list = list.filter(function (t) { return (eraOf(t) || 'sin') === S.era; });
     if (!D.acct && FKEYS.some(function (k) { return F[k]; })) list = list.filter(canSee);
@@ -527,10 +546,10 @@ img { max-width: 100%; }
     return list;
   }
   function catResults() {
-    var list = filtered(), act = Object.keys(FLABEL).filter(function (k) { return S.F[k]; }), h = '';
+    var list = filtered(), act = Object.keys(FLABEL).filter(function (k) { return S.F[k]; }), h = S.cq ? searchCatHtml(S.cq) : '';
     if (act.length) h += '<div class="active">' + act.map(function (k) { return '<button data-a="clearf" data-id="' + k + '" aria-label="Quitar filtro ' + FLABEL[k] + '">' + FLABEL[k] + ': ' + esc(S.F[k]) + ' ✕</button>'; }).join('') + '<button data-a="clearall" style="color:var(--accent)">Limpiar filtros</button></div>';
     h += '<div class="cnt">' + list.length + (list.length === 1 ? ' ficha' : ' fichas') + '</div>';
-    h += list.length ? '<div class="grid2">' + list.map(card).join('') + '</div>' : '<div class="empty">Ninguna ficha coincide con estos filtros.</div>';
+    h += list.length ? '<div class="grid2">' + list.map(card).join('') + '</div>' : (S.cq && h.indexOf('class="rows"') > -1 ? '' : '<div class="empty">Ninguna ficha coincide con estos filtros.</div>');
     return h;
   }
   function sel(key, label) {
@@ -539,8 +558,9 @@ img { max-width: 100%; }
 
   /* ---------- Inicio ---------- */
   function homeBody() {
-    var q = norm(S.query.trim());
-    if (q) {
+    var q = S.query.trim();
+    if (q) return searchHtml(q);
+    if (false) {
       var res = TICKETS.filter(function (t) { return norm((canSee(t) ? [t.id, t.title, t.emp, t.un || '', tcName(t), t.tipo, t.color, t.tema, t.imp, t.num, t.texto.join(' ')] : [t.id]).join(' ')).indexOf(q) > -1; });
       if (!res.length) return '<div class="empty">No hay fichas para “' + esc(S.query) + '”.<br>Prueba con empresa, tipo o parte de la numeración.</div>';
       return '<div class="cnt">' + res.length + (res.length === 1 ? ' ficha' : ' fichas') + '</div><div class="grid2">' + res.map(card).join('') + '</div>';
@@ -558,7 +578,7 @@ img { max-width: 100%; }
     h += '<div class="seg"><button data-a="explore" data-id="emp" aria-pressed="' + (key === 'emp') + '">Empresas</button><button data-a="explore" data-id="tipo" aria-pressed="' + (key === 'tipo') + '">Tipos</button><button data-a="explore" data-id="imp" aria-pressed="' + (key === 'imp') + '">Imprentas</button></div>';
     h += '<div class="chips" style="flex-wrap:wrap;overflow:visible">' + vals.map(function (v) { return '<button class="chip" data-a="goexplore" data-id="' + key + '" data-val="' + esc(v) + '">' + esc(v) + '</button>'; }).join('') + '</div>';
     h += '<div class="rows" style="margin-bottom:12px"><button class="row" data-a="catemp"><span class="tx"><b>Empresas y recorridos</b><small>Unidades de negocio, recorridos y empresas históricas</small></span>' + ICON.chev + '</button></div>';
-    var up = EVENTS.filter(function (e) { return !isPast(e); }).sort(function (a, b) { return a.ini < b.ini ? -1 : 1; }).slice(0, 2);
+    var up = evAll().filter(function (e) { return !isPast(e); }).sort(function (a, b) { return a.ini < b.ini ? -1 : 1; }).slice(0, 2);
     h += '<div class="sec"><h2>Próximos eventos</h2><button data-a="tab" data-id="ev">Ver calendario</button></div>' + up.map(function (e) { return evCard(e); }).join('');
     h += '<div class="sec"><h2>Piezas destacadas</h2><button data-a="tab" data-id="cat">Ver catálogo</button></div>';
     h += '<div class="strip">' + [1, 4, 5, 6, 7].map(function (n) { var t = BYN[n]; return featBtn(t, t.tipo || t.tema || t.id); }).join('') + '</div>';
@@ -586,29 +606,38 @@ img { max-width: 100%; }
       return '<div class="note"><h2>Crea tu cuenta de boleccionador</h2><p>Es gratuita y da acceso completo:</p><ul class="plain"><li>Catálogo y fichas completas</li><li>Tu colección guardada, con tu avance</li><li>Favoritos y aportes de datos y boletos</li><li>Participación en la comunidad</li></ul><div class="btns" style="margin-top:12px"><button class="btn" data-a="signup">Crear cuenta de boleccionador</button><button class="btn ghost" data-a="login">Ya tengo cuenta · Iniciar sesión</button></div></div>';
     }
     return '<div class="note"><div class="acct"><span class="avatar">' + esc(a.alias.charAt(0).toUpperCase()) + '</span><div class="tx"><b>@' + esc(a.alias) + '</b><span class="muted small">Boleccionador desde ' + esc(memberSince(a.desde)) + (a.comuna ? ' · ' + esc(a.comuna) : '') + '</span></div></div>' +
-      '<div class="stats"><div><b>' + D.own.length + '/' + TICKETS.length + '</b><span>En colección</span></div><div><b>' + D.fav.length + '</b><span>Favoritos</span></div><div><b>' + D.subs.length + '</b><span>Aportes</span></div></div>' +
+      '<div class="stats"><div><b>' + myTotal() + '</b><span>En mi colección</span></div><div><b>' + D.fav.length + '</b><span>Favoritos</span></div><div><b>' + D.subs.filter(function (x) { return !x.f || x.status === 'revision'; }).length + '</b><span>En revisión</span></div></div>' +
       (a.int.length ? '<div class="legend">' + a.int.map(function (x) { return '<span class="bd rev">' + esc(x) + '</span>'; }).join('') + '</div>' : '') +
       '<h2 style="margin:4px 0 8px">Tu colección</h2><div class="seg"><button data-a="setpub" data-id="0" aria-pressed="' + (!a.pub) + '">Privada</button><button data-a="setpub" data-id="1" aria-pressed="' + a.pub + '">Pública</button></div>' +
-      '<p class="muted small" style="margin:-4px 0 14px">Mientras no exista el servicio de cuentas, este ajuste solo cambia lo que ves en este dispositivo.</p>' +
+      '<p class="muted small" style="margin:-4px 0 14px">' + (CLOUD.on ? 'Este ajuste se guarda en tu cuenta.' : 'En modo local este ajuste solo cambia lo que ves en este dispositivo.') + '</p>' +
       '</div>';
   }
   function doSignup() {
     var g = function (id) { return document.getElementById(id); };
     var al = g('s-alias').value.trim(), mail = g('s-mail').value.trim(), pw = g('s-pass').value, pw2 = g('s-pass2').value,
-      com = g('s-com').value, terms = g('s-terms').checked, pubEl = document.querySelector('input[name="vis"]:checked'), err = aliasErr(al);
+      com = g('s-com').value, com2 = g('s-com2') ? g('s-com2').value.trim() : '', terms = g('s-terms').checked, pubEl = document.querySelector('input[name="vis"]:checked'), err = aliasErr(al);
     if (!err && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)) err = 'Escribe un correo válido, por ejemplo nombre@correo.cl.';
     if (!err) err = pwErr(pw, al, pw2);
+    if (!err && com === 'Otra comuna' && !/^[\p{L}][\p{L} .'-]{1,39}$/u.test(com2)) err = 'Escribe el nombre de tu comuna (solo letras, de 2 a 40 caracteres).';
     if (!err && !terms) err = 'Para crear la cuenta debes tener 18 años o más y aceptar las condiciones de uso y la política de privacidad.';
     if (err) { showMsg('signMsg', err); return; }
+    var comuna = com === 'Otra comuna' ? com2 : com, pub = !!(pubEl && pubEl.value === '1');
+    if (CLOUD.on) {
+      showMsg('signMsg', 'Creando tu cuenta…');
+      cloudSignUp(al, mail, pw, comuna, S.su.int.slice(), pub).then(function () {
+        S.su = { int: [] }; S.tab = 'profile'; S.stack = [{ name: 'profile' }]; render(false); toast('¡Bienvenido/a, @' + al + '!');
+      }, function (e) { showMsg('signMsg', e && e.code === 'app/alias-taken' ? 'Ese nombre de usuario ya está en uso. Elige otro.' : cloudErr(e)); });
+      return;
+    }
     showMsg('signMsg', '');
     hashPw(pw).then(function (h) {
-      D.acct = { alias: al, mail: mail, comuna: com, int: S.su.int.slice(), pub: !!(pubEl && pubEl.value === '1'), desde: new Date().toISOString().slice(0, 10), salt: h.salt, ph: h.hash };
+      D.acct = { alias: al, mail: mail, comuna: comuna, int: S.su.int.slice(), pub: pub, desde: new Date().toISOString().slice(0, 10), salt: h.salt, ph: h.hash };
       D.saved = null; save(); S.su = { int: [] }; S.tab = 'profile'; S.stack = [{ name: 'profile' }]; render(false); toast('¡Bienvenido/a, @' + al + '!');
     }, function () { showMsg('signMsg', 'Tu navegador no permite crear la cuenta de forma segura. Prueba con otro navegador.'); });
   }
 
   /* ---------- Eventos culturales (ejemplos; el Festival REC 2026 sale de los boletos) ---------- */
-  var CATS = ['Música', 'Patrimonio', 'Coleccionismo', 'Exposición', 'Familia'];
+  var CATS = ['Música', 'Patrimonio', 'Coleccionismo', 'Exposición', 'Familia'], CATS_ALL = CATS.concat(['Venta']);
   function cap(s) { s = String(s); return s.charAt(0).toUpperCase() + s.slice(1); }
   function p2(n) { return String(n).padStart(2, '0'); }
   function isoOf(d) { return d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate()); }
@@ -637,7 +666,7 @@ img { max-width: 100%; }
   S.adPaused = false;
   function endOf(e) { return e.fin || e.ini; }
   function isPast(e) { return endOf(e) < TODAY; }
-  function evOn(iso) { return EVENTS.filter(function (e) { return e.ini <= iso && iso <= endOf(e); }); }
+  function evOn(iso) { return evAll().filter(function (e) { return e.ini <= iso && iso <= endOf(e); }); }
   function evCatOk(e) { return !S.ev.cat || e.cat === S.ev.cat; }
   function fmtDay(iso, o) { try { return parseISO(iso).toLocaleDateString('es-CL', o); } catch (x) { return iso; } }
   function fmtRange(e) {
@@ -648,7 +677,7 @@ img { max-width: 100%; }
     var d = parseISO(e.ini), mon = fmtDay(e.ini, { month: 'short' }).replace('.', '');
     return '<button class="evcard" data-a="event" data-id="' + e.id + '"><span class="evdate"><b>' + d.getDate() + '</b><i>' + esc(mon) + '</i></span>' +
       '<span class="tx"><b>' + esc(e.title) + '</b><small>' + esc(e.lugar) + (e.comuna ? ' · ' + esc(e.comuna) : '') + '</small>' +
-      '<span class="evtags"><span class="bd rev">' + esc(e.cat) + '</span>' + (isPast(e) ? '<span class="bd pend">Realizado</span>' : '') + (e.ejemplo ? '<span class="bd pend">Ejemplo</span>' : '') + '</span></span>' + ICON.chev + '</button>';
+      '<span class="evtags"><span class="bd rev">' + esc(e.cat) + '</span>' + (isPast(e) ? '<span class="bd pend">Realizado</span>' : '') + (e.ejemplo ? '<span class="bd pend">Ejemplo</span>' : '') + (e.status && e.status !== 'aprobado' ? evStatusBd(e) : '') + '</span></span>' + ICON.chev + '</button>';
   }
   function icsEsc(s) { return String(s).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n'); }
   function downloadIcs(e) {
@@ -717,7 +746,7 @@ img { max-width: 100%; }
   }
   function showPwBox() { return '<label class="check"><input type="checkbox" data-a="showpw"><span>Mostrar contraseñas</span></label>'; }
   function lnk(id, txt) { return '<button type="button" class="lnkb" data-a="legal" data-id="' + id + '">' + txt + '</button>'; }
-  function wipeAll() { D = { fav: [], subs: [], acct: null, own: [] }; save(); }
+  function wipeAll() { D = { fav: [], subs: [], acct: null, own: [], posts: [], evp: [] }; save(); }
   function downloadData() {
     try {
       var a = D.acct;
@@ -730,7 +759,11 @@ img { max-width: 100%; }
   }
   function signOut() {
     if (!D.acct) return;
-    D = { fav: [], subs: [], acct: null, own: [], saved: { acct: D.acct, fav: D.fav, subs: D.subs, own: D.own } };
+    if (CLOUD.on && D.acct.cloud) {
+      cloudSignOut().then(function () { D = { fav: [], subs: [], acct: null, own: [], posts: [], evp: [] }; save(); S.tab = 'profile'; S.stack = [{ name: 'profile' }]; render(false); toast('Sesión cerrada'); });
+      return;
+    }
+    D = { fav: [], subs: [], acct: null, own: [], saved: { acct: D.acct, fav: D.fav, subs: D.subs, own: D.own, posts: D.posts || [], evp: D.evp || [] } };
     save(); S.tab = 'profile'; S.stack = [{ name: 'profile' }]; render(false); toast('Sesión cerrada');
   }
   var LEGAL = {
@@ -907,6 +940,7 @@ img { max-width: 100%; }
   function uniqId(base, arr) { var id = base, n = 2; while (pick(arr, id)) id = base + '-' + n++; return id; }
   function setF(id, val) { var x = document.getElementById(id); if (x) { x.value = val; S.fd[id] = val; } }
   function subRow(s, i) {
+    if (s.f) return '<button class="row" data-a="editsub" data-id="' + i + '"><span class="tx"><b>' + esc(s.title) + '</b><small>' + esc(s.when || '') + ' · toca para editar</small></span>' + statusBd(s.status) + ICON.chev + '</button>';
     var sm = esc(s.when) + (s.f && /^UN/.test(s.f['f-un'] || '') ? ' · ' + esc(s.f['f-un']) : '') + (s.f && s.f['f-reccod'] ? ' · ' + esc(s.f['f-reccod']) : '');
     if (!s.f) return '<div class="row"><span class="tx"><b>' + esc(s.title) + '</b><small>' + esc(s.when) + '</small></span><span class="bd rev">En revisión</span></div>';
     return '<button class="row" data-a="editsub" data-id="' + i + '"><span class="tx"><b>' + esc(s.title) + '</b><small>' + sm + ' · toca para editar</small></span><span class="bd rev">En revisión</span>' + ICON.chev + '</button>';
@@ -916,13 +950,14 @@ img { max-width: 100%; }
   var VIEWS = {
     home: function () {
       return '<div class="top"><div class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#logo-mark"/></svg><div class="wordmark">Bolecciona<span>Concepción</span></div></div>' + homeAvatar() + '</div>' +
-        '<label class="search">' + ICON.search + '<input id="q" type="search" placeholder="Buscar empresa, tipo o numeración..." autocomplete="off" value="' + esc(S.query) + '"></label>' +
+        '<label class="search">' + ICON.search + '<input id="q" type="search" placeholder="Buscar boleto, empresa, UN14 o línea (14HT)..." autocomplete="off" value="' + esc(S.query) + '"></label>' +
         '<div id="homeBody">' + homeBody() + '</div>';
     },
     cat: function () {
       var nAct = Object.keys(FLABEL).filter(function (k) { return S.F[k]; }).length;
       return head('Catálogo') +
         (D.acct ? '' : '<div class="notice"><span><b>Vista previa.</b> Ves ' + Object.keys(PREVIEW).length + ' de ' + TICKETS.length + ' fichas. <button style="display:inline;color:var(--accent)" data-a="signup">Crea tu cuenta</button> para ver el catálogo completo.</span></div>') +
+        '<label class="search" style="margin-bottom:10px">' + ICON.search + '<input id="cq" type="search" placeholder="Buscar boleto, empresa, UN14 o línea…" autocomplete="off" value="' + esc(S.cq || '') + '"></label>' +
         '<div class="seg" role="tablist" aria-label="Época del boleto">' + [['', 'Todos', TICKETS.length], ['antiguo', 'Antiguos', eraCount('antiguo')], ['actual', 'Actuales', eraCount('actual')]].map(function (x) { return '<button data-a="era" data-id="' + x[0] + '" aria-pressed="' + (S.era === x[0]) + '">' + x[1] + ' (' + x[2] + ')</button>'; }).join('') + '</div>' +
         (eraCount('sin') ? '<div class="chips" style="margin-bottom:8px"><button class="chip" data-a="era" data-id="sin" aria-pressed="' + (S.era === 'sin') + '">Sin clasificar (' + eraCount('sin') + ')</button></div>' : '') +
         '<div class="fbar"><button class="chip grow" data-a="ftoggle" aria-pressed="' + S.fopen + '">Filtros' + (nAct ? ' (' + nAct + ')' : '') + '</button>' +
@@ -964,11 +999,46 @@ img { max-width: 100%; }
     },
     comm: function () {
       return head('Comunidad') +
-        (D.acct ? '<div class="notice"><span><b>Ejemplos.</b> Las publicaciones son ficticias. Los comentarios, reportes y la moderación llegan con el servicio de cuentas (fase 3).</span></div>' : gateNote('Participar es para boleccionadores', 'Puedes leer los temas de ejemplo. Para pedir ayuda a identificar un boleto o comentar necesitas cuenta.')) +
-        COMMUNITY.map(function (c) {
-          return '<div class="note"><div class="hd"><h2>' + esc(c.title) + '</h2><span class="bd ' + c.st + '">' + (c.st === 'res' ? 'Resuelta' : 'Abierta') + '</span></div><p>' + esc(c.text) + '</p><p style="font-size:12px">' + esc(c.who) + ' · ' + c.replies + ' respuestas</p></div>';
-        }).join('') +
-        '<div class="note"><h2>Qué permitirá la comunidad</h2><ul class="plain"><li>Pedir ayuda para identificar piezas difíciles</li><li>Aportar contexto y comentarios a una ficha</li><li>Reportar datos incorrectos o personales sin autorización</li></ul></div>';
+        (D.acct ? '<div class="btns" style="margin:0 0 12px"><button class="btn" data-a="newpost">Crear publicación</button></div>' : gateNote('Participar es para boleccionadores', 'Puedes leer las publicaciones. Para publicar o responder necesitas una cuenta gratuita.')) +
+        (CLOUD.on ? '' : '<div class="notice"><span><b>Modo local.</b> Las publicaciones nuevas se guardan solo en este dispositivo hasta que se conecte el servicio en la nube.</span></div>') +
+        postsAll().map(postCard).join('');
+    },
+    newpost: function () {
+      var d = S.pd || {};
+      return head('Crear publicación', true) +
+        '<p class="muted small" style="margin:-4px 0 14px">Pregunta, comparte un hallazgo o pide ayuda para identificar un boleto. No publiques datos personales de otras personas.</p>' + acctLine() +
+        '<form class="form" id="postform" novalidate>' +
+        '<label class="fld" for="p-tipo">Tema<select id="p-tipo">' + selOpts(TIPOS_POST.map(function (x) { return [x, x]; }), d.tipo || TIPOS_POST[0]) + '</select></label>' +
+        '<label class="fld" for="p-title">Título<input type="text" id="p-title" maxlength="100" autocomplete="off" placeholder="Ej.: ¿Qué empresa imprimió este boleto?" value="' + esc(d.title || '') + '"></label>' +
+        '<label class="fld" for="p-text">Mensaje<textarea id="p-text" maxlength="2000" placeholder="Cuéntanos los detalles: numeración, colores, año aproximado…">' + esc(d.text || '') + '</textarea></label>' +
+        '<div class="msg err" id="poMsg" role="alert" hidden></div>' +
+        '<button class="btn" type="submit">Publicar</button></form>';
+    },
+    post: function (v) {
+      var p = postById(v.id);
+      if (!p) return head('Publicación', true) + '<div class="empty">Esta publicación ya no está disponible.</div>';
+      var reps = repliesOf(p);
+      return head('Publicación', true) +
+        '<h1>' + esc(p.title) + '</h1>' +
+        '<div class="evtags" style="margin:8px 0 6px">' + (p.ej ? '<span class="bd pend">Ejemplo</span>' : '<span class="bd rev">' + esc(p.tipo || 'Publicación') + '</span>') + '</div>' +
+        '<p class="muted small" style="margin:0 0 12px">' + (p.ej ? esc(p.alias) : 'Por <b style="color:var(--fg)">@' + esc(p.alias) + '</b>' + (p.ts ? ' · ' + esc(fmtTs(p.ts)) : '')) + '</p>' +
+        '<div class="note"><p style="white-space:pre-wrap;color:var(--fg);margin:0">' + esc(p.text) + '</p></div>' +
+        '<div class="sec"><h2>Respuestas (' + (p.ej ? (p.replyCount || 0) : reps.length) + ')</h2></div>' +
+        (p.ej ? '<div class="note"><p style="margin:0">Esta publicación es un ejemplo, sin respuestas reales.</p></div>' :
+          (reps.length ? '<div class="note">' + reps.map(function (r) { return '<div class="reply"><b>@' + esc(r.alias) + '</b><small>' + esc(fmtTs(r.ts)) + '</small><p>' + esc(r.text) + '</p></div>'; }).join('') + '</div>' : '<div class="note"><p style="margin:0">Aún no hay respuestas. Sé la primera persona en responder.</p></div>')) +
+        (p.ej ? '' : D.acct ?
+          '<form class="form" id="replyform" data-id="' + esc(p.id) + '" novalidate><label class="fld" for="rp-text">Tu respuesta<textarea id="rp-text" maxlength="1500" placeholder="Escribe tu respuesta"></textarea></label><div class="msg err" id="rpMsg" role="alert" hidden></div><button class="btn" type="submit">Responder</button></form>' :
+          gateNote('Para responder necesitas cuenta', 'Crea tu cuenta gratuita de boleccionador para participar en la comunidad.'));
+    },
+    admin: function () {
+      if (!isAdminNow()) return head('Revisión', true) + '<div class="empty">Esta sección es solo para administradores.</div>';
+      var l = pendingEv();
+      return head('Revisar propuestas', true) +
+        (CLOUD.on ? '' : '<div class="notice"><span><b>Modo administrador de prueba.</b> Solo afecta lo que ves en este dispositivo. En la nube, los administradores se definen en la base de datos.</span></div>') +
+        (l.length ? l.map(function (e) {
+          return '<div class="note"><div class="hd"><h2>' + esc(e.title) + '</h2><span class="bd rev">' + esc(e.cat) + '</span></div><p>' + esc(e.desc || '') + '</p>' +
+            '<p style="font-size:12px">' + esc(fmtRange(e)) + ' · ' + esc(e.lugar) + (e.comuna ? ' · ' + esc(e.comuna) : '') + (e.kind === 'venta' ? ' · Precio: ' + esc(e.precio || 'a convenir') : '') + ' · propone @' + esc(e.alias) + '</p>' + adminBtns(e) + '</div>';
+        }).join('') : '<div class="note"><p style="margin:0">No hay propuestas pendientes.</p></div>');
     },
     profile: function () {
       var rowsEnd = '<div class="sec"><h2>Proyecto</h2></div><div class="rows">' +
@@ -981,19 +1051,23 @@ img { max-width: 100%; }
       if (!D.acct) return head('Perfil') + acctCard() + rowsEnd;
       var mine = D.own.map(function (id) { return BYID[id]; }).filter(Boolean);
       var favs = D.fav.map(function (id) { return BYID[id]; }).filter(Boolean);
-      var pct = Math.round(mine.length / TICKETS.length * 100);
+      var ms = mySubs(), tot = myTotal(), mev = myEvents(), pend = isAdminNow() ? pendingEv().length : 0;
       return head('Perfil') + acctCard() +
         '<div class="sec"><h2>Mi colección</h2></div>' +
-        '<div class="note"><b>' + mine.length + ' de ' + TICKETS.length + ' boletos</b><div class="bar" style="margin-top:8px"><i style="width:' + pct + '%"></i></div></div>' +
-        (mine.length ? '<div class="grid2" style="margin-bottom:14px">' + mine.map(card).join('') + '</div>' : '<div class="note"><p style="margin:0">Tu colección está vacía. Abre una ficha en el catálogo y toca “Agregar a mi colección”.</p></div>') +
+        '<div class="note"><b>' + tot + (tot === 1 ? ' boleto' : ' boletos') + ' en tu colección</b><p style="margin:4px 0 0">' + mine.length + ' del catálogo · ' + ms.length + ' propios. Puedes agregar todos los que quieras.</p></div>' +
+        (tot ? '<div class="grid2" style="margin-bottom:14px">' + mine.map(card).join('') + ms.map(mineCard).join('') + '</div>' : '<div class="note"><p style="margin:0">Tu colección está vacía. Abre una ficha en el catálogo y toca “Agregar a mi colección”, o añade un boleto tuyo con fotos desde “Añadir”.</p></div>') +
         '<div class="sec"><h2>Favoritos</h2></div>' +
         (favs.length ? '<div class="grid2" style="margin-bottom:14px">' + favs.map(card).join('') + '</div>' : '<div class="note"><p style="margin:0">Aún no guardas favoritos.</p></div>') +
         '<div class="sec"><h2>Mis aportes</h2></div>' +
-        (D.subs.length ? '<div class="rows" style="margin-bottom:10px">' + D.subs.map(subRow).join('') + '</div>' : '<div class="note"><p style="margin:0">Todavía no has enviado aportes.</p></div>') +
+        (D.subs.some(function (x) { return !x.f || x.status === 'revision'; }) ? '<div class="rows" style="margin-bottom:10px">' + D.subs.map(function (x, i) { return (!x.f || x.status === 'revision') ? subRow(x, i) : ''; }).join('') + '</div>' : '<div class="note"><p style="margin:0">No tienes aportes en revisión.</p></div>') +
+        '<div class="sec"><h2>Mis eventos y ventas</h2><button data-a="proposeev">Proponer</button></div>' +
+        (mev.length ? '<div class="rows" style="margin-bottom:10px">' + mev.map(function (e) { return '<button class="row" data-a="event" data-id="' + esc(e.id) + '"><span class="tx"><b>' + esc(e.title) + '</b><small>' + esc(e.cat) + ' · ' + esc(fmtRange(e)) + '</small></span>' + evStatusBd(e) + ICON.chev + '</button>'; }).join('') + '</div>' : '<div class="note"><p style="margin:0">Aún no propones eventos ni ventas. Se publican cuando un administrador los aprueba.</p></div>') +
+        (isAdminNow() ? '<div class="rows" style="margin-bottom:10px"><button class="row" data-a="admin"><span class="tx"><b>Revisar propuestas</b><small>' + pend + (pend === 1 ? ' pendiente' : ' pendientes') + ' de eventos y ventas</small></span>' + ICON.chev + '</button></div>' : '') +
+        (!CLOUD.on ? '<div class="rows" style="margin-bottom:10px"><button class="row" data-a="admtoggle"><span class="tx"><b>Modo administrador de prueba</b><small>' + (D.acct.adm ? 'Activado: puedes aprobar propuestas en este dispositivo' : 'Para probar la aprobación de eventos y ventas') + '</small></span>' + ICON.chev + '</button></div>' : '') +
         '<div class="sec"><h2>Cuenta y seguridad</h2></div><div class="rows" style="margin-bottom:6px">' +
         '<button class="row" data-a="chpass"><span class="tx"><b>Cambiar contraseña</b><small>Necesitas tu contraseña actual</small></span>' + ICON.chev + '</button>' +
         '<button class="row" data-a="dldata"><span class="tx"><b>Descargar mis datos</b><small>Una copia en archivo JSON</small></span>' + ICON.chev + '</button>' +
-        '<button class="row" data-a="logout"><span class="tx"><b>Cerrar sesión</b><small>Tu cuenta queda guardada en este dispositivo</small></span>' + ICON.chev + '</button>' +
+        '<button class="row" data-a="logout"><span class="tx"><b>Cerrar sesión</b><small>' + (CLOUD.on ? 'Sales de tu cuenta en este dispositivo' : 'Tu cuenta queda guardada en este dispositivo') + '</small></span>' + ICON.chev + '</button>' +
         '<button class="row dng" data-a="delacct"><span class="tx"><b>Eliminar mi cuenta</b><small>Borra tu cuenta y tus datos para siempre</small></span>' + ICON.chev + '</button></div>' +
         rowsEnd +
         '<div class="note" style="margin-top:14px"><h2>Datos de este prototipo</h2><p>Borra tu cuenta, tu colección, tus favoritos y tus aportes de este dispositivo.</p><div style="margin-top:12px">' +
@@ -1005,12 +1079,13 @@ img { max-width: 100%; }
         '<p class="muted small" style="margin:-4px 0 14px">Sé parte del archivo: guarda tu colección, ve el catálogo completo y aporta datos. La cuenta es gratuita.</p>' +
         '<form class="form" id="signform" novalidate>' +
         '<label class="fld" for="s-alias">Nombre de usuario<input type="text" id="s-alias" maxlength="24" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="Ej.: boleccionador_penco" value="' + esc(u.alias || '') + '"><span class="hint" id="aliasHint">De 3 a 24 caracteres. Es público: si prefieres, no uses tu nombre completo.</span></label>' +
-        '<label class="fld" for="s-mail">Correo<input type="text" id="s-mail" inputmode="email" autocomplete="email" autocapitalize="none" placeholder="nombre@correo.cl" value="' + esc(u.mail || '') + '"><span class="hint">Sirve para recuperar tu contraseña. En este prototipo queda solo en tu dispositivo.</span></label>' +
+        '<label class="fld" for="s-mail">Correo<input type="text" id="s-mail" inputmode="email" autocomplete="email" autocapitalize="none" placeholder="nombre@correo.cl" value="' + esc(u.mail || '') + '"><span class="hint">Sirve para entrar y recuperar tu contraseña.' + (CLOUD.on ? '' : ' En modo local queda solo en tu dispositivo.') + '</span></label>' +
         pwField('s-pass', 'Contraseña', 'new-password') +
         pwField('s-pass2', 'Repite la contraseña', 'new-password') +
         '<span class="hint" style="margin-top:-6px">Mínimo 8 caracteres. Mejor una frase larga que solo tú conozcas.</span>' +
         showPwBox() +
         '<label class="fld" for="s-com">Comuna (opcional)<select id="s-com"><option value="">Prefiero no decirlo</option>' + COMUNAS.map(function (c) { return '<option' + (u.com === c ? ' selected' : '') + '>' + esc(c) + '</option>'; }).join('') + '</select></label>' +
+        '<label class="fld" id="s-com2w" for="s-com2"' + (u.com === 'Otra comuna' ? '' : ' hidden') + '>Escribe tu comuna<input type="text" id="s-com2" maxlength="40" autocomplete="address-level2" placeholder="Nombre de tu comuna" value="' + esc(u.com2 || '') + '"></label>' +
         '<fieldset><legend>Qué boletos te interesan (opcional)</legend><div class="chips" style="flex-wrap:wrap;overflow:visible;padding-bottom:0">' + INTERESES.map(function (x) { return '<button type="button" class="chip" data-a="sint" data-val="' + esc(x) + '" aria-pressed="' + (S.su.int.indexOf(x) > -1) + '">' + esc(x) + '</button>'; }).join('') + '</div></fieldset>' +
         '<fieldset><legend>Quién puede ver tu colección</legend>' +
         '<label class="opt"><input type="radio" name="vis" value="0"' + (u.vis === '1' ? '' : ' checked') + '><span>Privada<small>Solo tú. Recomendado para empezar.</small></span></label>' +
@@ -1019,13 +1094,13 @@ img { max-width: 100%; }
         '<div class="msg err" id="signMsg" role="alert" hidden></div>' +
         '<button class="btn" type="submit">Crear cuenta de boleccionador</button></form>' +
         '<div class="btns"><button class="btn ghost" data-a="login">Ya tengo cuenta · Iniciar sesión</button></div>' +
-        '<div class="note" style="margin-top:14px"><h2>Cuenta simulada</h2><p>En este prototipo la cuenta vive solo en tu dispositivo y tu contraseña se guarda únicamente como huella cifrada. En la versión real el acceso lo gestionará un servicio de cuentas, con envío real de correos.</p></div>';
+        (CLOUD.on ? '<div class="note" style="margin-top:14px"><h2>Cuenta en la nube</h2><p>Tu cuenta, tu colección y tus aportes se guardan de forma segura en el servicio de cuentas. Tu contraseña no se guarda en este dispositivo.</p></div>' : '<div class="note" style="margin-top:14px"><h2>Cuenta simulada</h2><p>En modo local la cuenta vive solo en tu dispositivo y tu contraseña se guarda únicamente como huella cifrada. Al conectar el servicio en la nube, el acceso y los correos serán reales.</p></div>');
     },
     login: function () {
       return head('Iniciar sesión', true) +
-        '<p class="muted small" style="margin:-4px 0 14px">Entra con tu nombre de usuario o tu correo, y tu contraseña.</p>' +
+        '<p class="muted small" style="margin:-4px 0 14px">' + (CLOUD.on ? 'Entra con el correo de tu cuenta y tu contraseña.' : 'Entra con tu nombre de usuario o tu correo, y tu contraseña.') + '</p>' +
         '<form class="form" id="loginform" novalidate>' +
-        '<label class="fld" for="l-user">Nombre de usuario o correo<input type="text" id="l-user" autocomplete="username" autocapitalize="none" spellcheck="false"></label>' +
+        '<label class="fld" for="l-user">' + (CLOUD.on ? 'Correo' : 'Nombre de usuario o correo') + '<input type="text" id="l-user" autocomplete="username" autocapitalize="none" spellcheck="false"></label>' +
         pwField('l-pass', 'Contraseña', 'current-password') + showPwBox() +
         '<div class="msg err" id="logMsg" role="alert" hidden></div>' +
         '<button class="btn" type="submit">Entrar</button></form>' +
@@ -1034,8 +1109,9 @@ img { max-width: 100%; }
     },
     forgot: function () {
       var f = S.fp || { step: 1 }, h = head('Recuperar contraseña', true);
+      if (f.step === 3) return h + '<div class="msg good">Si existe una cuenta con ese correo, te enviamos un mensaje con un enlace para crear una contraseña nueva. Revisa también la carpeta de spam.</div><div class="btns" style="margin-top:12px"><button class="btn" data-a="login">Volver a iniciar sesión</button></div>';
       if (f.step === 1) {
-        return h + '<p class="muted small" style="margin:-4px 0 14px">Escribe tu nombre de usuario o el correo de tu cuenta. Te enviaremos un código de un solo uso para crear una contraseña nueva.</p>' +
+        return h + '<p class="muted small" style="margin:-4px 0 14px">' + (CLOUD.on ? 'Escribe el correo de tu cuenta. Te enviaremos un enlace para crear una contraseña nueva.' : 'Escribe tu nombre de usuario o el correo de tu cuenta. Te enviaremos un código de un solo uso para crear una contraseña nueva.') + '</p>' +
           '<form class="form" id="forgotform" novalidate><label class="fld" for="f-who">Nombre de usuario o correo<input type="text" id="f-who" autocomplete="username" autocapitalize="none" spellcheck="false"></label>' +
           '<div class="msg err" id="fpMsg" role="alert" hidden></div><button class="btn" type="submit">Enviar código</button></form>';
       }
@@ -1063,9 +1139,9 @@ img { max-width: 100%; }
         '<p>En la versión real, además se borra del servidor, y de las copias de respaldo en un máximo de 30 días.</p>' +
         '<div class="btns" style="margin-top:12px"><button class="btn ghost" data-a="dldata">Descargar mis datos antes</button></div></div>' +
         '<form class="form" id="delform" novalidate>' +
-        (a.ph ? pwField('d-pass', 'Tu contraseña', 'current-password') : '') +
+        ((a.ph || a.cloud) ? pwField('d-pass', 'Tu contraseña', 'current-password') : '') +
         '<label class="fld" for="d-user">Escribe tu nombre de usuario para confirmar<input type="text" id="d-user" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="' + esc(a.alias) + '"></label>' +
-        (a.ph ? showPwBox() : '') +
+        ((a.ph || a.cloud) ? showPwBox() : '') +
         '<div class="msg err" id="delMsg" role="alert" hidden></div>' +
         '<button class="btn warn" type="submit">Eliminar mi cuenta para siempre</button></form>' +
         '<div class="btns"><button class="btn ghost" data-a="back">Mejor no, volver</button></div>';
@@ -1098,7 +1174,7 @@ img { max-width: 100%; }
       h += '<div class="notice"><span><b>Calendario en construcción.</b> Los eventos son ejemplos, salvo el Festival REC 2026, que sale de los boletos de la colección. El calendario real se armará con organizadores, municipios y coleccionistas.</span></div>';
       h += adSlot();
       h += '<div class="seg"><button data-a="evmode" data-id="cal" aria-pressed="' + (E.mode === 'cal') + '">Calendario</button><button data-a="evmode" data-id="list" aria-pressed="' + (E.mode === 'list') + '">Lista</button></div>';
-      h += '<div class="chips"><button class="chip" data-a="evcat" data-id="" aria-pressed="' + (!E.cat) + '">Todos</button>' + CATS.map(function (c) { return '<button class="chip" data-a="evcat" data-id="' + esc(c) + '" aria-pressed="' + (E.cat === c) + '">' + esc(c) + '</button>'; }).join('') + '</div>';
+      h += '<div class="chips"><button class="chip" data-a="evcat" data-id="" aria-pressed="' + (!E.cat) + '">Todos</button>' + CATS_ALL.map(function (c) { return '<button class="chip" data-a="evcat" data-id="' + esc(c) + '" aria-pressed="' + (E.cat === c) + '">' + esc(c) + '</button>'; }).join('') + '</div>';
       if (E.mode === 'cal') {
         var first = new Date(E.y, E.m, 1), off = (first.getDay() + 6) % 7, dim = new Date(E.y, E.m + 1, 0).getDate(), cells = '', i, d;
         var pre = E.y + '-' + p2(E.m + 1) + '-';
@@ -1110,11 +1186,11 @@ img { max-width: 100%; }
         h += '<div class="cal"><div class="calhead"><button class="iconbtn" data-a="evmonth" data-id="-1" aria-label="Mes anterior">' + ICON.back + '</button><b>' + esc(cap(fmtDay(pre + '01', { month: 'long', year: 'numeric' }))) + '</b><button class="iconbtn" data-a="evmonth" data-id="1" aria-label="Mes siguiente">' + ICON.chev + '</button></div>' +
           '<div class="dow"><span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span></div><div class="days">' + cells + '</div></div>';
         var lastIso = pre + p2(dim), firstIso = pre + '01';
-        var list = E.sel ? evOn(E.sel).filter(evCatOk) : EVENTS.filter(function (e) { return evCatOk(e) && e.ini <= lastIso && endOf(e) >= firstIso; }).sort(function (a, b) { return a.ini < b.ini ? -1 : 1; });
+        var list = E.sel ? evOn(E.sel).filter(evCatOk) : evAll().filter(function (e) { return evCatOk(e) && e.ini <= lastIso && endOf(e) >= firstIso; }).sort(function (a, b) { return a.ini < b.ini ? -1 : 1; });
         h += '<div class="sec"><h2>' + (E.sel ? esc(cap(fmtDay(E.sel, { weekday: 'long', day: 'numeric', month: 'long' }))) : 'Eventos del mes') + '</h2></div>';
         h += list.length ? list.map(function (e) { return evCard(e); }).join('') : '<div class="empty" style="padding:14px 0 20px">' + (E.sel ? 'No hay eventos este día.' : 'No hay eventos este mes.') + '</div>';
       } else {
-        var all = EVENTS.filter(evCatOk).sort(function (a, b) { return a.ini < b.ini ? -1 : 1; });
+        var all = evAll().filter(evCatOk).sort(function (a, b) { return a.ini < b.ini ? -1 : 1; });
         var shown = E.past ? all : all.filter(function (e) { return !isPast(e); }), lastKey = '';
         h += '<div class="chips"><button class="chip" data-a="evpast" aria-pressed="' + E.past + '">Mostrar realizados</button></div>';
         if (!shown.length) h += '<div class="empty">No hay eventos próximos en esta categoría.</div>';
@@ -1128,34 +1204,40 @@ img { max-width: 100%; }
       return h;
     },
     event: function (v) {
-      var e = EVBYID[v.id], past = isPast(e), rel = (e.tickets || []).map(function (n) { return BYN[n]; }).filter(Boolean);
+      var e = evById(v.id), past = isPast(e), rel = (e.tickets || []).map(function (n) { return BYN[n]; }).filter(Boolean);
       return head('Evento', true) +
+        (e.status && e.status !== 'aprobado' ? '<div class="notice"><span><b>' + (e.status === 'pendiente' ? 'Pendiente de revisión.' : 'No aprobado.') + '</b> Solo tú y los administradores ven esta ficha.</span></div>' : '') +
         (e.ejemplo ? '<div class="notice"><span><b>Evento de ejemplo.</b> Nombre, fecha y lugar son ilustrativos y no corresponden a una actividad real.</span></div>' : '') +
         '<h1>' + esc(e.title) + '</h1>' +
         '<div class="evtags" style="margin:8px 0 12px"><span class="bd rev">' + esc(e.cat) + '</span>' + (past ? '<span class="bd pend">Realizado</span>' : '') + (e.ejemplo ? '<span class="bd pend">Ejemplo</span>' : '') + '</div>' +
         '<div class="info"><div><span>Fecha</span><span class="v">' + esc(fmtRange(e)) + '</span></div>' +
         '<div><span>Lugar</span><span class="v">' + esc(e.lugar) + '</span></div>' +
         '<div><span>Comuna</span><span class="v">' + (e.comuna ? esc(e.comuna) : '<i>Por confirmar</i>') + '</span></div>' +
-        '<div><span>Entrada</span><span class="v">' + esc(e.entrada) + '</span></div>' +
-        '<div><span>Organiza</span><span class="v">' + esc(e.org) + '</span></div></div>' +
+        '<div><span>' + (e.kind === 'venta' ? 'Precio' : 'Entrada') + '</span><span class="v">' + esc(e.kind === 'venta' ? (e.precio || e.entrada) : e.entrada) + '</span></div>' +
+        '<div><span>' + (e.kind === 'venta' ? 'Publica' : 'Organiza') + '</span><span class="v">' + esc(e.org) + '</span></div>' + (e.contacto ? '<div><span>Contacto</span><span class="v">' + esc(e.contacto) + '</span></div>' : '') + '</div>' +
         '<div class="note"><h2>Sobre el evento</h2><p>' + esc(e.desc) + '</p></div>' +
         (rel.length ? '<div class="sec"><h2>Boletos relacionados</h2></div><div class="chips">' + rel.map(function (t) { return '<button class="chip" data-a="ticket" data-id="' + t.id + '">' + esc(canSee(t) ? t.title + ' · ' + t.id : t.id) + '</button>'; }).join('') + '</div>' : '') +
-        (past ? '' : '<div class="btns"><button class="btn" data-a="evics" data-id="' + e.id + '">Agregar a mi calendario</button></div>');
+        (isAdminNow() && e.status === 'pendiente' ? adminBtns(e) : '') +
+        (past || (e.status && e.status !== 'aprobado') ? '' : '<div class="btns"><button class="btn" data-a="evics" data-id="' + e.id + '">Agregar a mi calendario</button></div>');
     },
     proposeev: function () {
-      return head('Proponer un evento', true) +
-        '<p class="muted small" style="margin:-4px 0 14px">Para eventos culturales, patrimoniales o de coleccionismo en el Gran Concepción. Lo revisamos antes de publicarlo.</p>' +
+      var d = S.evd || {}, other = d.com === 'Otra comuna';
+      return head('Proponer evento o venta', true) +
+        '<p class="muted small" style="margin:-4px 0 14px">Para eventos culturales, patrimoniales o de coleccionismo, y para ventas de boletos u objetos de colección en el Gran Concepción. Una persona administradora lo revisa: solo se publica para toda la comunidad cuando lo aprueba.</p>' + acctLine() +
         '<form class="form" id="evform" novalidate>' +
-        '<label class="fld" for="e-title">Nombre del evento<input type="text" id="e-title" maxlength="80" autocomplete="off"></label>' +
-        '<label class="fld" for="e-date">Fecha<input type="date" id="e-date"></label>' +
-        '<label class="fld" for="e-com">Comuna<select id="e-com"><option value="">Elige una comuna</option>' + COMUNAS.map(function (c) { return '<option>' + esc(c) + '</option>'; }).join('') + '</select></label>' +
-        '<label class="fld" for="e-lugar">Lugar<input type="text" id="e-lugar" placeholder="Nombre del espacio o dirección" autocomplete="off"></label>' +
-        '<label class="fld" for="e-cat">Tipo de evento<select id="e-cat">' + CATS.map(function (c) { return '<option>' + esc(c) + '</option>'; }).join('') + '</select></label>' +
-        '<label class="fld" for="e-desc">Descripción<textarea id="e-desc" placeholder="De qué se trata, horario y si la entrada es gratuita"></textarea></label>' +
-        '<label class="check"><input type="checkbox" id="e-ok"><span>Confirmo que la información es veraz y que puedo difundir este evento.</span></label>' +
+        '<label class="fld" for="e-cat">Tipo<select id="e-cat">' + selOpts(CATS.map(function (c) { return [c, c]; }).concat([['Venta', 'Venta de boletos u objetos']]), d.cat || CATS[0]) + '</select></label>' +
+        '<label class="fld" for="e-title">Nombre del evento o de la venta<input type="text" id="e-title" maxlength="80" autocomplete="off" value="' + esc(d.title || '') + '"></label>' +
+        '<label class="fld" for="e-date">Fecha (del evento, o hasta cuándo está disponible la venta)<input type="date" id="e-date" value="' + esc(d.date || '') + '"></label>' +
+        '<label class="fld" for="e-com">Comuna<select id="e-com"><option value="">Elige una comuna</option>' + COMUNAS.map(function (c) { return '<option' + (d.com === c ? ' selected' : '') + '>' + esc(c) + '</option>'; }).join('') + '</select></label>' +
+        '<label class="fld" id="e-com2w" for="e-com2"' + (other ? '' : ' hidden') + '>Escribe la comuna<input type="text" id="e-com2" maxlength="40" autocomplete="off" placeholder="Nombre de la comuna" value="' + esc(d.com2 || '') + '"></label>' +
+        '<label class="fld" for="e-lugar">Lugar<input type="text" id="e-lugar" maxlength="100" placeholder="Nombre del espacio o dirección" autocomplete="off" value="' + esc(d.lugar || '') + '"></label>' +
+        '<label class="fld" for="e-precio">Precio o valor (para ventas)<input type="text" id="e-precio" maxlength="40" placeholder="Ej.: $2.000 c/u, o a convenir" autocomplete="off" value="' + esc(d.precio || '') + '"></label>' +
+        '<label class="fld" for="e-contact">Contacto público (opcional)<input type="text" id="e-contact" maxlength="80" placeholder="Red social o correo del evento" autocomplete="off" value="' + esc(d.contact || '') + '"><span class="hint">Se mostrará a todas las personas cuando se publique. No pongas datos que no quieras hacer públicos.</span></label>' +
+        '<label class="fld" for="e-desc">Descripción<textarea id="e-desc" maxlength="1000" placeholder="De qué se trata, horario y si la entrada es gratuita">' + esc(d.desc || '') + '</textarea></label>' +
+        '<label class="check"><input type="checkbox" id="e-ok"><span>Confirmo que la información es veraz y que puedo difundirla.</span></label>' +
         '<div class="msg err" id="evMsg" role="alert" hidden></div>' +
         '<button class="btn" type="submit">Enviar a revisión</button></form>' +
-        '<p class="muted small" style="margin-top:12px">En este prototipo el envío queda registrado solo en tu dispositivo.</p>';
+        '<p class="muted small" style="margin-top:12px">' + (CLOUD.on ? 'Tu propuesta queda pendiente y solo tú y los administradores la ven hasta que se apruebe.' : 'En modo local la propuesta queda solo en este dispositivo, como pendiente de revisión.') + '</p>';
     },
     advertise: function () {
       return head('Anuncia en Bolecciona', true) +
@@ -1291,10 +1373,13 @@ img { max-width: 100%; }
       if (!D.acct) return head('Añadir boleto') + gateNote('Aportar boletos es para boleccionadores', 'Con tu cuenta puedes enviar fotos y datos de tus boletos y seguir el estado de cada aporte hasta que se publique.');
       var m = S.formMsg, ed = S.edit != null && D.subs[S.edit] && D.subs[S.edit].f, fd = S.fd, v = function (id, d) { return fd[id] !== undefined ? fd[id] : (d || ''); };
       return head(ed ? 'Editar aporte' : 'Añadir boleto', !!ed) +
-        '<p class="muted small" style="margin:-4px 0 14px">' + (ed ? 'Corrige los datos de tu aporte. Las fotos no se guardan en este prototipo.' : 'Envía fotos y los datos que conozcas. Lo que no sepas, déjalo vacío: quedará como pendiente. Cada aporte se revisa antes de publicarse.') + '</p>' + acctLine() +
+        '<p class="muted small" style="margin:-4px 0 14px">' + (ed ? 'Corrige los datos de tu boleto o cambia sus fotos.' : 'Guarda tus boletos con fotos y los datos que conozcas. Lo que no sepas, déjalo vacío: quedará como pendiente. No hay un máximo de boletos por colección.') + '</p>' + acctLine() +
         '<form class="form" id="addform" novalidate>' +
-        (ed ? '' : '<div class="photos"><label class="drop" id="dropF"><span>' + (S.pv.front ? '' : 'Foto del frente<br>(obligatoria)') + '</span><input type="file" accept="image/*" id="f-front" aria-label="Foto del frente">' + (S.pv.front ? '<img alt="Vista previa del frente" src="' + S.pv.front + '">' : '') + '</label>' +
-          '<label class="drop" id="dropB"><span>' + (S.pv.back ? '' : 'Foto del reverso<br>(si existe)') + '</span><input type="file" accept="image/*" id="f-back" aria-label="Foto del reverso">' + (S.pv.back ? '<img alt="Vista previa del reverso" src="' + S.pv.back + '">' : '') + '</label></div>') +
+        (function () {
+          var o = ed ? D.subs[S.edit] : null, a1 = S.pv.front || (o && o.img) || '', a2 = S.pv.back || (o && o.img2) || '';
+          return '<div class="photos"><label class="drop" id="dropF"><span>' + (a1 ? '' : 'Foto del frente<br>(obligatoria)') + '</span><input type="file" accept="image/*" id="f-front" aria-label="Foto del frente">' + (a1 ? '<img alt="Vista previa del frente" src="' + esc(a1) + '">' : '') + '</label>' +
+            '<label class="drop" id="dropB"><span>' + (a2 ? '' : 'Foto del reverso<br>(si existe)') + '</span><input type="file" accept="image/*" id="f-back" aria-label="Foto del reverso">' + (a2 ? '<img alt="Vista previa del reverso" src="' + esc(a2) + '">' : '') + '</label></div>';
+        })() +
         '<label class="fld" for="f-emp">Empresa o nombre impreso en el boleto<input type="text" id="f-emp" autocomplete="off" placeholder="Tal como aparece impreso" value="' + esc(v('f-emp')) + '"><span class="hint">Escríbelo igual que en el boleto, aunque hoy la empresa se llame distinto. Este texto no se reemplaza.</span></label>' +
         '<label class="fld" for="f-un">Unidad de negocio o empresa del catálogo<select id="f-un">' + unOptsHtml(v('f-un')) + '</select><span class="hint">Si no la conoces, elige “Empresa desconocida”. <button type="button" class="lnkb" data-a="catemp">Ver el catálogo</button></span></label>' +
         '<label class="fld" for="f-recsel">Recorrido del catálogo<span id="recWrap">' + recSelHtml() + '</span></label>' +
@@ -1306,10 +1391,14 @@ img { max-width: 100%; }
         '<label class="fld" for="f-hist">Observaciones históricas<textarea id="f-hist" placeholder="Nombres anteriores, cambios de empresa o de recorrido">' + esc(v('f-hist')) + '</textarea></label>' +
         '<label class="fld" for="f-fuente">Fuente de información (opcional)<input type="text" id="f-fuente" autocomplete="off" placeholder="Libro, archivo, persona o enlace" value="' + esc(v('f-fuente')) + '"></label>' +
         '<label class="fld" for="f-notas">Notas o procedencia<textarea id="f-notas" placeholder="Donación, colección personal, cualquier detalle">' + esc(v('f-notas')) + '</textarea></label>' +
+        '<fieldset><legend>Qué quieres hacer con este boleto</legend>' +
+        '<label class="opt"><input type="radio" name="dest" value="priv"' + (v('f-dest', 'priv') === 'pub' ? '' : ' checked') + '><span>Guardarlo en mi colección<small>Solo tú lo ves. Sin límite de boletos.</small></span></label>' +
+        '<label class="opt"><input type="radio" name="dest" value="pub"' + (v('f-dest', 'priv') === 'pub' ? ' checked' : '') + '><span>Guardarlo y proponerlo al catálogo<small>Una persona autorizada lo revisa antes de publicarlo.</small></span></label></fieldset>' +
         (ed ? '' : '<label class="check"><input type="checkbox" id="f-der"' + (fd['f-der'] ? ' checked' : '') + '><span>Confirmo que tengo derecho a compartir estas imágenes y que pueden mostrarse en el catálogo.</span></label>') +
         (m ? '<div class="msg ' + m.k + '" role="alert">' + esc(m.t) + '</div>' : '') +
-        '<button class="btn" type="submit">' + (ed ? 'Guardar cambios' : 'Enviar a revisión') + '</button></form>' +
-        (ed ? '' : '<p class="muted small" style="margin-top:12px">En este prototipo las fotos solo se previsualizan y no se guardan. La carga real y la revisión por parte de personas autorizadas llegan en la fase 2.</p>');
+        '<button class="btn" type="submit">' + (ed ? 'Guardar cambios' : 'Guardar boleto') + '</button></form>' +
+        (ed ? (S.confirmDelSub ? '<div class="note" style="margin-top:12px"><p style="margin:0 0 10px;color:var(--fg)">¿Eliminar este boleto de tu colección?</p><div class="btns row2"><button class="btn warn" data-a="delsub">Sí, eliminar</button><button class="btn ghost" data-a="canceldelsub">Cancelar</button></div></div>' : '<div class="btns" style="margin-top:12px"><button class="btn ghost" data-a="askdelsub">Eliminar este boleto</button></div>') :
+          '<p class="muted small" style="margin-top:12px">' + (cloudUser() ? 'Tus fotos se guardan de forma segura en tu cuenta.' : 'Las fotos se guardan en este dispositivo, reducidas. Con la cuenta en la nube se guardan en el servidor y puedes tener muchas más.') + '</p>');
     },
     plans: function () {
       function tier(name, tag, tagCls, items) {
@@ -1352,7 +1441,7 @@ img { max-width: 100%; }
     var el = e.target.closest('[data-a]');
     if (!el) return;
     var a = el.dataset.a, id = el.dataset.id;
-    if (a === 'tab') { S.tab = id; S.edit = null; S.fd = {}; S.aliasOpen = false; S.stack = [{ name: id }]; S.confirmReset = false; S.formMsg = null; S.sugg = false; render(false); }
+    if (a === 'tab') { S.tab = id; S.edit = null; S.confirmDelSub = false; S.fd = {}; S.aliasOpen = false; S.stack = [{ name: id }]; S.confirmReset = false; S.formMsg = null; S.sugg = false; render(false); }
     else if (a === 'back') { if (S.stack.length > 1) S.stack.pop(); S.sugg = false; render(false); }
     else if (a === 'ticket') push({ name: 'ticket', id: id });
     else if (a === 'about') push({ name: 'about' });
@@ -1396,7 +1485,7 @@ img { max-width: 100%; }
     else if (a === 'evcat') { S.ev.cat = id || ''; render(true); }
     else if (a === 'evmode') { S.ev.mode = id; render(true); }
     else if (a === 'evpast') { S.ev.past = !S.ev.past; render(true); }
-    else if (a === 'evics') downloadIcs(EVBYID[id]);
+    else if (a === 'evics') downloadIcs(evById(id));
     else if (a === 'proposeev') { if (!requireAcct('Crea tu cuenta para proponer un evento')) return; push({ name: 'proposeev' }); }
     else if (a === 'advertise') push({ name: 'advertise' });
     else if (a === 'adpause') { S.adPaused = !S.adPaused; render(true); }
@@ -1408,10 +1497,22 @@ img { max-width: 100%; }
     else if (a === 'showpw') { var fm = el.closest('form'); if (fm) Array.prototype.forEach.call(fm.querySelectorAll('input.pw'), function (i) { i.type = el.checked ? 'text' : 'password'; }); }
     else if (a === 'legal') {
       var sf = document.getElementById('signform');
-      if (sf) { var vv = document.querySelector('input[name="vis"]:checked'); S.su.alias = document.getElementById('s-alias').value; S.su.mail = document.getElementById('s-mail').value; S.su.com = document.getElementById('s-com').value; S.su.vis = vv ? vv.value : '0'; S.su.terms = document.getElementById('s-terms').checked; }
+      if (sf) { var vv = document.querySelector('input[name="vis"]:checked'); S.su.alias = document.getElementById('s-alias').value; S.su.mail = document.getElementById('s-mail').value; S.su.com = document.getElementById('s-com').value; S.su.com2 = (document.getElementById('s-com2') || {}).value || ''; S.su.vis = vv ? vv.value : '0'; S.su.terms = document.getElementById('s-terms').checked; }
       if (S.stack[S.stack.length - 1].name === 'legal') { S.stack[S.stack.length - 1] = { name: 'legal', id: id }; render(false); } else push({ name: 'legal', id: id });
     }
     else if (a === 'catemp') push({ name: 'catemp' });
+    else if (a === 'post') { var pp0 = postById(id); push({ name: 'post', id: id }); if (CLOUD.on && pp0 && !pp0.ej) cloudLoadReplies(id).then(function () { if (S.stack[S.stack.length - 1].id === id) render(true); }); }
+    else if (a === 'newpost') { if (!requireAcct('Crea tu cuenta para publicar')) return; S.pd = null; push({ name: 'newpost' }); }
+    else if (a === 'admin') push({ name: 'admin' });
+    else if (a === 'admtoggle') { if (D.acct) { D.acct.adm = !D.acct.adm; save(); render(true); toast(D.acct.adm ? 'Modo administrador de prueba activado' : 'Modo administrador desactivado'); } }
+    else if (a === 'evok' || a === 'evno') { moderateEvent(id, a === 'evok' ? 'aprobado' : 'rechazado').then(function () { render(true); toast(a === 'evok' ? 'Publicado para toda la comunidad' : 'Propuesta no aprobada'); }, function (er) { toast(cloudErr(er)); }); }
+    else if (a === 'askdelsub') { S.confirmDelSub = true; render(true); }
+    else if (a === 'canceldelsub') { S.confirmDelSub = false; render(true); }
+    else if (a === 'delsub') {
+      var ds = D.subs[S.edit]; if (!ds) return;
+      var fin2 = function () { D.subs.splice(S.edit, 1); save(); S.edit = null; S.fd = {}; S.confirmDelSub = false; S.tab = 'profile'; S.stack = [{ name: 'profile' }]; render(false); toast('Boleto eliminado de tu colección'); };
+      if (cloudUser() && ds.id) { var F2 = FB.fs; F2.deleteDoc(F2.doc(FBDB, 'subs', ds.id)).then(fin2, function (er) { toast(cloudErr(er)); }); } else fin2();
+    }
     else if (a === 'cmode') { S.cat.mode = id; render(true); }
     else if (a === 'cest') { S.cat.est = id || ''; render(true); }
     else if (a === 'ent') { S.aliasOpen = false; push({ name: 'ent', id: id }); }
@@ -1421,7 +1522,7 @@ img { max-width: 100%; }
     else if (a === 'newrec') { if (!requireAcct('Crea tu cuenta para ampliar el catálogo')) return; push({ name: 'editrec', un: id || '' }); }
     else if (a === 'edit') { if (!requireAcct('Crea tu cuenta para corregir el catálogo')) return; push(el.dataset.kind === 'rec' ? { name: 'editrec', id: id } : { name: 'editent', id: id }); }
     else if (a === 'aliasopen') { if (!requireAcct('Crea tu cuenta para ampliar el catálogo')) return; S.aliasOpen = !S.aliasOpen; render(true); }
-    else if (a === 'editsub') { var sb = D.subs[+id]; if (!sb || !sb.f) return; S.edit = +id; S.fd = clone(sb.f); S.pv = { front: '', back: '' }; S.formMsg = null; S.tab = 'add'; S.stack = [{ name: 'add' }]; render(false); }
+    else if (a === 'editsub') { var sb = D.subs[+id]; if (!sb || !sb.f) return; S.confirmDelSub = false; S.edit = +id; S.fd = clone(sb.f); S.pv = { front: '', back: '' }; S.formMsg = null; S.tab = 'add'; S.stack = [{ name: 'add' }]; render(false); }
     else if (a === 'copy') copyText(el.dataset.val);
     else if (a === 'askreset') { S.confirmReset = true; render(true); }
     else if (a === 'cancelreset') { S.confirmReset = false; render(true); }
@@ -1429,6 +1530,7 @@ img { max-width: 100%; }
   });
   document.addEventListener('input', function (e) {
     if (e.target.id === 'q') { S.query = e.target.value; document.getElementById('homeBody').innerHTML = homeBody(); }
+    if (e.target.id === 'cq') { S.cq = e.target.value.trim(); var cl = document.getElementById('catList'); if (cl) cl.innerHTML = catResults(); }
   });
   document.addEventListener('change', function (e) {
     var t = e.target;
@@ -1438,25 +1540,36 @@ img { max-width: 100%; }
       if (!file) return;
       var fr = new FileReader();
       fr.onload = function () {
-        S.pv[side] = String(fr.result);
-        render(true);
+        var raw = String(fr.result);
+        shrink(raw, 1280, 0.8).then(function (small) { S.pv[side] = small || raw; render(true); });
       };
       fr.readAsDataURL(file);
     }
+    else if (t.id === 's-com' || t.id === 'e-com') {
+      var w2 = document.getElementById(t.id + '2w'); if (w2) { w2.hidden = t.value !== 'Otra comuna'; if (!w2.hidden) { var i2 = document.getElementById(t.id + '2'); if (i2) i2.focus(); } }
+    }
+    else if (t.name === 'dest') { S.fd['f-dest'] = t.value; }
   });
   document.addEventListener('submit', function (e) {
     if (e.target.id === 'evform') {
       e.preventDefault();
-      var tt = document.getElementById('e-title').value.trim(), dt = document.getElementById('e-date').value, cm = document.getElementById('e-com').value,
-        okc = document.getElementById('e-ok').checked, bx = document.getElementById('evMsg'), er = '';
-      if (tt.length < 3) er = 'Escribe el nombre del evento.';
-      else if (!dt) er = 'Indica la fecha del evento.';
-      else if (!cm) er = 'Elige la comuna donde se realiza.';
+      var tt = gv('e-title'), dt = gv('e-date'), cm = gv('e-com'), cm2 = gv('e-com2'), ecat = gv('e-cat'), elug = gv('e-lugar'), epre = gv('e-precio'), econ = gv('e-contact'), edes = gv('e-desc'),
+        okc = document.getElementById('e-ok').checked, er = '';
+      S.evd = { cat: ecat, title: tt, date: dt, com: cm, com2: cm2, lugar: elug, precio: epre, contact: econ, desc: edes };
+      if (!D.acct) { requireAcct(); return; }
+      if (tt.length < 3) er = 'Escribe el nombre del evento o de la venta.';
+      else if (!dt) er = 'Indica la fecha.';
+      else if (!cm) er = 'Elige la comuna.';
+      else if (cm === 'Otra comuna' && !/^[\p{L}][\p{L} .'-]{1,39}$/u.test(cm2)) er = 'Escribe el nombre de la comuna (solo letras, de 2 a 40 caracteres).';
+      else if (ecat === 'Venta' && !epre) er = 'Indica el precio o escribe “a convenir”.';
+      else if (edes.length < 10) er = 'Agrega una descripción de al menos 10 caracteres.';
       else if (!okc) er = 'Confirma que la información es veraz y que puedes difundirla.';
-      if (er) { bx.textContent = er; bx.hidden = false; return; }
-      D.subs.unshift({ title: 'Evento: ' + tt, when: fmtDay(dt, { day: 'numeric', month: 'long' }) + ' · enviado hoy' }); save();
-      if (S.stack.length > 1) S.stack.pop();
-      render(false); toast('Evento enviado a revisión');
+      if (er) { showMsg('evMsg', er); return; }
+      var kind = ecat === 'Venta' ? 'venta' : 'evento';
+      showMsg('evMsg', 'Enviando…');
+      proposeEvent({ kind: kind, title: tt, ini: dt, fin: '', cat: ecat, comuna: cm === 'Otra comuna' ? cm2 : cm, lugar: elug || 'Lugar por confirmar', entrada: kind === 'venta' ? 'Precio: ' + epre : 'Por definir', precio: epre, contacto: econ, org: '@' + D.acct.alias, desc: edes, ejemplo: false }).then(function () {
+        S.evd = null; if (S.stack.length > 1) S.stack.pop(); render(false); toast(kind === 'venta' ? 'Venta enviada a revisión' : 'Evento enviado a revisión');
+      }, function (er2) { showMsg('evMsg', er2 && er2.code === 'storage' ? 'No hay espacio para guardar la propuesta en este dispositivo.' : cloudErr(er2)); });
       return;
     }
     if (e.target.id === 'loginform') {
@@ -1464,13 +1577,19 @@ img { max-width: 100%; }
       var lu = document.getElementById('l-user').value.trim(), lp = document.getElementById('l-pass').value, sv = D.saved;
       if (Date.now() < S.lockUntil) { showMsg('logMsg', 'Demasiados intentos. Espera ' + Math.ceil((S.lockUntil - Date.now()) / 1000) + ' segundos e inténtalo de nuevo.'); return; }
       if (!lu || !lp) { showMsg('logMsg', 'Escribe tu usuario o correo y tu contraseña.'); return; }
+      if (CLOUD.on) {
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(lu)) { showMsg('logMsg', 'Escribe el correo con el que creaste tu cuenta.'); return; }
+        showMsg('logMsg', 'Entrando…');
+        cloudSignIn(lu, lp).then(function () { S.fails = 0; S.tab = 'profile'; S.stack = [{ name: 'profile' }]; render(false); toast('¡Hola de nuevo!'); }, function (er) { S.fails++; if (S.fails >= 5) { S.fails = 0; S.lockUntil = Date.now() + 30000; } showMsg('logMsg', cloudErr(er)); });
+        return;
+      }
       var bad = function () { S.fails++; if (S.fails >= 5) { S.fails = 0; S.lockUntil = Date.now() + 30000; showMsg('logMsg', 'Demasiados intentos. Espera 30 segundos e inténtalo de nuevo.'); } else showMsg('logMsg', 'Usuario o contraseña incorrectos.'); };
       var ac = sv && sv.acct, m = ac && (norm(ac.alias) === norm(lu) || (ac.mail && norm(ac.mail) === norm(lu)));
       if (!m || !ac.ph) { bad(); return; }
       showMsg('logMsg', '');
       hashPw(lp, ac.salt).then(function (h) {
         if (h.hash !== ac.ph) { bad(); return; }
-        S.fails = 0; D = { fav: sv.fav || [], subs: sv.subs || [], acct: ac, own: sv.own || [] }; save();
+        S.fails = 0; D = { fav: sv.fav || [], subs: sv.subs || [], acct: ac, own: sv.own || [], posts: sv.posts || [], evp: sv.evp || [] }; save();
         S.tab = 'profile'; S.stack = [{ name: 'profile' }]; render(false); toast('¡Hola de nuevo, @' + ac.alias + '!');
       }, function () { showMsg('logMsg', 'Tu navegador no permite verificar la contraseña de forma segura.'); });
       return;
@@ -1479,6 +1598,11 @@ img { max-width: 100%; }
       e.preventDefault();
       var who = document.getElementById('f-who').value.trim(), st = D.acct ? D : D.saved, aa = st && st.acct;
       if (!who) { showMsg('fpMsg', 'Escribe tu nombre de usuario o tu correo.'); return; }
+      if (CLOUD.on) {
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(who)) { showMsg('fpMsg', 'Escribe el correo de tu cuenta.'); return; }
+        var fin = function () { S.fp = { step: 3 }; render(false); };
+        cloudReset(who).then(fin, fin); return;
+      }
       var hit = aa && (norm(aa.alias) === norm(who) || (aa.mail && norm(aa.mail) === norm(who)));
       S.fp = { step: 2, code: hit ? String(Math.floor(100000 + Math.random() * 900000)) : null, exp: Date.now() + 600000, tries: 0 };
       render(false); return;
@@ -1501,6 +1625,14 @@ img { max-width: 100%; }
       e.preventDefault();
       var co = document.getElementById('c-old').value, cn = document.getElementById('c-new').value, cn2 = document.getElementById('c-new2').value, ca = D.acct;
       if (!ca) return;
+      if (CLOUD.on && ca.cloud) {
+        var ce0 = pwErr(cn, ca.alias, cn2);
+        if (!co) { showMsg('chMsg', 'Escribe tu contraseña actual.'); return; }
+        if (ce0) { showMsg('chMsg', ce0); return; }
+        if (co === cn) { showMsg('chMsg', 'La contraseña nueva debe ser distinta de la actual.'); return; }
+        cloudChangePw(co, cn).then(function () { if (S.stack.length > 1) S.stack.pop(); render(false); toast('Contraseña cambiada'); }, function (er) { showMsg('chMsg', cloudErr(er)); });
+        return;
+      }
       var ce = pwErr(cn, ca.alias, cn2);
       if (!co && ca.ph) { showMsg('chMsg', 'Escribe tu contraseña actual.'); return; }
       if (ce) { showMsg('chMsg', ce); return; }
@@ -1515,6 +1647,12 @@ img { max-width: 100%; }
       var da = D.acct, dp = document.getElementById('d-pass'), du = document.getElementById('d-user').value.trim();
       if (!da) return;
       if (norm(du) !== norm(da.alias)) { showMsg('delMsg', 'Escribe tu nombre de usuario exactamente como aparece para confirmar.'); return; }
+      if (CLOUD.on && da.cloud) {
+        if (!dp || !dp.value) { showMsg('delMsg', 'Escribe tu contraseña para confirmar.'); return; }
+        showMsg('delMsg', 'Eliminando tu cuenta…');
+        cloudDelete(dp.value).then(function () { wipeAll(); S.tab = 'home'; S.stack = [{ name: 'home' }]; render(false); toast('Tu cuenta fue eliminada'); }, function (er) { showMsg('delMsg', cloudErr(er)); });
+        return;
+      }
       var doDel = function () { wipeAll(); S.tab = 'home'; S.stack = [{ name: 'home' }]; render(false); toast('Tu cuenta fue eliminada'); };
       if (!da.ph) { doDel(); return; }
       if (!dp.value) { showMsg('delMsg', 'Escribe tu contraseña para confirmar.'); return; }
@@ -1576,25 +1714,363 @@ img { max-width: 100%; }
       e.preventDefault();
       var fd2 = {};
       ['f-emp', 'f-un', 'f-recsel', 'f-reccod', 'f-recnom', 'f-era', 'f-fecha', 'f-verif', 'f-hist', 'f-fuente', 'f-notas'].forEach(function (k) { fd2[k] = gv(k); });
+      var dsel = document.querySelector('input[name="dest"]:checked'); fd2['f-dest'] = dsel ? dsel.value : 'priv';
       fd2['f-reccod'] = fd2['f-reccod'].toUpperCase();
       var edt = S.edit != null && D.subs[S.edit] && D.subs[S.edit].f, derEl = document.getElementById('f-der'), der = !!(derEl && derEl.checked), er3 = '';
       fd2['f-der'] = der; S.fd = fd2;
-      if (!edt && !S.pv.front) er3 = 'Falta la foto del frente. Es obligatoria para publicar.';
+      var oldS = edt ? D.subs[S.edit] : null;
+      if (!edt && !S.pv.front) er3 = 'Falta la foto del frente. Es obligatoria.';
       else if (!fd2['f-emp'] && fd2['f-un'] !== '__desc') er3 = 'Escribe el nombre impreso en el boleto o elige “Empresa desconocida”.';
       else if (fd2['f-reccod'] && !/^[A-Z0-9]{2,6}$/.test(fd2['f-reccod'])) er3 = 'El código del recorrido debe tener entre 2 y 6 letras o números, por ejemplo 14HT.';
       else if (!edt && !der) er3 = 'Debes confirmar que tienes derecho a compartir las imágenes.';
       if (er3) { S.formMsg = { k: 'err', t: er3 }; render(true); return; }
       var un3 = /^UN/.test(fd2['f-un']) ? uById(fd2['f-un']) : null, ttl = fd2['f-emp'] || (un3 ? unName(un3) : 'Boleto sin empresa identificada');
-      var whn = (fd2['f-fecha'] ? fd2['f-fecha'] + ' · ' : '') + (edt ? 'actualizado hoy' : 'enviado hoy');
-      if (edt) {
-        D.subs[S.edit] = { title: ttl, when: whn, f: fd2 }; save(); S.edit = null; S.fd = {}; S.formMsg = null;
-        S.tab = 'profile'; S.stack = [{ name: 'profile' }]; render(false); toast('Aporte actualizado'); return;
-      }
-      D.subs.unshift({ title: ttl, when: whn, f: fd2 }); save(); S.pv = { front: '', back: '' }; S.fd = {};
-      S.formMsg = { k: 'good', t: 'Aporte enviado a revisión. Lo verás en tu perfil, donde podrás editarlo.' };
-      render(false); toast('Aporte enviado a revisión'); return;
+      var whn = fd2['f-fecha'] ? fd2['f-fecha'] : (edt ? 'actualizado hoy' : 'guardado hoy');
+      var status = fd2['f-dest'] === 'pub' ? 'revision' : 'privado';
+      if (oldS && oldS.status === 'publicado') status = 'publicado';
+      var btn = e.target.querySelector('button[type=submit]'); if (btn) { btn.disabled = true; btn.textContent = 'Guardando…'; }
+      var big1 = S.pv.front, big2 = S.pv.back, editIdx = edt ? S.edit : -1;
+      Promise.all([big1 ? shrink(big1, 640, 0.7) : '', big2 ? shrink(big2, 640, 0.7) : '']).then(function (th) {
+        var rec = { title: ttl, when: whn, f: fd2, status: status, img: th[0] || (oldS && oldS.img) || '', img2: th[1] || (oldS && oldS.img2) || '' };
+        if (oldS && oldS.id) rec.id = oldS.id;
+        if (oldS && oldS.ts) rec.ts = oldS.ts;
+        if (cloudUser()) { rec.big1 = big1; rec.big2 = big2; return cloudSaveSub(rec, oldS); }
+        rec.ts = rec.ts || Date.now();
+        return rec;
+      }).then(function (rec) {
+        var prev = null;
+        if (editIdx > -1) { prev = D.subs[editIdx]; D.subs[editIdx] = rec; } else D.subs.unshift(rec);
+        if (!save()) { if (editIdx > -1) D.subs[editIdx] = prev; else D.subs.shift(); save(); throw { code: 'storage' }; }
+        S.pv = { front: '', back: '' }; S.fd = {}; S.edit = null; S.confirmDelSub = false;
+        if (editIdx > -1) { S.formMsg = null; S.tab = 'profile'; S.stack = [{ name: 'profile' }]; render(false); toast('Boleto actualizado'); }
+        else { S.formMsg = { k: 'good', t: fd2['f-dest'] === 'pub' ? 'Boleto guardado en tu colección y enviado a revisión para el catálogo.' : 'Boleto guardado en tu colección. Ya lo ves en tu perfil.' }; render(false); toast('Boleto guardado'); }
+      }).catch(function (err) {
+        S.formMsg = { k: 'err', t: err && err.code === 'storage' ? 'No hay más espacio en este dispositivo. Elimina algún boleto o usa la cuenta en la nube para guardar más con fotos.' : (cloudUser() ? cloudErr(err) : 'No se pudo guardar el boleto. Inténtalo de nuevo.') };
+        render(true);
+      });
+      return;
+    }
+    if (e.target.id === 'postform') {
+      e.preventDefault();
+      var pt = gv('p-title'), px = gv('p-text'), ptp = gv('p-tipo'), pe = '';
+      S.pd = { title: pt, text: px, tipo: ptp };
+      if (!D.acct) { requireAcct(); return; }
+      if (pt.length < 3) pe = 'Escribe un título de al menos 3 caracteres.';
+      else if (px.length < 10) pe = 'Cuéntanos un poco más: el mensaje debe tener al menos 10 caracteres.';
+      if (pe) { showMsg('poMsg', pe); return; }
+      showMsg('poMsg', 'Publicando…');
+      createPost({ title: pt, text: px, tipo: ptp }).then(function (r) {
+        S.pd = null; S.stack.pop(); S.stack.push({ name: 'post', id: r.id }); render(false); toast('Publicación creada');
+      }, function (er) { showMsg('poMsg', er && er.code === 'storage' ? 'No hay espacio para guardar la publicación en este dispositivo.' : cloudErr(er)); });
+      return;
+    }
+    if (e.target.id === 'replyform') {
+      e.preventDefault();
+      var rp = postById(e.target.dataset.id), rt = gv('rp-text');
+      if (!D.acct) { requireAcct(); return; }
+      if (!rp) return;
+      if (rt.length < 2) { showMsg('rpMsg', 'Escribe tu respuesta.'); return; }
+      showMsg('rpMsg', 'Enviando…');
+      addReply(rp, rt).then(function () { render(true); toast('Respuesta publicada'); }, function (er) { showMsg('rpMsg', er && er.code === 'storage' ? 'No hay espacio para guardar la respuesta.' : cloudErr(er)); });
+      return;
     }
   });
+  /* ---------- Nube (Firebase): opcional. Sin claves en firebase-config.js la app sigue en modo local ---------- */
+  var FBCFG = window.BOLECCIONA_FIREBASE || {};
+  var CLOUD = { on: !!(FBCFG.apiKey && FBCFG.projectId && FBCFG.appId), ready: false, uid: '', admin: false, busy: false, err: '' };
+  var FBV = '10.14.1', FBP = null, FB = null, FBA = null, FBDB = null, FBST = null;
+  var C = { posts: [], replies: {}, events: [] };
+  function fbLoad() {
+    if (FBP) return FBP;
+    var base = 'https://www.gstatic.com/firebasejs/' + FBV + '/';
+    FBP = Promise.all([import(base + 'firebase-app.js'), import(base + 'firebase-auth.js'), import(base + 'firebase-firestore.js'), import(base + 'firebase-storage.js')]).then(function (m) {
+      var app = m[0].initializeApp(FBCFG);
+      FB = { auth: m[1], fs: m[2], st: m[3] };
+      FBA = m[1].getAuth(app); FBDB = m[2].getFirestore(app); FBST = FBCFG.storageBucket ? m[3].getStorage(app) : null;
+      return FB;
+    });
+    FBP.catch(function () { FBP = null; });
+    return FBP;
+  }
+  function cloudUser() { return CLOUD.on && !!CLOUD.uid && !!D.acct && !!D.acct.cloud; }
+  function cloudErr(e) {
+    var c = e && e.code ? String(e.code) : '';
+    if (/email-already-in-use/.test(c)) return 'Ya existe una cuenta con ese correo. Prueba iniciar sesión.';
+    if (/invalid-email/.test(c)) return 'El correo no es válido.';
+    if (/weak-password/.test(c)) return 'La contraseña es muy débil. Usa al menos 8 caracteres.';
+    if (/wrong-password|invalid-credential|user-not-found|invalid-login/.test(c)) return 'Correo o contraseña incorrectos.';
+    if (/too-many-requests/.test(c)) return 'Demasiados intentos. Espera unos minutos e inténtalo de nuevo.';
+    if (/network/.test(c)) return 'Sin conexión. Revisa tu internet e inténtalo de nuevo.';
+    if (/permission-denied/.test(c)) return 'No tienes permiso para esta acción.';
+    if (/requires-recent-login/.test(c)) return 'Por seguridad, cierra sesión, vuelve a entrar e inténtalo otra vez.';
+    return 'No se pudo completar la acción. Inténtalo de nuevo.';
+  }
+  function cloudStart() {
+    if (!CLOUD.on) return;
+    fbLoad().then(function () {
+      FB.auth.onAuthStateChanged(FBA, function (u) {
+        CLOUD.ready = true;
+        if (CLOUD.busy) return;
+        if (u) { cloudAttach(u); return; }
+        CLOUD.uid = ''; CLOUD.admin = false;
+        if (D.acct && D.acct.cloud) { D = { fav: [], subs: [], acct: null, own: [], posts: [], evp: [] }; save(); }
+        cloudLoadShared().then(function () { render(true); });
+      });
+    }, function () { CLOUD.err = 'No se pudo conectar con el servicio en la nube. Se muestran los datos de este dispositivo.'; render(true); });
+  }
+  function cloudAttach(u, prof) {
+    CLOUD.uid = u.uid;
+    var F = FB.fs;
+    var pp = prof ? Promise.resolve(prof) : F.getDoc(F.doc(FBDB, 'users', u.uid)).then(function (s) { return s.exists() ? s.data() : null; });
+    return Promise.all([pp, F.getDoc(F.doc(FBDB, 'admins', u.uid)).then(function (s) { return s.exists(); }, function () { return false; })]).then(function (r) {
+      var p = r[0]; CLOUD.admin = !!r[1];
+      if (!p) { p = { alias: (u.displayName || (u.email || 'usuario').split('@')[0]).slice(0, 24), comuna: '', int: [], pub: false, own: [], fav: [], desde: new Date().toISOString().slice(0, 10) }; }
+      D.acct = { alias: p.alias, mail: u.email || '', comuna: p.comuna || '', int: p.int || [], pub: !!p.pub, desde: p.desde || new Date().toISOString().slice(0, 10), cloud: true };
+      D.own = p.own || []; D.fav = p.fav || [];
+      return F.getDocs(F.query(F.collection(FBDB, 'subs'), F.where('uid', '==', u.uid))).then(function (qs) {
+        var arr = []; qs.forEach(function (d) { var x = d.data(); x.id = d.id; arr.push(x); });
+        arr.sort(function (a, b) { return (b.ts || 0) - (a.ts || 0); });
+        D.subs = arr.map(function (x) { return { id: x.id, title: x.title, when: x.when, f: x.f, status: x.status, img: x.img || '', img2: x.img2 || '', ts: x.ts || 0 }; });
+      }, function () {});
+    }).then(function () { save(); return cloudLoadShared(); }).then(function () { render(true); }, function (e) { CLOUD.err = cloudErr(e); render(true); });
+  }
+  function cloudLoadShared() {
+    if (!FB) return Promise.resolve();
+    var F = FB.fs, jobs = [];
+    jobs.push(F.getDocs(F.query(F.collection(FBDB, 'posts'), F.orderBy('ts', 'desc'), F.limit(100))).then(function (qs) { var a = []; qs.forEach(function (d) { var x = d.data(); x.id = d.id; a.push(x); }); C.posts = a; }, function () {}));
+    var evs = {};
+    function addEv(qs) { qs.forEach(function (d) { var x = d.data(); x.id = d.id; evs[x.id] = x; }); }
+    jobs.push(F.getDocs(F.query(F.collection(FBDB, 'events'), F.where('status', '==', 'aprobado'))).then(addEv, function () {}));
+    if (CLOUD.uid) jobs.push(F.getDocs(F.query(F.collection(FBDB, 'events'), F.where('uid', '==', CLOUD.uid))).then(addEv, function () {}));
+    if (CLOUD.admin) jobs.push(F.getDocs(F.query(F.collection(FBDB, 'events'), F.where('status', '==', 'pendiente'))).then(addEv, function () {}));
+    return Promise.all(jobs).then(function () { C.events = Object.keys(evs).map(function (k) { return evs[k]; }); });
+  }
+  var _spT = null;
+  function cloudSaveProfile() {
+    if (!cloudUser() || !FB) return;
+    clearTimeout(_spT);
+    _spT = setTimeout(function () {
+      var F = FB.fs;
+      F.setDoc(F.doc(FBDB, 'users', CLOUD.uid), { own: D.own, fav: D.fav, pub: !!D.acct.pub, comuna: D.acct.comuna || '', int: D.acct.int || [] }, { merge: true }).catch(function () { toast('No se pudo sincronizar tu perfil'); });
+    }, 600);
+  }
+  function cloudSignUp(al, mail, pw, comuna, ints, pub) {
+    CLOUD.busy = true;
+    var F, A, user = null, key = norm(al).replace(/[^a-z0-9_.-]/g, '');
+    return fbLoad().then(function () {
+      F = FB.fs; A = FB.auth;
+      return F.getDoc(F.doc(FBDB, 'aliases', key));
+    }).then(function (s) {
+      if (s.exists()) throw { code: 'app/alias-taken' };
+      return A.createUserWithEmailAndPassword(FBA, mail, pw);
+    }).then(function (cr) {
+      user = cr.user;
+      var desde = new Date().toISOString().slice(0, 10), batch = F.writeBatch(FBDB);
+      batch.set(F.doc(FBDB, 'users', user.uid), { alias: al, aliasKey: key, comuna: comuna || '', int: ints, pub: !!pub, desde: desde, own: [], fav: [] });
+      batch.set(F.doc(FBDB, 'aliases', key), { uid: user.uid });
+      return batch.commit().then(function () { return A.updateProfile(user, { displayName: al }).catch(function () {}); }).then(function () { return { uid: user.uid, email: user.email, displayName: al }; });
+    }).then(function (u) {
+      CLOUD.busy = false;
+      return cloudAttach(u, { alias: al, comuna: comuna || '', int: ints, pub: !!pub, own: [], fav: [], desde: new Date().toISOString().slice(0, 10) });
+    }, function (e) {
+      CLOUD.busy = false;
+      if (user) { try { user.delete(); } catch (x) {} }
+      throw e;
+    });
+  }
+  function cloudSignIn(mail, pw) {
+    CLOUD.busy = true;
+    return fbLoad().then(function () { return FB.auth.signInWithEmailAndPassword(FBA, mail, pw); }).then(function (cr) { CLOUD.busy = false; return cloudAttach(cr.user); }, function (e) { CLOUD.busy = false; throw e; });
+  }
+  function cloudSignOut() { return fbLoad().then(function () { return FB.auth.signOut(FBA); }); }
+  function cloudReset(mail) { return fbLoad().then(function () { return FB.auth.sendPasswordResetEmail(FBA, mail); }); }
+  function cloudChangePw(oldPw, newPw) {
+    return fbLoad().then(function () {
+      var u = FBA.currentUser, cr = FB.auth.EmailAuthProvider.credential(u.email, oldPw);
+      return FB.auth.reauthenticateWithCredential(u, cr).then(function () { return FB.auth.updatePassword(u, newPw); });
+    });
+  }
+  function cloudDelete(pw) {
+    var F, u;
+    return fbLoad().then(function () {
+      F = FB.fs; u = FBA.currentUser;
+      return FB.auth.reauthenticateWithCredential(u, FB.auth.EmailAuthProvider.credential(u.email, pw));
+    }).then(function () {
+      var key = norm(D.acct.alias).replace(/[^a-z0-9_.-]/g, ''), batch = F.writeBatch(FBDB);
+      D.subs.forEach(function (s) { if (s.id) batch.delete(F.doc(FBDB, 'subs', s.id)); });
+      C.posts.filter(function (p) { return p.uid === u.uid; }).forEach(function (p) { batch.delete(F.doc(FBDB, 'posts', p.id)); });
+      C.events.filter(function (e) { return e.uid === u.uid; }).forEach(function (e) { batch.delete(F.doc(FBDB, 'events', e.id)); });
+      batch.delete(F.doc(FBDB, 'aliases', key)); batch.delete(F.doc(FBDB, 'users', u.uid));
+      return batch.commit();
+    }).then(function () { CLOUD.busy = true; return FB.auth.deleteUser(u); }).then(function () { CLOUD.busy = false; CLOUD.uid = ''; CLOUD.admin = false; }, function (e) { CLOUD.busy = false; throw e; });
+  }
+  function cloudUpload(path, dataUrl) {
+    if (!FBST || !dataUrl) return Promise.reject(new Error('sin storage'));
+    var r = FB.st.ref(FBST, path);
+    return FB.st.uploadString(r, dataUrl, 'data_url').then(function () { return FB.st.getDownloadURL(r); });
+  }
+  function cloudSaveSub(rec, old) {
+    var F = FB.fs, id = old && old.id ? old.id : F.doc(F.collection(FBDB, 'subs')).id, pre = 'tickets/' + CLOUD.uid + '/' + id;
+    function up(name, big, thumb, prev) {
+      if (!big) return Promise.resolve(prev || '');
+      return cloudUpload(pre + '-' + name + '.jpg', big).catch(function () { return thumb || ''; });
+    }
+    return Promise.all([up('front', rec.big1, rec.img, old && old.img), up('back', rec.big2, rec.img2, old && old.img2)]).then(function (u) {
+      var doc = { uid: CLOUD.uid, alias: D.acct.alias, title: rec.title, when: rec.when, f: rec.f, status: rec.status, img: u[0] || '', img2: u[1] || '', ts: old && old.ts ? old.ts : Date.now() };
+      return F.setDoc(F.doc(FBDB, 'subs', id), doc).then(function () { return { id: id, title: doc.title, when: doc.when, f: doc.f, status: doc.status, img: doc.img, img2: doc.img2, ts: doc.ts }; });
+    });
+  }
+  function shrink(src, max, q) {
+    return new Promise(function (res) {
+      var im = new Image();
+      im.onload = function () {
+        var s = Math.min(1, max / Math.max(im.width, im.height)), c = document.createElement('canvas');
+        c.width = Math.max(1, Math.round(im.width * s)); c.height = Math.max(1, Math.round(im.height * s));
+        try { c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); res(c.toDataURL('image/jpeg', q)); } catch (e) { res(''); }
+      };
+      im.onerror = function () { res(''); };
+      im.src = src;
+    });
+  }
+
+  /* ---------- Colección: total sin tope artificial ---------- */
+  function mySubs() { var o = []; D.subs.forEach(function (s, i) { if (s.f) o.push({ s: s, i: i }); }); return o; }
+  function myTotal() { return D.own.length + mySubs().length; }
+  function statusBd(st) {
+    return st === 'privado' ? '<span class="bd ok">Solo en mi colección</span>' : st === 'publicado' ? '<span class="bd ok">Publicado</span>' : st === 'rechazado' ? '<span class="bd pend">No aprobado</span>' : '<span class="bd rev">En revisión</span>';
+  }
+  function mineCard(x) {
+    var s = x.s;
+    return '<button class="card" data-a="editsub" data-id="' + x.i + '">' + (s.img ? '<img class="pic" alt="Foto de tu boleto" src="' + esc(s.img) + '">' : '<span class="pic noimg">Sin foto</span>') + '<b>' + esc(s.title) + '</b><small>' + esc(s.when || '') + '</small><span>' + statusBd(s.status) + '</span></button>';
+  }
+
+  /* ---------- Comunidad ---------- */
+  var TIPOS_POST = ['Pregunta', 'Ayuda para identificar un boleto', 'Hallazgo', 'Otro tema'];
+  function dposts() { if (!D.posts) D.posts = []; return D.posts; }
+  function postsAll() {
+    var real = (CLOUD.on ? C.posts : dposts()).slice().sort(function (a, b) { return (b.ts || 0) - (a.ts || 0); });
+    var seeds = COMMUNITY.map(function (c, i) { return { id: 'ej' + i, ej: true, title: c.title, text: c.text, alias: c.who, st: c.st, ts: 0, replyCount: c.replies, tipo: 'Ejemplo' }; });
+    return real.concat(seeds);
+  }
+  function postById(id) { var l = postsAll(); for (var i = 0; i < l.length; i++) if (l[i].id === id) return l[i]; return null; }
+  function repliesOf(p) { if (p.ej) return []; return CLOUD.on ? (C.replies[p.id] || []) : (p.replies || []); }
+  function fmtTs(ts) { if (!ts) return ''; try { return new Date(ts).toLocaleDateString('es-CL', { day: 'numeric', month: 'short', year: 'numeric' }) + ' · ' + new Date(ts).toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' }); } catch (e) { return ''; } }
+  function cloudLoadReplies(id) {
+    if (!FB) return Promise.resolve();
+    var F = FB.fs;
+    return F.getDocs(F.query(F.collection(FBDB, 'posts', id, 'replies'), F.orderBy('ts', 'asc'))).then(function (qs) { var a = []; qs.forEach(function (d) { var x = d.data(); x.id = d.id; a.push(x); }); C.replies[id] = a; }, function () {});
+  }
+  function createPost(o) {
+    var rec = { title: o.title, text: o.text, tipo: o.tipo, alias: D.acct.alias, uid: CLOUD.on ? CLOUD.uid : 'local', ts: Date.now(), replyCount: 0 };
+    if (CLOUD.on) {
+      var F = FB.fs;
+      return F.addDoc(F.collection(FBDB, 'posts'), rec).then(function (r) { rec.id = r.id; C.posts.unshift(rec); return rec; });
+    }
+    rec.id = 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5); rec.replies = [];
+    dposts().unshift(rec);
+    if (!save()) { dposts().shift(); return Promise.reject({ code: 'storage' }); }
+    return Promise.resolve(rec);
+  }
+  function addReply(p, text) {
+    var rep = { alias: D.acct.alias, text: text, ts: Date.now(), uid: CLOUD.on ? CLOUD.uid : 'local' };
+    if (CLOUD.on) {
+      var F = FB.fs;
+      return F.addDoc(F.collection(FBDB, 'posts', p.id, 'replies'), rep).then(function (r) {
+        rep.id = r.id; (C.replies[p.id] = C.replies[p.id] || []).push(rep); p.replyCount = (p.replyCount || 0) + 1;
+        return F.updateDoc(F.doc(FBDB, 'posts', p.id), { replyCount: F.increment(1) }).catch(function () {});
+      });
+    }
+    rep.id = 'r' + Date.now().toString(36); (p.replies = p.replies || []).push(rep); p.replyCount = p.replies.length;
+    if (!save()) { p.replies.pop(); p.replyCount = p.replies.length; return Promise.reject({ code: 'storage' }); }
+    return Promise.resolve();
+  }
+
+  /* ---------- Eventos y ventas con aprobación ---------- */
+  function devp() { if (!D.evp) D.evp = []; return D.evp; }
+  function evDyn() { return CLOUD.on ? C.events : devp(); }
+  function evPublic() { return evDyn().filter(function (e) { return e.status === 'aprobado'; }); }
+  function evAll() { return EVENTS.concat(evPublic()); }
+  function evById(id) { var i, l = EVENTS.concat(evDyn()); for (i = 0; i < l.length; i++) if (l[i].id === id) return l[i]; return null; }
+  function isAdminNow() { return CLOUD.on ? CLOUD.admin : !!(D.acct && D.acct.adm); }
+  function pendingEv() { return evDyn().filter(function (e) { return e.status === 'pendiente'; }); }
+  function evStatusBd(e) { return e.status === 'pendiente' ? '<span class="bd rev">Pendiente de revisión</span>' : e.status === 'rechazado' ? '<span class="bd pend">No aprobado</span>' : e.status === 'aprobado' ? '<span class="bd ok">Publicado</span>' : ''; }
+  function proposeEvent(rec) {
+    rec.uid = CLOUD.on ? CLOUD.uid : 'local'; rec.alias = D.acct.alias; rec.status = 'pendiente'; rec.ts = Date.now();
+    if (CLOUD.on) {
+      var F = FB.fs;
+      return F.addDoc(F.collection(FBDB, 'events'), rec).then(function (r) { rec.id = r.id; C.events.push(rec); });
+    }
+    rec.id = 'EVU-' + Date.now().toString(36); devp().unshift(rec);
+    if (!save()) { devp().shift(); return Promise.reject({ code: 'storage' }); }
+    return Promise.resolve();
+  }
+  function moderateEvent(id, st) {
+    var e = evById(id); if (!e || !isAdminNow()) return Promise.resolve();
+    if (CLOUD.on) { var F = FB.fs; return F.updateDoc(F.doc(FBDB, 'events', id), { status: st }).then(function () { e.status = st; }); }
+    e.status = st; save(); return Promise.resolve();
+  }
+
+  /* ---------- Búsqueda: boletos, unidades, empresas, líneas y recorridos ---------- */
+  var STOPW = ['linea', 'lineas', 'de', 'del', 'la', 'el', 'los', 'las', 'y', 'en', 'bus', 'buses', 'recorrido', 'recorridos', 'micro'];
+  function sTok(q) {
+    var s = norm(q).replace(/\bun\s*([0-9]{2}|b0)\b/g, 'un$1').replace(/[^a-z0-9\s_-]/g, ' ');
+    return s.split(/\s+/).filter(function (w) { return w && STOPW.indexOf(w) < 0; });
+  }
+  function sHit(idx, toks) {
+    for (var i = 0; i < toks.length; i++) {
+      var w = toks[i];
+      if (w.length >= 3) { if (idx.indexOf(w) < 0) return false; }
+      else if (!new RegExp('(^|[^a-z0-9])' + w.replace(/[^a-z0-9]/g, '')).test(idx)) return false;
+    }
+    return true;
+  }
+  function tIdx(t) {
+    var id = norm(t.id), base = [id, id.replace('-', ''), 'bc' + t.n];
+    if (!canSee(t)) return base.join(' ');
+    var u = t.un ? uById(t.un) : null, r = t.rec ? rById(t.rec) : null, e = t.empId ? eById(t.empId) : (u ? eById(u.emp) : null), al = [];
+    if (e) (e.alias || []).forEach(function (a) { al.push(a.t); });
+    return norm(base.concat([t.title, t.emp, t.tipo, t.color, t.tema, t.imp, t.num, t.anio, t.un || '', tcName(t), e ? e.nombre : '', al.join(' '), t.recTxt || '', r ? r.cod + ' ' + (r.nombre || '') : '', t.hist || '', (t.texto || []).join(' '), eraLabel(eraOf(t))]).join(' '));
+  }
+  function ticketMatch(t, q) { var tk = sTok(q); return !tk.length || sHit(tIdx(t), tk); }
+  function uIdx(u) {
+    var e = eById(u.emp) || {}, al = (e.alias || []).map(function (a) { return a.t; }), rs = recsOf(u.id).map(function (r) { return r.cod + ' ' + (r.nombre || ''); });
+    return norm([u.id, u.id.replace(/^UN/, ''), u.corto || '', e.nombre || '', al.join(' '), rs.join(' ')].join(' '));
+  }
+  function rIdx(r) {
+    var u = uById(r.un) || {}, e = eById(u.emp) || {};
+    return norm([r.cod, r.id, r.nombre || '', r.ori || '', r.des || '', r.ter || '', r.ida || '', r.reg || '', r.un || '', r.un ? r.un.replace(/^UN/, '') : '', u.corto || '', e.nombre || ''].join(' '));
+  }
+  function searchCat(q) {
+    var tk = sTok(q);
+    if (!tk.length) return { un: [], rec: [], emp: [] };
+    var un = cmerge('un').filter(function (u) { return sHit(uIdx(u), tk); });
+    var rec = cmerge('rec').filter(function (r) { return sHit(rIdx(r), tk); });
+    var emp = cmerge('emp').filter(function (e) { return e.estado === 'histórico' && sHit(norm([e.nombre].concat((e.alias || []).map(function (a) { return a.t; })).join(' ')), tk); });
+    function exact(x) { return tk.some(function (w) { return norm(x.cod || x.id || '') === w || norm(x.id || '') === w; }) ? 0 : 1; }
+    un.sort(function (a, b) { return exact(a) - exact(b) || (a.id < b.id ? -1 : 1); });
+    rec.sort(function (a, b) { return exact(a) - exact(b) || (a.cod < b.cod ? -1 : 1); });
+    return { un: un, rec: rec, emp: emp };
+  }
+  function searchCatHtml(q) {
+    var r = searchCat(q), h = '';
+    if (r.un.length) h += '<div class="sec"><h2>Unidades de negocio y empresas (' + r.un.length + ')</h2></div><div class="rows" style="margin-bottom:12px">' + r.un.slice(0, 12).map(rowUn).join('') + '</div>';
+    if (r.rec.length) h += '<div class="sec"><h2>Líneas y recorridos (' + r.rec.length + ')</h2></div><div class="rows" style="margin-bottom:12px">' + r.rec.slice(0, 15).map(rowRec).join('') + (r.rec.length > 15 ? '<p class="muted small" style="margin:8px 0 0">Mostrando 15 de ' + r.rec.length + '. Afina la búsqueda o abre “Empresas y recorridos”.</p>' : '') + '</div>';
+    if (r.emp.length) h += '<div class="sec"><h2>Empresas históricas (' + r.emp.length + ')</h2></div><div class="rows" style="margin-bottom:12px">' + r.emp.map(rowEmp).join('') + '</div>';
+    return h;
+  }
+  function searchHtml(q) {
+    var res = TICKETS.filter(function (t) { return ticketMatch(t, q); }), cat = searchCatHtml(q), h = '';
+    if (!res.length && !cat) return '<div class="empty">No encontramos nada para “' + esc(q) + '”.<br>Prueba con el nombre de la empresa, el código de la unidad (UN14), el código de la línea (14HT) o la numeración.</div>';
+    if (res.length) h += '<div class="sec"><h2>Boletos (' + res.length + ')</h2></div><div class="grid2">' + res.map(card).join('') + '</div>';
+    return h + cat;
+  }
+  function postCard(p) {
+    var n = p.replyCount || 0, ex = String(p.text || ''); if (ex.length > 150) ex = ex.slice(0, 150).trim() + '…';
+    return '<button class="note post" data-a="post" data-id="' + esc(p.id) + '"><div class="hd"><h2>' + esc(p.title) + '</h2>' + (p.ej ? '<span class="bd pend">Ejemplo</span>' : '<span class="bd rev">' + esc(p.tipo || 'Publicación') + '</span>') + '</div><p>' + esc(ex) + '</p><p style="font-size:12px;margin-top:6px">' + esc(p.ej ? p.alias : '@' + p.alias) + (p.ts ? ' · ' + esc(fmtTs(p.ts)) : '') + ' · ' + n + (n === 1 ? ' respuesta' : ' respuestas') + '</p></button>';
+  }
+  function adminBtns(e) { return '<div class="btns row2" style="margin-top:10px"><button class="btn" data-a="evok" data-id="' + esc(e.id) + '">Aprobar y publicar</button><button class="btn ghost" data-a="evno" data-id="' + esc(e.id) + '">No aprobar</button></div>'; }
+  function myEvents() { var me = CLOUD.on ? CLOUD.uid : 'local'; return evDyn().filter(function (e) { return e.uid === me; }); }
+
   function closeSplash() { var sp = document.getElementById('splash'); sp.classList.add('gone'); setTimeout(function () { sp.hidden = true; }, 400); }
   document.getElementById('enter').addEventListener('click', closeSplash);
   document.getElementById('enter-signup').addEventListener('click', function () { closeSplash(); S.tab = 'profile'; S.stack = [{ name: 'profile' }, { name: 'signup' }]; render(false); });
@@ -1652,10 +2128,11 @@ img { max-width: 100%; }
   });
   window.addEventListener('error', function (ev) { console.error('Bolecciona Concepción:', ev.message || 'Error inesperado'); });
   window.addEventListener('unhandledrejection', function (ev) { console.error('Bolecciona Concepción: operación no completada', ev.reason); });
+  cloudStart();
   render(false);
 })();
 
 </script>
-<!-- Bolecciona Concepción · prototipo v13: catálogo de empresas y recorridos; funciona en el navegador, requiere backend para cuentas y datos compartidos -->
+<!-- Bolecciona Concepción · prototipo v14: catálogo de empresas y recorridos; funciona en el navegador, requiere backend para cuentas y datos compartidos -->
 </body>
 </html>
