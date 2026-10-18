@@ -335,6 +335,68 @@ a.src { color: var(--accent); text-decoration: underline; word-break: break-word
 .note, .form, .fld, .row, .card, .evcard { min-width: 0; }
 .fld input, .fld select, .fld textarea { max-width: 100%; }
 h1, h2, .row b, .card b, .evcard b { overflow-wrap: anywhere; }
+
+.top .iconbtn { position: relative; }
+.vb { display: inline-block; width: 1.05em; height: 1.05em; vertical-align: -0.17em; margin-left: 4px; flex: none; }
+.pbelow { display: flex; flex-direction: column; gap: 2px; margin: -2px 0 12px; font-size: 13px; color: var(--muted); }
+.pbelow .fnd { color: var(--accent); font-family: var(--f-display); font-weight: 600; font-size: 13.5px; }
+.nitem2 { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
+.nitem2 .nitem { margin-bottom: 0; }
+.nitem2 .nread { align-self: flex-end; font-size: 12px; color: var(--accent); padding: 2px 6px; }
+.repbox { display: flex; flex-direction: column; gap: 8px; }
+.nbd { position: absolute; top: -5px; right: -5px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--accent); color: var(--bg); font: 700 11px/18px var(--f-body, inherit); text-align: center; border: 2px solid var(--bg); box-sizing: content-box; }
+.nitem { display: flex; gap: 12px; width: 100%; text-align: left; align-items: flex-start; padding: 12px; margin-bottom: 8px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); min-width: 0; }
+.nitem.unread { border-color: var(--accent); background: var(--surface2); }
+.nitem .nic { flex: none; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--bg); color: var(--accent); border: 1px solid var(--line); }
+.nitem .nic svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.nitem .ntx { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 3px; font-size: 14px; overflow-wrap: anywhere; }
+.nitem .ntx small { color: var(--muted); font-size: 12px; }
+.nitem .ndot { flex: none; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); margin-top: 6px; }
+.fstats { display: flex; gap: 16px; margin: 0 0 12px; font-size: 13px; color: var(--muted); }
+.fstats b { color: var(--fg); font-family: var(--f-display); }
+.prof .phead { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
+.prof .tx { min-width: 0; display: flex; flex-direction: column; }
+.prof .tx b { font-family: var(--f-display); font-weight: 600; font-size: 18px; overflow-wrap: anywhere; }
+.pavatar { width: 76px; height: 76px; border-radius: 50%; flex: none; display: grid; place-items: center; border: 2px solid var(--accent); background: linear-gradient(135deg, var(--surface2), var(--bg)); color: var(--accent); font-family: var(--f-display); font-weight: 700; font-size: 30px; }
+.pdesc { margin: 0 0 8px; font-size: 14px; overflow-wrap: anywhere; }
+.stats small { display: block; font-size: 10px; color: var(--warn); }
+.soon { text-align: center; padding: 26px 18px; }
+.soon h2 { margin: 12px 0 6px; }
+.seg[role="tablist"] button { min-height: 40px; padding: 9px 4px; font-size: 12.5px; }
+@media (min-width: 720px) { .prof { max-width: 560px; } .soon { padding: 40px 24px; } }
+
+.pavatar { overflow: hidden; }
+.pavatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.phead .tx { flex: 1; }
+#profform input[type=file] { width: 100%; font-size: 13px; }
+#profform textarea { min-height: 90px; }
+
+.post { display: block; width: 100%; }
+.post .phd { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; min-width: 0; }
+.post .phd .tx, .phd .tx { min-width: 0; display: flex; flex-direction: column; }
+.phd .tx b { font-size: 14px; font-weight: 500; overflow-wrap: anywhere; }
+.phd .tx small { color: var(--muted); font-size: 11.5px; }
+.phd { display: flex; align-items: center; gap: 10px; margin: 0 0 8px; }
+.pa { padding: 0; border-radius: 50%; flex: none; display: block; }
+.pavatar.sm { width: 40px; height: 40px; font-size: 16px; border-width: 1px; }
+.pbody { display: block; width: 100%; text-align: left; color: inherit; padding: 0; }
+.pbody h2 { margin: 0 0 4px; }
+.pbody p { margin: 0; color: var(--muted); font-size: 13.5px; overflow-wrap: anywhere; }
+.pthumbs { display: flex; gap: 6px; margin-top: 8px; }
+.pthumbs img { width: 84px; height: 84px; object-fit: cover; border-radius: 10px; border: 1px solid var(--line); }
+.pact { display: flex; gap: 6px; margin-top: 10px; border-top: 1px solid var(--line); padding-top: 8px; flex-wrap: wrap; }
+.pact button { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 12px; border-radius: 99px; color: var(--muted); font-size: 13px; }
+.pact button svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.pact button[aria-pressed="true"] { color: var(--accent); background: rgba(51,198,242,.12); }
+.pact button[aria-pressed="true"] svg { fill: currentColor; }
+.gal { display: grid; gap: 8px; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); margin: 10px 0; }
+.gal img { width: 100%; max-height: 420px; object-fit: cover; border-radius: 12px; border: 1px solid var(--line); }
+.pprev { display: flex; gap: 10px; flex-wrap: wrap; margin: 6px 0 10px; }
+.pprev .pi { position: relative; }
+.pprev img { width: 84px; height: 84px; object-fit: cover; border-radius: 10px; border: 1px solid var(--line); display: block; }
+.pprev .pi button { position: absolute; top: -8px; right: -8px; width: 26px; height: 26px; border-radius: 50%; background: var(--bg); border: 1px solid var(--line); color: var(--fg); font-size: 16px; line-height: 1; }
+.pcol { text-align: left; color: inherit; }
+#postform input[type=file] { width: 100%; font-size: 13px; }
 </style>
 <style>
 :root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
@@ -524,8 +586,10 @@ img { max-width: 100%; }
     if (D.acct) return '<div class="notice"><span><b>Prototipo en desarrollo.</b> Las ' + TICKETS.length + ' fichas son boletos de la colección del proyecto. Lo que no aparece impreso figura como pendiente.</span></div>';
     return '<div class="notice"><span><b>Vista previa.</b> Ves ' + Object.keys(PREVIEW).length + ' de ' + TICKETS.length + ' fichas. <button style="display:inline;color:var(--accent)" data-a="signup">Crea tu cuenta</button> para ver todo el catálogo y guardar tu colección.</span></div>';
   }
-  function head(title, back) {
-    return '<div class="top">' + (back ? '<button class="iconbtn" data-a="back" aria-label="Volver">' + ICON.back + '</button>' : '') + '<h1>' + esc(title) + '</h1></div>';
+  var BELL = '<svg viewBox="0 0 24 24"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg>';
+  function bellBtn() { var n = (typeof NF !== 'undefined' && NF.unread) || 0; return '<button class="iconbtn" data-a="tab" data-id="notif" aria-label="Notificaciones' + (n ? ' (' + n + ' sin leer)' : '') + '">' + BELL + (n ? '<i class="nbd">' + (n > 99 ? '99+' : n) + '</i>' : '') + '</button>'; }
+  function head(title, back, nobell) {
+    return '<div class="top">' + (back ? '<button class="iconbtn" data-a="back" aria-label="Volver">' + ICON.back + '</button>' : '') + '<h1>' + esc(title) + '</h1>' + (back || nobell ? '' : bellBtn()) + '</div>';
   }
   function toast(msg) {
     var el = document.getElementById('toast'); el.textContent = msg; el.classList.add('show');
@@ -573,6 +637,7 @@ img { max-width: 100%; }
       '<span class="c" style="left:236px;top:24px;transform:rotate(8deg)"><img alt="" src="' + IMG.t2 + '"></span>' +
       '<span class="t">Memoria gráfica del transporte del Gran Concepción</span><span class="go">' + ICON.chev + '</span></button>';
     h += homeNotice();
+    if (!D.acct) h += '<div class="btns row2" style="margin:0 0 14px"><button class="btn" data-a="tab" data-id="cat">Ver vista previa del catálogo</button><button class="btn ghost" data-a="signup">Crear cuenta</button></div>';
     h += adSlot();
     h += '<div class="sec"><h2>Explorar por</h2></div>';
     h += '<div class="seg"><button data-a="explore" data-id="emp" aria-pressed="' + (key === 'emp') + '">Empresas</button><button data-a="explore" data-id="tipo" aria-pressed="' + (key === 'tipo') + '">Tipos</button><button data-a="explore" data-id="imp" aria-pressed="' + (key === 'imp') + '">Imprentas</button></div>';
@@ -605,8 +670,7 @@ img { max-width: 100%; }
     if (!a) {
       return '<div class="note"><h2>Crea tu cuenta de boleccionador</h2><p>Es gratuita y da acceso completo:</p><ul class="plain"><li>Catálogo y fichas completas</li><li>Tu colección guardada, con tu avance</li><li>Favoritos y aportes de datos y boletos</li><li>Participación en la comunidad</li></ul><div class="btns" style="margin-top:12px"><button class="btn" data-a="signup">Crear cuenta de boleccionador</button><button class="btn ghost" data-a="login">Ya tengo cuenta · Iniciar sesión</button></div></div>';
     }
-    return '<div class="note"><div class="acct"><span class="avatar">' + esc(a.alias.charAt(0).toUpperCase()) + '</span><div class="tx"><b>@' + esc(a.alias) + '</b><span class="muted small">Boleccionador desde ' + esc(memberSince(a.desde)) + (a.comuna ? ' · ' + esc(a.comuna) : '') + '</span></div></div>' +
-      '<div class="stats"><div><b>' + myTotal() + '</b><span>En mi colección</span></div><div><b>' + D.fav.length + '</b><span>Favoritos</span></div><div><b>' + D.subs.filter(function (x) { return !x.f || x.status === 'revision'; }).length + '</b><span>En revisión</span></div></div>' +
+    return '<div class="note">' +
       (a.int.length ? '<div class="legend">' + a.int.map(function (x) { return '<span class="bd rev">' + esc(x) + '</span>'; }).join('') + '</div>' : '') +
       '<h2 style="margin:4px 0 8px">Tu colección</h2><div class="seg"><button data-a="setpub" data-id="0" aria-pressed="' + (!a.pub) + '">Privada</button><button data-a="setpub" data-id="1" aria-pressed="' + a.pub + '">Pública</button></div>' +
       '<p class="muted small" style="margin:-4px 0 14px">' + (CLOUD.on ? 'Este ajuste se guarda en tu cuenta.' : 'En modo local este ajuste solo cambia lo que ves en este dispositivo.') + '</p>' +
@@ -760,7 +824,7 @@ img { max-width: 100%; }
   function signOut() {
     if (!D.acct) return;
     if (CLOUD.on && D.acct.cloud) {
-      cloudSignOut().then(function () { D = { fav: [], subs: [], acct: null, own: [], posts: [], evp: [] }; save(); S.tab = 'profile'; S.stack = [{ name: 'profile' }]; render(false); toast('Sesión cerrada'); });
+      cloudSignOut().then(function () { nfReset(); D = { fav: [], subs: [], acct: null, own: [], posts: [], evp: [] }; save(); S.tab = 'profile'; S.stack = [{ name: 'profile' }]; render(false); toast('Sesión cerrada'); });
       return;
     }
     D = { fav: [], subs: [], acct: null, own: [], saved: { acct: D.acct, fav: D.fav, subs: D.subs, own: D.own, posts: D.posts || [], evp: D.evp || [] } };
@@ -946,10 +1010,479 @@ img { max-width: 100%; }
     return '<button class="row" data-a="editsub" data-id="' + i + '"><span class="tx"><b>' + esc(s.title) + '</b><small>' + sm + ' · toca para editar</small></span><span class="bd rev">En revisión</span>' + ICON.chev + '</button>';
   }
 
+  /* ---------- Etapa de interfaz: Comunidad, Notificaciones, Perfil ---------- */
+  function soonCard(title, text) {
+    return '<div class="note soon"><span class="bd rev">Función pendiente</span><h2>' + esc(title) + '</h2><p>' + text + '</p></div>';
+  }
+  function commTop(t) {
+    return head('Comunidad') +
+      '<div class="rows" style="margin-bottom:12px"><button class="row" data-a="tab" data-id="ev"><span class="tx"><b>Calendario de eventos</b><small>Eventos culturales y ventas aprobadas</small></span>' + ICON.chev + '</button></div>' +
+      '<div class="seg" role="tablist" aria-label="Secciones de la comunidad">' + [['pub', 'Publicaciones'], ['int', 'Intercambios'], ['col', 'Coleccionistas']].map(function (x) {
+        return '<button role="tab" data-a="ctab" data-id="' + x[0] + '" aria-pressed="' + (t === x[0]) + '">' + x[1] + '</button>';
+      }).join('') + '</div>';
+  }
+
+
+  /* ---------- Perfil real (Firebase: Firestore profiles/{uid} + Storage profiles/{uid}/avatar.jpg) ---------- */
+  function akey(al) { return norm(al).replace(/[^a-z0-9_.-]/g, ''); }
+  function myPhoto() { return D.acct ? (D.acct.fotoUrl || D.acct.fotoData || '') : ''; }
+  function avatarHtml(src, alias) {
+    return src ? '<img alt="Foto de perfil" src="' + esc(src) + '">' : esc((alias || '?').charAt(0).toUpperCase());
+  }
+  function profDoc() {
+    var a = D.acct, o = { alias: a.alias, aliasKey: akey(a.alias), bio: a.bio || '', comuna: a.comuna || '', desde: a.desde, pub: !!a.perfilPub, upd: Date.now() };
+    if (CLOUD.creado) o.creado = CLOUD.creado;
+    if (a.fotoUrl) o.fotoUrl = a.fotoUrl;
+    if (a.fotoData) o.fotoData = a.fotoData;
+    return o;
+  }
+  function cloudLoadProfile(u) {
+    var F = FB.fs, ref = F.doc(FBDB, 'profiles', u.uid);
+    return F.getDoc(ref).then(function (sn) {
+      if (sn.exists()) { var d = sn.data(); D.acct.bio = d.bio || ''; D.acct.fotoUrl = d.fotoUrl || ''; D.acct.fotoData = d.fotoData || ''; D.acct.perfilPub = !!d.pub; return; }
+      D.acct.bio = ''; D.acct.fotoUrl = ''; D.acct.fotoData = ''; D.acct.perfilPub = false;
+      return F.setDoc(ref, profDoc()).catch(function () { CLOUD.err = 'No se pudo crear tu perfil. Revisa que las reglas de Firestore incluyan "profiles".'; });
+    }, function () { D.acct.bio = ''; D.acct.fotoUrl = ''; D.acct.fotoData = ''; D.acct.perfilPub = false; });
+  }
+  function cloudEditProfile(ch) {
+    var F, a = D.acct, oldKey = akey(a.alias), newKey = akey(ch.alias), hadStorage = !!a.fotoUrl;
+    return fbLoad().then(function () {
+      F = FB.fs;
+      if (newKey !== oldKey) return F.getDoc(F.doc(FBDB, 'aliases', newKey)).then(function (sn) { if (sn.exists()) throw { code: 'app/alias-taken' }; });
+    }).then(function () {
+      if (ch.foto === undefined) return { url: a.fotoUrl || '', data: a.fotoData || '' };
+      if (ch.foto === '') return { url: '', data: '' };
+      return cloudUpload('profiles/' + CLOUD.uid + '/avatar.jpg', ch.fotoBig).then(function (url) { return { url: url, data: '' }; }, function () { return { url: '', data: ch.foto }; });
+    }).then(function (ph) {
+      var n = { alias: ch.alias, bio: ch.bio, comuna: ch.comuna, perfilPub: ch.pub, fotoUrl: ph.url, fotoData: ph.data };
+      var old = { alias: a.alias, bio: a.bio, comuna: a.comuna, perfilPub: a.perfilPub, fotoUrl: a.fotoUrl, fotoData: a.fotoData };
+      for (var k in n) a[k] = n[k];
+      var batch = F.writeBatch(FBDB);
+      if (newKey !== oldKey) { batch.set(F.doc(FBDB, 'aliases', newKey), { uid: CLOUD.uid }); batch.delete(F.doc(FBDB, 'aliases', oldKey)); }
+      batch.set(F.doc(FBDB, 'users', CLOUD.uid), { alias: a.alias, aliasKey: newKey, comuna: a.comuna }, { merge: true });
+      batch.set(F.doc(FBDB, 'profiles', CLOUD.uid), profDoc());
+      return batch.commit().then(function () {
+        if (ch.foto === '' && hadStorage && FBST) { try { FB.st.deleteObject(FB.st.ref(FBST, 'profiles/' + CLOUD.uid + '/avatar.jpg')).catch(function () {}); } catch (x) {} }
+        if (newKey !== oldKey) { try { FB.auth.updateProfile(FBA.currentUser, { displayName: a.alias }).catch(function () {}); } catch (x) {} }
+      }, function (e) { for (var k2 in old) a[k2] = old[k2]; throw e; });
+    });
+  }
+  function loadPub(uid) {
+    C.pf = C.pf || {};
+    return fbLoad().then(function () {
+      var F = FB.fs;
+      return F.getDoc(F.doc(FBDB, 'profiles', uid)).then(function (sn) { C.pf[uid] = sn.exists() ? { ok: true, d: sn.data() } : { ok: false }; }, function () { C.pf[uid] = { ok: false }; }).then(function () { return C.pf[uid].ok ? flLoadFor(uid) : null; });
+    }).then(function () { render(true); });
+  }
+  function squarePhoto(src, size, q) {
+    return new Promise(function (res) {
+      var im = new Image();
+      im.onload = function () {
+        var m = Math.min(im.width, im.height), c = document.createElement('canvas');
+        c.width = c.height = size;
+        try { c.getContext('2d').drawImage(im, (im.width - m) / 2, (im.height - m) / 2, m, m, 0, 0, size, size); res(c.toDataURL('image/jpeg', q)); } catch (e) { res(''); }
+      };
+      im.onerror = function () { res(''); };
+      im.src = src;
+    });
+  }
+  function profHead() {
+    var a = D.acct, nb = myTotal();
+    return '<div class="note prof"><div class="phead"><span class="pavatar">' + avatarHtml(myPhoto(), a.alias) + '</span><div class="tx"><b>@' + esc(a.alias) + (cloudUser() ? vb(CLOUD.uid) : '') + '</b></div></div>' + (cloudUser() ? underPhoto(CLOUD.uid, ownYear()) : '<div class="pbelow"><span>Usuario desde ' + esc(tsYear(null, a.desde)) + '</span></div>') +
+      '<div class="evtags" style="margin:0 0 10px">' + (cloudUser() ? '<span class="bd ' + (a.perfilPub ? 'ok' : 'rev') + '">' + (a.perfilPub ? 'Perfil público' : 'Perfil privado') + '</span>' : '<span class="bd rev">Solo en este dispositivo</span>') + '</div>' +
+      (a.bio ? '<p class="pdesc">' + esc(a.bio) + '</p>' : '<p class="pdesc muted">Aún no tienes descripción. Toca «Editar perfil» para agregarla.</p>') +
+      (a.comuna ? '<p class="small muted" style="margin:0 0 12px">Ubicación: ' + esc(a.comuna) + '</p>' : '') +
+      '<div class="stats"><div><b>1</b><span>Colecciones</span></div><div><b>' + nb + '</b><span>Boletos</span></div><div><b>' + (FL.on ? FL.followers : '&mdash;') + '</b><span>Seguidores</span>' + (FL.on ? '<small style="color:var(--muted)">Siguiendo ' + FL.nfollowing + '</small>' : '') + '</div></div>' +
+      '<div class="btns row2"><button class="btn" data-a="editprof">Editar perfil</button><button class="btn ghost" data-a="logout">Cerrar sesión</button></div></div>';
+  }
+  function doProfile() {
+    var g = function (id) { var e = document.getElementById(id); return e ? e.value : ''; }, a = D.acct;
+    var al = g('pf-alias').trim(), bio = g('pf-bio').trim(), com = g('pf-com'), com2 = g('pf-com2').trim(), visEl = document.querySelector('input[name="pfvis"]:checked'), err = '';
+    if (al !== a.alias) err = aliasErr(al);
+    if (!err && bio.length > 200) err = 'La descripción puede tener hasta 200 caracteres.';
+    if (!err && com === 'Otra comuna' && !/^[\p{L}][\p{L} .'-]{1,39}$/u.test(com2)) err = 'Escribe el nombre de tu comuna (solo letras, de 2 a 40 caracteres).';
+    if (err) { showMsg('pfMsg', err); return; }
+    var ch = { alias: al, bio: bio, comuna: com === 'Otra comuna' ? com2 : com, pub: !!(visEl && visEl.value === '1'), foto: S.pf ? S.pf.foto : undefined, fotoBig: S.pf ? S.pf.big : '' };
+    function done() { S.pf = null; if (S.stack.length > 1) S.stack.pop(); render(false); toast('Perfil actualizado'); }
+    if (cloudUser()) {
+      showMsg('pfMsg', 'Guardando…');
+      cloudEditProfile(ch).then(done, function (e) { showMsg('pfMsg', e && e.code === 'app/alias-taken' ? 'Ese nombre de usuario ya está en uso. Elige otro.' : cloudErr(e)); });
+      return;
+    }
+    a.alias = ch.alias; a.bio = ch.bio; a.comuna = ch.comuna; a.perfilPub = ch.pub;
+    if (ch.foto !== undefined) { a.fotoData = ch.foto; a.fotoUrl = ''; }
+    if (!save()) { showMsg('pfMsg', 'No se pudo guardar en este dispositivo (sin espacio). Prueba con una foto más pequeña.'); return; }
+    done();
+  }
+  document.addEventListener('change', function (e) {
+    var t = e.target;
+    if (t.id === 'pf-com') { var w = document.getElementById('pf-com2w'); if (w) w.hidden = t.value !== 'Otra comuna'; }
+    else if (t.id === 'pf-file') {
+      var file = t.files && t.files[0];
+      if (!file) return;
+      if (!/^image\//.test(file.type) || file.size > 15 * 1024 * 1024) { showMsg('pfMsg', 'Elige una imagen (JPG o PNG) de menos de 15 MB.'); return; }
+      var fr = new FileReader();
+      fr.onload = function () {
+        Promise.all([squarePhoto(fr.result, 320, 0.82), squarePhoto(fr.result, 640, 0.85)]).then(function (r) {
+          if (!r[0]) { showMsg('pfMsg', 'No se pudo leer esa imagen. Prueba con otra.'); return; }
+          return r[0].length > 60000 ? squarePhoto(fr.result, 256, 0.6).then(function (x) { return [x || r[0], r[1]]; }) : r;
+        }).then(function (r) {
+          if (!r) return;
+          S.pf = S.pf || {}; S.pf.foto = r[0]; S.pf.big = r[1]; showMsg('pfMsg', '');
+          var pv = document.getElementById('pf-prev'); if (pv) pv.innerHTML = avatarHtml(r[0], D.acct.alias);
+        });
+      };
+      fr.readAsDataURL(file);
+    }
+  });
+  document.addEventListener('submit', function (e) { if (e.target.id === 'profform') { e.preventDefault(); doProfile(); } });
+
+
+  /* ---------- Muro de la comunidad (Firestore posts/{id}, likes, users/{uid}/marks; Storage posts/{uid}) ---------- */
+  var HEART = '<svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>';
+  var CHATI = '<svg viewBox="0 0 24 24"><path d="M5 5h14a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1h-8l-4 3.5V16H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/></svg>';
+  var MARKI = '<svg viewBox="0 0 24 24"><path d="M7 4h10a1 1 0 0 1 1 1v15l-6-4-6 4V5a1 1 0 0 1 1-1z"/></svg>';
+  function myMark(id) { return (C.marks && C.marks[id]) || {}; }
+  function authorPhoto(uid) {
+    if (CLOUD.on && uid && uid === CLOUD.uid) return myPhoto();
+    var r = C.pf && C.pf[uid]; return r && r.ok ? (r.d.fotoUrl || r.d.fotoData || '') : '';
+  }
+  function avSm(uid, alias) { return '<span class="pavatar sm">' + avatarHtml(authorPhoto(uid), alias) + '</span>'; }
+  function viewName() { return S.stack[S.stack.length - 1].name; }
+  function ensureAuthors() {
+    if (!CLOUD.on || !FB) return;
+    C.pf = C.pf || {};
+    var need = {}, F = FB.fs;
+    C.posts.concat(C.extra || []).forEach(function (p) { if (p.uid && p.uid !== CLOUD.uid && !C.pf[p.uid]) need[p.uid] = 1; });
+    var ids = Object.keys(need); if (!ids.length) return;
+    ids.forEach(function (u) { C.pf[u] = { ok: false, wait: true }; });
+    Promise.all(ids.map(function (u) {
+      return F.getDoc(F.doc(FBDB, 'profiles', u)).then(function (sn) { C.pf[u] = sn.exists() ? { ok: true, d: sn.data() } : { ok: false }; }, function () { C.pf[u] = { ok: false }; });
+    })).then(function () { var n = viewName(); if ((n === 'comm' || n === 'post') && !(document.activeElement && /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName))) render(true); });
+  }
+  function cloudLoadMarks(u) {
+    var F = FB.fs; C.marks = {};
+    return F.getDocs(F.collection(FBDB, 'users', u.uid, 'marks')).then(function (qs) { qs.forEach(function (d) { C.marks[d.id] = d.data(); }); }, function () {});
+  }
+  function putMark(batch, p, nm) {
+    var F = FB.fs, mr = F.doc(FBDB, 'users', CLOUD.uid, 'marks', p.id);
+    if (nm.liked || nm.saved) batch.set(mr, nm); else batch.delete(mr);
+  }
+  function applyMark(p, nm) { if (nm.liked || nm.saved) C.marks[p.id] = nm; else delete C.marks[p.id]; }
+  function toggleLike(p) {
+    var F = FB.fs, m = myMark(p.id), now = !m.liked, batch = F.writeBatch(FBDB), lr = F.doc(FBDB, 'posts', p.id, 'likes', CLOUD.uid);
+    var nm = { liked: now, saved: !!m.saved, ts: Date.now() };
+    if (now) batch.set(lr, { uid: CLOUD.uid, ts: Date.now() }); else batch.delete(lr);
+    batch.update(F.doc(FBDB, 'posts', p.id), { likeCount: F.increment(now ? 1 : -1) });
+    putMark(batch, p, nm);
+    return batch.commit().then(function () {
+      applyMark(p, nm); p.likeCount = Math.max(0, (p.likeCount || 0) + (now ? 1 : -1));
+      var nid = 'like_' + p.id + '_' + CLOUD.uid;
+      if (now) nfPut(p.uid, nid, { type: 'like', cat: p.tipo === 'Intercambio' ? 'col' : 'com', ref: p.id, title: p.title }); else nfRetract(p.uid, nid);
+    });
+  }
+  function toggleSave(p) {
+    var F = FB.fs, m = myMark(p.id), batch = F.writeBatch(FBDB), nm = { liked: !!m.liked, saved: !m.saved, ts: Date.now() };
+    putMark(batch, p, nm);
+    return batch.commit().then(function () { applyMark(p, nm); });
+  }
+  function deletePost(p) {
+    var F = FB.fs, batch = F.writeBatch(FBDB), m = myMark(p.id);
+    batch.delete(F.doc(FBDB, 'posts', p.id));
+    (C.replies[p.id] || []).forEach(function (r) { if (r.uid === CLOUD.uid && r.id) batch.delete(F.doc(FBDB, 'posts', p.id, 'replies', r.id)); });
+    if (m.liked) batch.delete(F.doc(FBDB, 'posts', p.id, 'likes', CLOUD.uid));
+    if (m.liked || m.saved) batch.delete(F.doc(FBDB, 'users', CLOUD.uid, 'marks', p.id));
+    return batch.commit().then(function () {
+      C.posts = C.posts.filter(function (x) { return x.id !== p.id; }); C.extra = (C.extra || []).filter(function (x) { return x.id !== p.id; }); delete C.marks[p.id];
+      if (FBST) (p.imgs || []).forEach(function (u, i) { try { FB.st.deleteObject(FB.st.ref(FBST, 'posts/' + CLOUD.uid + '/' + p.id + '-' + i + '.jpg')).catch(function () {}); } catch (x) {} });
+    });
+  }
+  function postLink(p) { return location.origin + location.pathname + '#p=' + p.id; }
+  var HASHDONE = false;
+  function openHashPost() {
+    if (HASHDONE || !CLOUD.on) return;
+    HASHDONE = true;
+    var m = /^#p=([A-Za-z0-9]{6,40})$/.exec(location.hash || ''); if (!m) return;
+    var id = m[1], F = FB.fs;
+    function show() { S.tab = 'comm'; S.ct = 'pub'; S.stack = [{ name: 'comm' }, { name: 'post', id: id }]; render(false); cloudLoadReplies(id).then(function () { render(true); }); }
+    if (postById(id)) { show(); return; }
+    F.getDoc(F.doc(FBDB, 'posts', id)).then(function (sn) {
+      if (sn.exists()) { var x = sn.data(); x.id = sn.id; (C.extra = C.extra || []).push(x); show(); ensureAuthors(); }
+      else toast('Esa publicación no existe o fue eliminada.');
+    }, function () { toast('Esa publicación no está disponible o es solo para boleccionadores.'); });
+  }
+
+  /* ---------- Notificaciones reales y seguimiento (Firestore) ---------- */
+  // false: el navegador escribe el aviso, pero las reglas de Firestore solo lo aceptan si corresponde a un «Me gusta»,
+  // comentario o seguimiento real. true: solo si despliegas functions/index.js (requiere plan Blaze) y cambias las reglas.
+  var NOTIF_BY_FUNCTIONS = false;
+  var NF = { list: [], state: 'idle', unread: 0 }, FL = { on: false, following: {}, followers: 0, nfollowing: 0 }, NFT = null;
+  function nfCat(n) { return n.cat === 'col' ? 'col' : 'com'; }
+  function nfPut(recipient, id, o) {
+    if (NOTIF_BY_FUNCTIONS || !CLOUD.on || !cloudUser() || !FB || !recipient || recipient === 'local' || recipient === CLOUD.uid) return Promise.resolve();
+    var F = FB.fs; o.from = CLOUD.uid; o.alias = D.acct.alias; o.ts = Date.now(); o.read = false;
+    return F.setDoc(F.doc(FBDB, 'users', recipient, 'notifs', id), o).catch(function () {});
+  }
+  function nfRetract(recipient, id) {
+    if (NOTIF_BY_FUNCTIONS || !CLOUD.on || !cloudUser() || !FB || !recipient || recipient === 'local' || recipient === CLOUD.uid) return Promise.resolve();
+    var F = FB.fs; return F.deleteDoc(F.doc(FBDB, 'users', recipient, 'notifs', id)).catch(function () {});
+  }
+  function nfCount() { NF.unread = NF.list.filter(function (n) { return !n.read; }).length; }
+  function nfRefresh() {
+    var bs = document.querySelectorAll('.top button.iconbtn[data-id="notif"]'), i, b, e;
+    for (i = 0; i < bs.length; i++) { b = bs[i]; e = b.querySelector('.nbd'); if (e) e.remove(); if (NF.unread) { e = document.createElement('i'); e.className = 'nbd'; e.textContent = NF.unread > 99 ? '99+' : String(NF.unread); b.appendChild(e); } }
+    if (viewName() === 'notif' && !(document.activeElement && /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName))) render(true);
+  }
+  function nfLoad() {
+    if (!cloudUser() || !FB) return Promise.resolve();
+    var F = FB.fs, uid = CLOUD.uid; if (NF.state !== 'ok') NF.state = 'load';
+    return F.getDocs(F.query(F.collection(FBDB, 'users', uid, 'notifs'), F.orderBy('ts', 'desc'), F.limit(60))).then(function (qs) {
+      if (uid !== CLOUD.uid) return;
+      var a = []; qs.forEach(function (d) { var x = d.data(); x.id = d.id; a.push(x); }); NF.list = a; NF.state = 'ok'; nfCount();
+    }, function () { NF.state = NF.list.length ? 'ok' : 'err'; }).then(nfRefresh);
+  }
+  function nfReset() { NF = { list: [], state: 'idle', unread: 0 }; FL = { on: false, following: {}, followers: 0, nfollowing: 0 }; }
+  function nfStart() {
+    nfReset(); nfLoad(); flLoad();
+    if (!NFT) NFT = setInterval(function () { if (cloudUser() && !document.hidden) nfLoad(); }, 60000);
+  }
+  document.addEventListener('visibilitychange', function () { if (!document.hidden && cloudUser()) nfLoad(); });
+  function nfMarkRead(ids) {
+    ids = ids.filter(function (id) { return NF.list.some(function (n) { return n.id === id && !n.read; }); });
+    if (!ids.length || !cloudUser()) return Promise.resolve();
+    var F = FB.fs, b = F.writeBatch(FBDB);
+    ids.forEach(function (id) { b.update(F.doc(FBDB, 'users', CLOUD.uid, 'notifs', id), { read: true }); });
+    return b.commit().then(function () { NF.list.forEach(function (n) { if (ids.indexOf(n.id) > -1) n.read = true; }); nfCount(); nfRefresh(); });
+  }
+  var NIC = {
+    like: '<svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.600-7 10-7 10z"/></svg>',
+    comment: '<svg viewBox="0 0 24 24"><path d="M5 5h14v10H9l-4 4z"/></svg>',
+    follow: '<svg viewBox="0 0 24 24"><circle cx="10" cy="8" r="3.5"/><path d="M3.500 20a6.500 6.500 0 0 1 13 0M19 8v6M16 11h6"/></svg>',
+    evento: '<svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>'
+  };
+  function nfText(n) {
+    var who = '<b>@' + esc(n.alias || 'alguien') + '</b>' + vb(n.from), t = n.title ? ' «' + esc(n.title) + '»' : '', xc = n.cat === 'col';
+    if (n.type === 'like') return who + ' dio «Me gusta» a tu ' + (xc ? 'intercambio' : 'publicación') + t;
+    if (n.type === 'comment') return who + ' comentó tu ' + (xc ? 'intercambio' : 'publicación') + t;
+    if (n.type === 'follow') return who + ' comenzó a seguirte';
+    if (n.type === 'evento') return /_ok$/.test(n.id) ? 'Tu propuesta' + t + ' fue aprobada y ya es pública' : 'Tu propuesta' + t + ' no fue aprobada';
+    return 'Novedad en tu cuenta';
+  }
+  function nfItem(n) {
+    return '<div class="nitem2"><button type="button" class="nitem' + (n.read ? '' : ' unread') + '" data-a="nopen" data-id="' + esc(n.id) + '"><span class="nic">' + (NIC[n.type] || NIC.comment) + '</span>' +
+      '<span class="ntx"><span>' + nfText(n) + '</span><small>' + esc(fmtTs(n.ts)) + (n.read ? ' · Leída' : ' · Sin leer') + '</small></span>' + (n.read ? '' : '<span class="ndot" aria-hidden="true"></span>') + '</button>' +
+      (n.read ? '' : '<button type="button" class="nread" data-a="nread" data-id="' + esc(n.id) + '">Marcar como leída</button>') + '</div>';
+  }
+  function openPostById(id) {
+    var F = FB.fs;
+    function go() { var p = postById(id); S.tab = 'comm'; S.ct = p && p.tipo === 'Intercambio' ? 'int' : 'pub'; S.stack = [{ name: 'comm' }, { name: 'post', id: id }]; render(false); cloudLoadReplies(id).then(function () { if (viewName() === 'post') render(true); }); }
+    if (postById(id)) { go(); return; }
+    F.getDoc(F.doc(FBDB, 'posts', id)).then(function (sn) {
+      if (sn.exists()) { var x = sn.data(); x.id = sn.id; (C.extra = C.extra || []).push(x); go(); ensureAuthors(); }
+      else toast('Esa publicación ya no existe o fue eliminada.');
+    }, function () { toast('Esa publicación ya no está disponible.'); });
+  }
+  function openNotif(n) {
+    nfMarkRead([n.id]).catch(function (er) { toast('No se pudo marcar como leída. ' + cloudErr(er)); });
+    if (n.type === 'like' || n.type === 'comment') openPostById(n.ref);
+    else if (n.type === 'follow') { C.pf = C.pf || {}; delete C.pf[n.from]; push({ name: 'uprof', id: n.from }); loadPub(n.from); }
+    else if (n.type === 'evento' && evById(n.ref)) push({ name: 'event', id: n.ref });
+  }
+
+  /* ---------- Insignia de fundador (verificación interna), «Usuario desde» y denuncias ---------- */
+  var TICK = '<svg class="vb" viewBox="0 0 24 24" role="img" aria-label="Cuenta oficial del fundador (verificación interna de Bolecciona Concepción)"><title>Cuenta oficial del fundador · verificación interna de Bolecciona Concepción</title><path fill="#1d9bf0" d="M12 1.800l2.300 1.700 2.800-.2 1.100 2.600 2.500 1.300-.5 2.800 1.500 2.400-1.500 2.400.5 2.800-2.500 1.300-1.100 2.600-2.800-.2L12 22.200l-2.300-1.700-2.800.2-1.100-2.600-2.500-1.300.5-2.800L2.300 12l1.500-2.400-.5-2.800 2.500-1.300 1.100-2.600 2.800.2z"/><path d="M7.800 12.300l2.800 2.800 5.700-5.900" fill="none" stroke="#fff" stroke-width="2.200" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  var _bdQ = {}, _bdT = null;
+  function vb(uid) {
+    if (!CLOUD.on || !uid || uid === 'local') return '';
+    C.bd = C.bd || {};
+    var s = C.bd[uid];
+    if (s === undefined) { C.bd[uid] = 'w'; _bdQ[uid] = 1; clearTimeout(_bdT); _bdT = setTimeout(bdFlush, 30); return ''; }
+    return s === true ? TICK : '';
+  }
+  function bdFlush() {
+    var ids = Object.keys(_bdQ); _bdQ = {}; if (!ids.length) return;
+    fbLoad().then(function () {
+      var F = FB.fs;
+      return Promise.all(ids.map(function (u) { return F.getDoc(F.doc(FBDB, 'badges', u)).then(function (sn) { C.bd[u] = sn.exists(); }, function () { C.bd[u] = false; }); }));
+    }).then(function () {
+      if (ids.some(function (u) { return C.bd[u] === true; }) && !(document.activeElement && /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName))) render(true);
+    }, function () {});
+  }
+  function tsYear(v, desde) {
+    try { if (v) { if (v.toDate) return String(v.toDate().getFullYear()); if (v.seconds != null) return String(new Date(v.seconds * 1000).getFullYear()); } } catch (e) {}
+    var m = /^(\d{4})/.exec(desde || ''); return m ? m[1] : '';
+  }
+  function ownYear() {
+    try { var ct = FBA && FBA.currentUser && FBA.currentUser.metadata && FBA.currentUser.metadata.creationTime; if (ct) return String(new Date(ct).getFullYear()); } catch (e) {}
+    return tsYear(CLOUD.creado, D.acct && D.acct.desde);
+  }
+  function underPhoto(uid, year) {
+    vb(uid);
+    return '<div class="pbelow">' + (uid && C.bd && C.bd[uid] === true ? '<b class="fnd">Creador y fundador de Bolecciona Concepción</b>' : '') + (year ? '<span>Usuario desde ' + esc(year) + '</span>' : '') + '</div>';
+  }
+  var REPR = [['spam', 'Spam o publicidad'], ['ofensivo', 'Contenido ofensivo o acoso'], ['privacidad', 'Datos personales de otra persona'], ['otro', 'Otro motivo']];
+  function reportBox(p) {
+    if (!CLOUD.on || !cloudUser() || p.ej || p.uid === CLOUD.uid) return '';
+    if (S.rep !== p.id) return '<div style="margin:10px 0 0"><button type="button" class="btn ghost" data-a="repopen" data-id="' + esc(p.id) + '">Denunciar publicación</button></div>';
+    return '<div class="note repbox" style="margin-top:10px"><b>Denunciar publicación</b><label class="fld" for="rep-why">Motivo<select id="rep-why">' + REPR.map(function (r) { return '<option value="' + r[0] + '">' + r[1] + '</option>'; }).join('') + '</select></label>' +
+      '<div class="btns row2"><button class="btn warn" data-a="repsend" data-id="' + esc(p.id) + '">Enviar denuncia</button><button class="btn ghost" data-a="repcancel">Cancelar</button></div><p class="small muted" style="margin:0">Solo el equipo administrador ve las denuncias.</p></div>';
+  }
+  function sendReport(p, why) {
+    var F = FB.fs;
+    return F.setDoc(F.doc(FBDB, 'reports', p.id + '_' + CLOUD.uid), { ref: p.id, kind: 'post', uid: CLOUD.uid, reason: why, ts: Date.now() });
+  }
+  /* seguir perfiles: follows/{miUid}_{suUid} */
+  function cnt(q) { var F = FB.fs; return F.getCountFromServer ? F.getCountFromServer(q).then(function (s) { return s.data().count; }) : F.getDocs(q).then(function (s) { return s.size; }); }
+  function flLoad() {
+    if (!cloudUser() || !FB) return Promise.resolve();
+    var F = FB.fs, uid = CLOUD.uid;
+    return Promise.all([F.getDocs(F.query(F.collection(FBDB, 'follows'), F.where('from', '==', uid))), cnt(F.query(F.collection(FBDB, 'follows'), F.where('to', '==', uid)))]).then(function (r) {
+      if (uid !== CLOUD.uid) return;
+      var m = {}; r[0].forEach(function (d) { m[d.data().to] = 1; }); FL = { on: true, following: m, followers: r[1], nfollowing: r[0].size };
+      if (viewName() === 'profile') render(true);
+    }, function () {});
+  }
+  function flLoadFor(uid) {
+    if (!cloudUser() || !FB) return Promise.resolve();
+    var F = FB.fs; C.pc = C.pc || {};
+    return Promise.all([cnt(F.query(F.collection(FBDB, 'follows'), F.where('to', '==', uid))), cnt(F.query(F.collection(FBDB, 'follows'), F.where('from', '==', uid))), F.getDoc(F.doc(FBDB, 'follows', CLOUD.uid + '_' + uid))]).then(function (r) {
+      C.pc[uid] = { fo: r[0], fg: r[1] }; if (r[2].exists()) FL.following[uid] = 1; else delete FL.following[uid];
+    }, function () {});
+  }
+  function followBox(uid) {
+    if (!CLOUD.on) return '';
+    if (!cloudUser()) return '<div class="btns" style="margin:0 0 12px"><button class="btn ghost" data-a="follow" data-id="' + esc(uid) + '">Seguir</button></div>';
+    var pc = C.pc && C.pc[uid], on = !!FL.following[uid];
+    return (pc ? '<div class="fstats"><span><b>' + pc.fo + '</b> seguidores</span><span><b>' + pc.fg + '</b> siguiendo</span></div>' : '') +
+      '<div class="btns" style="margin:0 0 12px"><button class="btn' + (on ? ' ghost' : '') + '" data-a="follow" data-id="' + esc(uid) + '" aria-pressed="' + on + '">' + (on ? 'Siguiendo' : 'Seguir') + '</button></div>';
+  }
+  function toggleFollow(uid) {
+    var F = FB.fs, me = CLOUD.uid, ref = F.doc(FBDB, 'follows', me + '_' + uid), now = !FL.following[uid], b = F.writeBatch(FBDB);
+    if (now) b.set(ref, { from: me, to: uid, ts: Date.now() }); else b.delete(ref);
+    return b.commit().then(function () {
+      C.pc = C.pc || {}; var pc = C.pc[uid];
+      if (now) { FL.following[uid] = 1; FL.nfollowing++; if (pc) pc.fo++; nfPut(uid, 'follow_' + me, { type: 'follow', cat: 'com', ref: me, title: '' }); }
+      else { delete FL.following[uid]; FL.nfollowing = Math.max(0, FL.nfollowing - 1); if (pc) pc.fo = Math.max(0, pc.fo - 1); nfRetract(uid, 'follow_' + me); }
+    });
+  }
+  function loadCollectors() {
+    if (!CLOUD.on) return;
+    C.collState = 'load';
+    fbLoad().then(function () {
+      var F = FB.fs;
+      return F.getDocs(F.query(F.collection(FBDB, 'profiles'), F.where('pub', '==', true), F.limit(60))).then(function (qs) {
+        var a = []; C.pf = C.pf || {};
+        qs.forEach(function (d) { var x = d.data(); x.uid = d.id; a.push(x); if (d.id !== CLOUD.uid) C.pf[d.id] = { ok: true, d: x }; });
+        a.sort(function (p, q) { return String(q.desde || '').localeCompare(String(p.desde || '')); }); C.coll = a; C.collState = 'ok';
+      }, function () { C.collState = 'err'; });
+    }).then(function () { if (S.tab === 'comm' && viewName() === 'comm' && S.ct === 'col') render(true); });
+  }
+  function postActions(p) {
+    if (p.ej || !CLOUD.on) return '';
+    var m = myMark(p.id), n = p.likeCount || 0, c = p.replyCount || 0;
+    return '<div class="pact">' +
+      '<button type="button" data-a="like" data-id="' + esc(p.id) + '" aria-pressed="' + !!m.liked + '" aria-label="Me gusta">' + HEART + '<span>' + n + '</span></button>' +
+      '<button type="button" data-a="post" data-id="' + esc(p.id) + '" aria-label="Comentarios">' + CHATI + '<span>' + c + '</span></button>' +
+      '<button type="button" data-a="save" data-id="' + esc(p.id) + '" aria-pressed="' + !!m.saved + '" aria-label="Guardar publicación">' + MARKI + '<span>' + (m.saved ? 'Guardada' : 'Guardar') + '</span></button></div>';
+  }
+  function visBd(p) { return p.ej || !CLOUD.on ? '' : (p.vis === 'pub' ? '<span class="bd ok">Pública</span>' : '<span class="bd pend">Solo boleccionadores</span>'); }
+  function authorHead(p, big) {
+    var real = !p.ej && CLOUD.on && p.uid && p.uid !== 'local', who = p.ej ? esc(p.alias) : '@' + esc(p.alias) + (real ? vb(p.uid) : '');
+    var av = real ? '<button type="button" class="pa" data-a="uprof" data-id="' + esc(p.uid) + '" aria-label="Ver el perfil de @' + esc(p.alias) + '">' + avSm(p.uid, p.alias) + '</button>' : '<span class="pa">' + avSm('', p.alias) + '</span>';
+    return '<div class="phd">' + av + '<div class="tx"><b>' + who + '</b><small>' + (p.ts ? esc(fmtTs(p.ts)) : 'Ejemplo') + '</small></div></div>';
+  }
+  function postCard(p) {
+    var n = p.replyCount || 0, ex = String(p.text || ''); if (ex.length > 150) ex = ex.slice(0, 150).trim() + '…';
+    var th = (p.imgs && p.imgs.length) ? '<span class="pthumbs">' + p.imgs.slice(0, 3).map(function (u) { return '<img alt="Foto de la publicación" loading="lazy" src="' + esc(u) + '">'; }).join('') + '</span>' : '';
+    return '<div class="note post">' + authorHead(p) +
+      '<button type="button" class="pbody" data-a="post" data-id="' + esc(p.id) + '"><div class="hd"><h2>' + esc(p.title) + '</h2>' + (p.ej ? '<span class="bd pend">Ejemplo</span>' : '<span class="bd rev">' + esc(p.tipo || 'Publicación') + '</span>') + '</div><p>' + esc(ex) + '</p>' + th +
+      (CLOUD.on || p.ej ? '' : '<p style="font-size:12px;margin-top:6px">' + n + (n === 1 ? ' respuesta' : ' respuestas') + '</p>') + '</button>' +
+      (visBd(p) ? '<div style="margin-top:8px">' + visBd(p) + '</div>' : '') + postActions(p) + '</div>';
+  }
+  function authorLink(x) {
+    if (CLOUD.on && x.uid) return '<button type="button" style="display:inline;color:var(--accent);font-weight:500;text-align:left" data-a="uprof" data-id="' + esc(x.uid) + '">@' + esc(x.alias) + '</button>' + vb(x.uid);
+    return '<b style="color:var(--fg)">@' + esc(x.alias) + '</b>';
+  }
+  function pimgPrevHtml() {
+    var l = S.pimgs || [];
+    return l.length ? '<div class="pprev">' + l.map(function (im, i) { return '<span class="pi"><img alt="Foto ' + (i + 1) + ' de la publicación" src="' + esc(im.small) + '"><button type="button" data-a="rmpimg" data-id="' + i + '" aria-label="Quitar la foto ' + (i + 1) + '">&times;</button></span>'; }).join('') + '</div>' : '';
+  }
+  function readImg(file) {
+    return new Promise(function (res) {
+      var fr = new FileReader();
+      fr.onload = function () { Promise.all([shrink(fr.result, 560, 0.7), shrink(fr.result, 1080, 0.8)]).then(function (r) { res(r[0] && r[1] ? { small: r[0], big: r[1] } : null); }); };
+      fr.onerror = function () { res(null); };
+      fr.readAsDataURL(file);
+    });
+  }
+  document.addEventListener('change', function (e) {
+    var t = e.target;
+    if (t.id !== 'p-files') return;
+    var files = Array.prototype.slice.call(t.files || []); t.value = '';
+    S.pimgs = S.pimgs || [];
+    var room = 3 - S.pimgs.length, bad = '';
+    if (!room) { showMsg('poMsg', 'Puedes adjuntar hasta 3 fotos.'); return; }
+    files = files.filter(function (f) { if (!/^image\//.test(f.type) || f.size > 15 * 1024 * 1024) { bad = 'Solo imágenes (JPG o PNG) de menos de 15 MB.'; return false; } return true; });
+    if (files.length > room) { files = files.slice(0, room); bad = 'Solo caben 3 fotos; se agregaron las primeras.'; }
+    Promise.all(files.map(readImg)).then(function (r) {
+      r.forEach(function (x) { if (x && S.pimgs.length < 3) S.pimgs.push(x); else if (!x) bad = 'No se pudo leer una de las imágenes.'; });
+      var box = document.getElementById('pimgPrev'); if (box) box.innerHTML = pimgPrevHtml();
+      showMsg('poMsg', bad);
+    });
+  });
+
   /* ---------- Pantallas ---------- */
   var VIEWS = {
+    editprof: function () {
+      if (!D.acct) return head('Editar perfil', true) + gateNote('Necesitas una cuenta', 'Crea tu cuenta de boleccionador para tener un perfil.');
+      var a = D.acct, other = COMUNAS.indexOf(a.comuna) < 0 && !!a.comuna, comSel = other ? 'Otra comuna' : a.comuna;
+      var ph = S.pf && S.pf.foto !== undefined ? S.pf.foto : myPhoto(), pub = !!a.perfilPub;
+      return head('Editar perfil', true) +
+        '<form class="form" id="profform" novalidate>' +
+        '<div class="phead"><span class="pavatar" id="pf-prev">' + avatarHtml(ph, a.alias) + '</span><div class="tx"><label class="fld" for="pf-file" style="margin:0">Foto de perfil<input type="file" id="pf-file" accept="image/*"></label><button type="button" class="btn ghost" data-a="pfrm" style="margin-top:8px">Quitar foto</button></div></div>' +
+        '<label class="fld" for="pf-alias">Nombre de usuario<input type="text" id="pf-alias" maxlength="24" autocomplete="off" autocapitalize="none" spellcheck="false" value="' + esc(a.alias) + '"></label>' +
+        '<label class="fld" for="pf-bio">Descripción<textarea id="pf-bio" maxlength="200" placeholder="Cuéntanos qué coleccionas (hasta 200 caracteres)">' + esc(a.bio || '') + '</textarea></label>' +
+        '<label class="fld" for="pf-com">Comuna<select id="pf-com"><option value="">Sin indicar</option>' + COMUNAS.map(function (c) { return '<option' + (c === comSel ? ' selected' : '') + '>' + esc(c) + '</option>'; }).join('') + '</select></label>' +
+        '<div id="pf-com2w"' + (other ? '' : ' hidden') + '><label class="fld" for="pf-com2">¿Cuál es tu comuna?<input type="text" id="pf-com2" maxlength="40" autocomplete="off" value="' + esc(other ? a.comuna : '') + '"></label></div>' +
+        '<div class="sec"><h2>Visibilidad del perfil</h2></div>' +
+        '<label class="check"><input type="radio" name="pfvis" value="0"' + (!pub ? ' checked' : '') + '><span><b>Privado</b>: solo tú ves tu perfil.</span></label>' +
+        '<label class="check"><input type="radio" name="pfvis" value="1"' + (pub ? ' checked' : '') + '><span><b>Público</b>: otras personas ven tu usuario, foto, descripción, comuna y desde cuándo coleccionas. Nunca se muestra tu correo.</span></label>' +
+        (cloudUser() ? '' : '<div class="notice"><span><b>Modo local.</b> Estos datos se guardan solo en este dispositivo; el perfil público necesita la cuenta en la nube.</span></div>') +
+        '<div class="msg err" id="pfMsg" role="alert" hidden></div>' +
+        '<div class="btns row2"><button class="btn" type="submit">Guardar cambios</button><button class="btn ghost" type="button" data-a="back">Cancelar</button></div></form>';
+    },
+    uprof: function (v) {
+      var r = C.pf && C.pf[v.id];
+      if (!r) return head('Perfil', true) + '<div class="empty">Cargando perfil…</div>';
+      if (!r.ok) return head('Perfil', true) + '<div class="note soon"><h2>Perfil privado</h2><p>Esta persona no comparte su perfil o la cuenta ya no existe.</p></div>';
+      var d = r.d;
+      return head('Perfil', true) + '<div class="note prof"><div class="phead"><span class="pavatar">' + avatarHtml(d.fotoUrl || d.fotoData || '', d.alias) + '</span><div class="tx"><b>@' + esc(d.alias) + vb(v.id) + '</b></div></div>' + underPhoto(v.id, tsYear(d.creado, d.desde)) +
+        '<div class="evtags" style="margin:0 0 10px"><span class="bd ok">Perfil público</span></div>' +
+        (d.bio ? '<p class="pdesc">' + esc(d.bio) + '</p>' : '<p class="pdesc muted">Sin descripción.</p>') +
+        (d.comuna ? '<p class="small muted" style="margin:0">Ubicación: ' + esc(d.comuna) + '</p>' : '') + '</div>' +
+        followBox(v.id) +
+        '<div class="note"><p style="margin:0">Las colecciones de otras personas se mostrarán en una próxima etapa.</p></div>';
+    },
+    notif: function () {
+      var f = S.nf || 'all';
+      var hd = head('Notificaciones', false, true) +
+        '<div class="seg" role="tablist" aria-label="Filtros de notificaciones">' + [['all', 'Todas'], ['col', 'Colecciones'], ['com', 'Comunidad']].map(function (x) {
+          var u = x[0] === 'all' ? NF.unread : NF.list.filter(function (n) { return !n.read && nfCat(n) === x[0]; }).length;
+          return '<button role="tab" data-a="nfilt" data-id="' + x[0] + '" aria-pressed="' + (f === x[0]) + '">' + x[1] + (cloudUser() && u ? ' (' + u + ')' : '') + '</button>';
+        }).join('') + '</div>';
+      if (!CLOUD.on) return hd + soonCard('Notificaciones no disponibles', 'Las notificaciones se guardan en la nube. Con la app conectada a Firebase, aquí verás los avisos reales de tu cuenta.');
+      if (!cloudUser()) return hd + '<div class="note soon"><h2>Tus notificaciones</h2><p>Con una cuenta de boleccionador recibes avisos cuando alguien comenta o da «Me gusta» a tus publicaciones, te sigue, o hay novedades de tus intercambios.</p></div>' +
+        '<div class="btns" style="margin:0 0 12px"><button class="btn" data-a="signup">Crear cuenta de boleccionador</button></div>';
+      var l = NF.list.filter(function (n) { return f === 'all' || nfCat(n) === f; });
+      var un = l.filter(function (n) { return !n.read; }).length;
+      if (NF.state === 'load' && !NF.list.length) return hd + '<div class="empty">Cargando notificaciones…</div>';
+      if (NF.state === 'err' && !NF.list.length) return hd + '<div class="note soon"><h2>No se pudieron cargar</h2><p>Revisa tu conexión. Si el problema sigue, confirma que las reglas de Firestore con notificaciones estén publicadas.</p></div><div class="btns" style="margin:0 0 12px"><button class="btn ghost" data-a="nreload">Reintentar</button></div>';
+      var empty = { all: 'Cuando alguien interactúe con tus publicaciones o te siga, lo verás aquí.', col: 'Aquí aparecen los «Me gusta» y comentarios de tus intercambios.', com: 'Aquí aparecen comentarios, «Me gusta» y nuevos seguidores de la comunidad.' }[f];
+      return hd + (un ? '<div class="btns" style="margin:0 0 12px"><button class="btn ghost" data-a="nreadall" data-id="' + f + '">Marcar como leídas (' + un + ')</button></div>' : '') +
+        (l.length ? l.map(nfItem).join('') : '<div class="note soon"><h2>Aún no hay notificaciones</h2><p>' + empty + '</p></div>');
+    },
     home: function () {
-      return '<div class="top"><div class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#logo-mark"/></svg><div class="wordmark">Bolecciona<span>Concepción</span></div></div>' + homeAvatar() + '</div>' +
+      return '<div class="top"><div class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#logo-mark"/></svg><div class="wordmark">Bolecciona<span>Concepción</span></div></div>' + bellBtn() + homeAvatar() + '</div>' +
         '<label class="search">' + ICON.search + '<input id="q" type="search" placeholder="Buscar boleto, empresa, UN14 o línea (14HT)..." autocomplete="off" value="' + esc(S.query) + '"></label>' +
         '<div id="homeBody">' + homeBody() + '</div>';
     },
@@ -998,37 +1531,67 @@ img { max-width: 100%; }
         (S.sugg ? '<div class="note" style="margin:0"><label class="fld" for="sg">' + (S.suggField ? 'Dato que aportas: <b style="color:var(--fg)">' + esc(S.suggField) + '</b>' : 'Qué dato aportas o corriges') + '<textarea id="sg" placeholder="Ej.: la numeración termina en 5, no en 6"></textarea></label><div class="btns row2" style="margin-top:10px"><button class="btn" data-a="sendsugg" data-id="' + t.id + '">Enviar a revisión</button><button class="btn ghost" data-a="cancelsugg">Cancelar</button></div></div>' : '<button class="btn ghost" data-a="sugg">Aportar o corregir un dato</button>') + '</div>';
     },
     comm: function () {
-      return head('Comunidad') +
-        (D.acct ? '<div class="btns" style="margin:0 0 12px"><button class="btn" data-a="newpost">Crear publicación</button></div>' : gateNote('Participar es para boleccionadores', 'Puedes leer las publicaciones. Para publicar o responder necesitas una cuenta gratuita.')) +
-        (CLOUD.on ? '' : '<div class="notice"><span><b>Modo local.</b> Las publicaciones nuevas se guardan solo en este dispositivo hasta que se conecte el servicio en la nube.</span></div>') +
-        postsAll().map(postCard).join('');
+      var t = S.ct || 'pub';
+      return commTop(t) + (t === 'int' ? VIEWS.commInt() : t === 'col' ? VIEWS.commCol() : VIEWS.commPub());
+    },
+    commInt: function () {
+      if (!CLOUD.on) return soonCard('Intercambios', 'Los intercambios se guardan en la nube y por ahora no están disponibles en modo local. Se activan cuando la app está conectada a Firebase.');
+      var l = postsAll().filter(function (p) { return p.tipo === 'Intercambio'; });
+      return (D.acct ? '<div class="btns" style="margin:0 0 12px"><button class="btn" data-a="newxch">Publicar un intercambio</button></div>' : gateNote('Participar es para boleccionadores', 'Puedes leer los intercambios públicos. Para publicar o responder necesitas una cuenta gratuita.')) +
+        '<div class="notice"><span><b>Cómo funciona.</b> Publica qué boleto ofreces y qué buscas. El acuerdo se conversa en los comentarios; la app no gestiona envíos ni pagos.</span></div>' +
+        (l.length ? l.map(postCard).join('') : '<div class="note soon"><h2>Aún no hay intercambios</h2><p>' + (C.postsErr ? 'No se pudieron cargar las publicaciones. Revisa que las reglas de Firestore estén publicadas.' : 'Cuando alguien publique uno, aparecerá aquí.') + '</p></div>');
+    },
+    commCol: function () {
+      if (!CLOUD.on) return soonCard('Coleccionistas', 'La lista de coleccionistas usa perfiles públicos guardados en la nube; no está disponible en modo local.');
+      var st = C.collState, l = C.coll || [];
+      if (st === 'load' || !st) return '<div class="empty">Cargando coleccionistas…</div>';
+      if (st === 'err') return '<div class="note soon"><h2>No se pudo cargar</h2><p>Revisa que las reglas de Firestore incluyan los perfiles públicos y vuelve a intentarlo.</p></div>';
+      return '<p class="muted small" style="margin:0 0 10px">Perfiles de personas que eligieron hacerlos públicos.</p>' +
+        (l.length ? l.map(function (c) {
+          return '<button type="button" class="note post pcol" data-a="uprof" data-id="' + esc(c.uid) + '"><div class="phd"><span class="pavatar sm">' + avatarHtml(c.fotoUrl || c.fotoData || '', c.alias) + '</span><div class="tx"><b>@' + esc(c.alias) + vb(c.uid) + '</b><small>' + (c.comuna ? esc(c.comuna) : 'Sin comuna indicada') + '</small></div></div>' + (c.bio ? '<p class="small muted" style="margin:0">' + esc(c.bio) + '</p>' : '') + '</button>';
+        }).join('') : '<div class="note soon"><h2>Aún no hay perfiles públicos</h2><p>Cuando alguien haga público su perfil, aparecerá aquí.</p></div>');
+    },
+    commPub: function () {
+      var f = S.pfilt || 'all', l = f === 'sv' ? postsAll().filter(function (p) { return myMark(p.id).saved; }) : postsAll().filter(function (p) { return p.tipo !== 'Intercambio'; });
+      return (D.acct ? '<div class="btns" style="margin:0 0 12px"><button class="btn" data-a="newpost">Crear publicación</button></div>' : gateNote('Participar es para boleccionadores', 'Puedes leer las publicaciones públicas. Para publicar, comentar, dar «Me gusta» o guardar necesitas una cuenta gratuita.')) +
+        (CLOUD.on ? '' : '<div class="notice"><span><b>Modo local.</b> Las publicaciones nuevas se guardan solo en este dispositivo. Las fotos, «Me gusta», guardar y los perfiles públicos requieren la cuenta en la nube.</span></div>') +
+        (CLOUD.on && D.acct ? '<div class="seg" role="tablist" aria-label="Filtrar publicaciones"><button role="tab" data-a="pfilt" data-id="all" aria-pressed="' + (f !== 'sv') + '">Recientes</button><button role="tab" data-a="pfilt" data-id="sv" aria-pressed="' + (f === 'sv') + '">Guardadas</button></div>' : '') +
+        (l.length ? l.map(postCard).join('') : '<div class="note soon"><h2>' + (f === 'sv' ? 'No has guardado publicaciones' : 'Aún no hay publicaciones') + '</h2><p>' + (C.postsErr && CLOUD.on ? 'No se pudieron cargar las publicaciones. Revisa que las reglas de Firestore estén publicadas.' : f === 'sv' ? 'Toca «Guardar» en una publicación para encontrarla aquí.' : 'Sé la primera persona en publicar.') + '</p></div>');
     },
     newpost: function () {
-      var d = S.pd || {};
+      var d = S.pd || {}, cl = CLOUD.on && cloudUser();
       return head('Crear publicación', true) +
-        '<p class="muted small" style="margin:-4px 0 14px">Pregunta, comparte un hallazgo o pide ayuda para identificar un boleto. No publiques datos personales de otras personas.</p>' + acctLine() +
+        '<p class="muted small" style="margin:-4px 0 14px">Pregunta, comparte un hallazgo, pide ayuda para identificar un boleto o propón un intercambio. No publiques datos personales de otras personas.</p>' + acctLine() +
         '<form class="form" id="postform" novalidate>' +
         '<label class="fld" for="p-tipo">Tema<select id="p-tipo">' + selOpts(TIPOS_POST.map(function (x) { return [x, x]; }), d.tipo || TIPOS_POST[0]) + '</select></label>' +
         '<label class="fld" for="p-title">Título<input type="text" id="p-title" maxlength="100" autocomplete="off" placeholder="Ej.: ¿Qué empresa imprimió este boleto?" value="' + esc(d.title || '') + '"></label>' +
         '<label class="fld" for="p-text">Mensaje<textarea id="p-text" maxlength="2000" placeholder="Cuéntanos los detalles: numeración, colores, año aproximado…">' + esc(d.text || '') + '</textarea></label>' +
+        (CLOUD.on ? '<label class="fld" for="p-files">Fotos de boletos (hasta 3)<input type="file" id="p-files" accept="image/*" multiple></label><div id="pimgPrev">' + pimgPrevHtml() + '</div>' +
+        '<div class="sec"><h2>Quién puede verla</h2></div>' +
+        '<label class="check"><input type="radio" name="pvis" value="soc"' + (d.vis !== 'pub' ? ' checked' : '') + '><span><b>Solo boleccionadores</b>: la ven las personas con cuenta.</span></label>' +
+        '<label class="check"><input type="radio" name="pvis" value="pub"' + (d.vis === 'pub' ? ' checked' : '') + '><span><b>Pública</b>: cualquiera puede verla y compartir su enlace, incluso sin cuenta.</span></label>' : '') +
         '<div class="msg err" id="poMsg" role="alert" hidden></div>' +
         '<button class="btn" type="submit">Publicar</button></form>';
     },
     post: function (v) {
       var p = postById(v.id);
       if (!p) return head('Publicación', true) + '<div class="empty">Esta publicación ya no está disponible.</div>';
-      var reps = repliesOf(p);
+      var reps = repliesOf(p), mine = CLOUD.on && p.uid === CLOUD.uid;
       return head('Publicación', true) +
+        authorHead(p) +
         '<h1>' + esc(p.title) + '</h1>' +
-        '<div class="evtags" style="margin:8px 0 6px">' + (p.ej ? '<span class="bd pend">Ejemplo</span>' : '<span class="bd rev">' + esc(p.tipo || 'Publicación') + '</span>') + '</div>' +
-        '<p class="muted small" style="margin:0 0 12px">' + (p.ej ? esc(p.alias) : 'Por <b style="color:var(--fg)">@' + esc(p.alias) + '</b>' + (p.ts ? ' · ' + esc(fmtTs(p.ts)) : '')) + '</p>' +
+        '<div class="evtags" style="margin:8px 0 6px">' + (p.ej ? '<span class="bd pend">Ejemplo</span>' : '<span class="bd rev">' + esc(p.tipo || 'Publicación') + '</span>') + visBd(p) + '</div>' +
         '<div class="note"><p style="white-space:pre-wrap;color:var(--fg);margin:0">' + esc(p.text) + '</p></div>' +
-        '<div class="sec"><h2>Respuestas (' + (p.ej ? (p.replyCount || 0) : reps.length) + ')</h2></div>' +
-        (p.ej ? '<div class="note"><p style="margin:0">Esta publicación es un ejemplo, sin respuestas reales.</p></div>' :
-          (reps.length ? '<div class="note">' + reps.map(function (r) { return '<div class="reply"><b>@' + esc(r.alias) + '</b><small>' + esc(fmtTs(r.ts)) + '</small><p>' + esc(r.text) + '</p></div>'; }).join('') + '</div>' : '<div class="note"><p style="margin:0">Aún no hay respuestas. Sé la primera persona en responder.</p></div>')) +
+        ((p.imgs && p.imgs.length) ? '<div class="gal">' + p.imgs.map(function (u) { return '<img alt="Foto de la publicación" loading="lazy" src="' + esc(u) + '">'; }).join('') + '</div>' : '') +
+        postActions(p) + reportBox(p) +
+        (CLOUD.on && !p.ej && p.vis === 'pub' ? '<div class="btns" style="margin:10px 0 0"><button class="btn ghost" data-a="sharepost" data-id="' + esc(p.id) + '">Copiar enlace para compartir</button></div>' : '') +
+        (mine ? '<div style="margin:10px 0 0">' + (S.cdp === p.id ? '<div class="note"><p style="margin:0 0 10px;color:var(--fg)">¿Eliminar esta publicación? No se puede deshacer.</p><div class="btns row2"><button class="btn warn" data-a="delpost" data-id="' + esc(p.id) + '">Sí, eliminar</button><button class="btn ghost" data-a="cancelpost">Cancelar</button></div></div>' : '<button class="btn ghost" data-a="askdelpost" data-id="' + esc(p.id) + '">Eliminar mi publicación</button>') + '</div>' : '') +
+        '<div class="sec"><h2>Comentarios (' + (p.ej ? (p.replyCount || 0) : reps.length) + ')</h2></div>' +
+        (p.ej ? '<div class="note"><p style="margin:0">Esta publicación es un ejemplo, sin comentarios reales.</p></div>' :
+          (reps.length ? '<div class="note">' + reps.map(function (r) { return '<div class="reply">' + authorLink(r) + '<small>' + esc(fmtTs(r.ts)) + '</small><p>' + esc(r.text) + '</p></div>'; }).join('') + '</div>' : '<div class="note"><p style="margin:0">Aún no hay comentarios. Sé la primera persona en comentar.</p></div>')) +
         (p.ej ? '' : D.acct ?
-          '<form class="form" id="replyform" data-id="' + esc(p.id) + '" novalidate><label class="fld" for="rp-text">Tu respuesta<textarea id="rp-text" maxlength="1500" placeholder="Escribe tu respuesta"></textarea></label><div class="msg err" id="rpMsg" role="alert" hidden></div><button class="btn" type="submit">Responder</button></form>' :
-          gateNote('Para responder necesitas cuenta', 'Crea tu cuenta gratuita de boleccionador para participar en la comunidad.'));
+          '<form class="form" id="replyform" data-id="' + esc(p.id) + '" novalidate><label class="fld" for="rp-text">Tu comentario<textarea id="rp-text" maxlength="1500" placeholder="Escribe tu comentario"></textarea></label><div class="msg err" id="rpMsg" role="alert" hidden></div><button class="btn" type="submit">Comentar</button></form>' :
+          gateNote('Para comentar necesitas cuenta', 'Crea tu cuenta gratuita de boleccionador para participar en la comunidad.'));
     },
     admin: function () {
       if (!isAdminNow()) return head('Revisión', true) + '<div class="empty">Esta sección es solo para administradores.</div>';
@@ -1052,7 +1615,7 @@ img { max-width: 100%; }
       var mine = D.own.map(function (id) { return BYID[id]; }).filter(Boolean);
       var favs = D.fav.map(function (id) { return BYID[id]; }).filter(Boolean);
       var ms = mySubs(), tot = myTotal(), mev = myEvents(), pend = isAdminNow() ? pendingEv().length : 0;
-      return head('Perfil') + acctCard() +
+      return head('Perfil') + profHead() + acctCard() +
         '<div class="sec"><h2>Mi colección</h2></div>' +
         '<div class="note"><b>' + tot + (tot === 1 ? ' boleto' : ' boletos') + ' en tu colección</b><p style="margin:4px 0 0">' + mine.length + ' del catálogo · ' + ms.length + ' propios. Puedes agregar todos los que quieras.</p></div>' +
         (tot ? '<div class="grid2" style="margin-bottom:14px">' + mine.map(card).join('') + ms.map(mineCard).join('') + '</div>' : '<div class="note"><p style="margin:0">Tu colección está vacía. Abre una ficha en el catálogo y toca “Agregar a mi colección”, o añade un boleto tuyo con fotos desde “Añadir”.</p></div>') +
@@ -1420,7 +1983,6 @@ img { max-width: 100%; }
     ['home', 'Inicio', '<svg viewBox="0 0 24 24"><path d="M4 11l8-6.5 8 6.5v8.5a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z"/></svg>'],
     ['cat', 'Catálogo', '<svg viewBox="0 0 24 24"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/></svg>'],
     ['add', 'Añadir', '<svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M12 8.5v7M8.5 12h7"/></svg>'],
-    ['ev', 'Eventos', '<svg viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14.5" rx="3"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/></svg>'],
     ['comm', 'Comunidad', '<svg viewBox="0 0 24 24"><circle cx="9" cy="9" r="3"/><path d="M3.5 19c.6-3 2.8-4.6 5.5-4.6s4.9 1.6 5.5 4.6"/><circle cx="17" cy="9.5" r="2.4"/><path d="M16.5 14.6c2.3 0 3.6 1.4 4 3.8"/></svg>'],
     ['profile', 'Perfil', '<svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.6"/><path d="M5 20c.8-3.6 3.6-5.4 7-5.4s6.2 1.8 7 5.4"/></svg>']
   ];
@@ -1442,6 +2004,45 @@ img { max-width: 100%; }
     if (!el) return;
     var a = el.dataset.a, id = el.dataset.id;
     if (a === 'tab') { S.tab = id; S.edit = null; S.confirmDelSub = false; S.fd = {}; S.aliasOpen = false; S.stack = [{ name: id }]; S.confirmReset = false; S.formMsg = null; S.sugg = false; render(false); }
+    else if (a === 'ctab') { S.ct = id; render(false); if (id === 'col') loadCollectors(); }
+    else if (a === 'pfilt') { S.pfilt = id; render(true); }
+    else if (a === 'newxch') { if (!requireAcct('Crea tu cuenta para publicar')) return; S.pd = { tipo: 'Intercambio' }; S.pimgs = []; push({ name: 'newpost' }); }
+    else if (a === 'rmpimg') { (S.pimgs || []).splice(+id, 1); var bx = document.getElementById('pimgPrev'); if (bx) bx.innerHTML = pimgPrevHtml(); }
+    else if (a === 'like' || a === 'save') {
+      if (!requireAcct('Crea tu cuenta para dar «Me gusta» o guardar')) return;
+      var pk = postById(id); if (!pk || !CLOUD.on || !cloudUser()) return;
+      if (S.mbusy) return; S.mbusy = true;
+      (a === 'like' ? toggleLike(pk) : toggleSave(pk)).then(function () { S.mbusy = false; render(true); }, function (er) { S.mbusy = false; toast('No se pudo guardar. ' + cloudErr(er)); });
+    }
+    else if (a === 'sharepost') { var ps = postById(id); if (ps) { try { navigator.clipboard.writeText(postLink(ps)).then(function () { toast('Enlace copiado'); }, function () { toast(postLink(ps)); }); } catch (x) { toast(postLink(ps)); } } }
+    else if (a === 'repopen') { S.rep = id; render(true); }
+    else if (a === 'repcancel') { S.rep = null; render(true); }
+    else if (a === 'repsend') {
+      var rp0 = postById(id), why = (document.getElementById('rep-why') || {}).value || 'otro'; if (!rp0 || !cloudUser() || S.mbusy) return; S.mbusy = true;
+      sendReport(rp0, why).then(function () { S.mbusy = false; S.rep = null; render(true); toast('Gracias. El equipo revisará la publicación.'); }, function (er) { S.mbusy = false; S.rep = null; render(true); toast(er && er.code === 'permission-denied' ? 'Ya habías denunciado esta publicación.' : 'No se pudo enviar. ' + cloudErr(er)); });
+    }
+    else if (a === 'nread') { nfMarkRead([id]).catch(function (er) { toast('No se pudo marcar. ' + cloudErr(er)); }); }
+    else if (a === 'askdelpost') { S.cdp = id; render(true); }
+    else if (a === 'cancelpost') { S.cdp = null; render(true); }
+    else if (a === 'delpost') {
+      var pd2 = postById(id); if (!pd2 || !CLOUD.on || pd2.uid !== CLOUD.uid) return;
+      deletePost(pd2).then(function () { S.cdp = null; if (S.stack.length > 1) S.stack.pop(); render(false); toast('Publicación eliminada'); }, function (er) { toast('No se pudo eliminar. ' + cloudErr(er)); });
+    }
+    else if (a === 'nfilt') { S.nf = id; render(true); if (cloudUser()) nfLoad(); }
+    else if (a === 'nreload') { NF.state = 'load'; render(true); nfLoad(); }
+    else if (a === 'nreadall') {
+      var ids2 = NF.list.filter(function (n) { return !n.read && (id === 'all' || nfCat(n) === id); }).map(function (n) { return n.id; });
+      nfMarkRead(ids2).then(function () { toast('Marcadas como leídas'); }, function (er) { toast('No se pudo marcar. ' + cloudErr(er)); });
+    }
+    else if (a === 'nopen') { var nn = NF.list.filter(function (n) { return n.id === id; })[0]; if (nn) openNotif(nn); }
+    else if (a === 'follow') {
+      if (!requireAcct('Crea tu cuenta para seguir a otros boleccionadores')) return;
+      if (!cloudUser() || S.mbusy || id === CLOUD.uid) return; S.mbusy = true;
+      toggleFollow(id).then(function () { S.mbusy = false; render(true); }, function (er) { S.mbusy = false; toast('No se pudo completar. ' + cloudErr(er)); });
+    }
+    else if (a === 'editprof') { if (!D.acct) { requireAcct('Crea tu cuenta para editar tu perfil'); return; } S.pf = null; push({ name: 'editprof' }); }
+    else if (a === 'pfrm') { S.pf = S.pf || {}; S.pf.foto = ''; S.pf.big = ''; var pv2 = document.getElementById('pf-prev'); if (pv2) pv2.innerHTML = avatarHtml('', D.acct.alias); }
+    else if (a === 'uprof') { if (CLOUD.on && id === CLOUD.uid) { S.tab = 'profile'; S.stack = [{ name: 'profile' }]; render(false); } else { C.pf = C.pf || {}; delete C.pf[id]; push({ name: 'uprof', id: id }); loadPub(id); } }
     else if (a === 'back') { if (S.stack.length > 1) S.stack.pop(); S.sugg = false; render(false); }
     else if (a === 'ticket') push({ name: 'ticket', id: id });
     else if (a === 'about') push({ name: 'about' });
@@ -1502,7 +2103,7 @@ img { max-width: 100%; }
     }
     else if (a === 'catemp') push({ name: 'catemp' });
     else if (a === 'post') { var pp0 = postById(id); push({ name: 'post', id: id }); if (CLOUD.on && pp0 && !pp0.ej) cloudLoadReplies(id).then(function () { if (S.stack[S.stack.length - 1].id === id) render(true); }); }
-    else if (a === 'newpost') { if (!requireAcct('Crea tu cuenta para publicar')) return; S.pd = null; push({ name: 'newpost' }); }
+    else if (a === 'newpost') { if (!requireAcct('Crea tu cuenta para publicar')) return; S.pd = null; S.pimgs = []; push({ name: 'newpost' }); }
     else if (a === 'admin') push({ name: 'admin' });
     else if (a === 'admtoggle') { if (D.acct) { D.acct.adm = !D.acct.adm; save(); render(true); toast(D.acct.adm ? 'Modo administrador de prueba activado' : 'Modo administrador desactivado'); } }
     else if (a === 'evok' || a === 'evno') { moderateEvent(id, a === 'evok' ? 'aprobado' : 'rechazado').then(function () { render(true); toast(a === 'evok' ? 'Publicado para toda la comunidad' : 'Propuesta no aprobada'); }, function (er) { toast(cloudErr(er)); }); }
@@ -1752,16 +2353,17 @@ img { max-width: 100%; }
     }
     if (e.target.id === 'postform') {
       e.preventDefault();
-      var pt = gv('p-title'), px = gv('p-text'), ptp = gv('p-tipo'), pe = '';
-      S.pd = { title: pt, text: px, tipo: ptp };
+      var pt = gv('p-title'), px = gv('p-text'), ptp = gv('p-tipo'), pe = '', pvEl = document.querySelector('input[name="pvis"]:checked'), pv = pvEl ? pvEl.value : 'soc';
+      S.pd = { title: pt, text: px, tipo: ptp, vis: pv };
       if (!D.acct) { requireAcct(); return; }
       if (pt.length < 3) pe = 'Escribe un título de al menos 3 caracteres.';
       else if (px.length < 10) pe = 'Cuéntanos un poco más: el mensaje debe tener al menos 10 caracteres.';
       if (pe) { showMsg('poMsg', pe); return; }
-      showMsg('poMsg', 'Publicando…');
-      createPost({ title: pt, text: px, tipo: ptp }).then(function (r) {
-        S.pd = null; S.stack.pop(); S.stack.push({ name: 'post', id: r.id }); render(false); toast('Publicación creada');
-      }, function (er) { showMsg('poMsg', er && er.code === 'storage' ? 'No hay espacio para guardar la publicación en este dispositivo.' : cloudErr(er)); });
+      if (S.pbusy) return;
+      S.pbusy = true; showMsg('poMsg', 'Publicando…');
+      createPost({ title: pt, text: px, tipo: ptp, vis: pv, imgs: CLOUD.on ? (S.pimgs || []) : [] }).then(function (r) {
+        S.pbusy = false; S.pd = null; S.pimgs = []; S.stack.pop(); S.stack.push({ name: 'post', id: r.id }); render(false); toast('Publicación creada');
+      }, function (er) { S.pbusy = false; showMsg('poMsg', er && er.code === 'storage' ? 'No hay espacio para guardar la publicación en este dispositivo.' : cloudErr(er)); });
       return;
     }
     if (e.target.id === 'replyform') {
@@ -1812,7 +2414,7 @@ img { max-width: 100%; }
         CLOUD.ready = true;
         if (CLOUD.busy) return;
         if (u) { cloudAttach(u); return; }
-        CLOUD.uid = ''; CLOUD.admin = false;
+        CLOUD.uid = ''; CLOUD.admin = false; CLOUD.creado = null; C.marks = {}; nfReset();
         if (D.acct && D.acct.cloud) { D = { fav: [], subs: [], acct: null, own: [], posts: [], evp: [] }; save(); }
         cloudLoadShared().then(function () { render(true); });
       });
@@ -1821,29 +2423,37 @@ img { max-width: 100%; }
   function cloudAttach(u, prof) {
     CLOUD.uid = u.uid;
     var F = FB.fs;
-    var pp = prof ? Promise.resolve(prof) : F.getDoc(F.doc(FBDB, 'users', u.uid)).then(function (s) { return s.exists() ? s.data() : null; });
+    var pp = F.getDoc(F.doc(FBDB, 'users', u.uid)).then(function (s) { return s.exists() ? s.data() : (prof || null); }, function (e) { if (prof) return prof; throw e; });
     return Promise.all([pp, F.getDoc(F.doc(FBDB, 'admins', u.uid)).then(function (s) { return s.exists(); }, function () { return false; })]).then(function (r) {
       var p = r[0]; CLOUD.admin = !!r[1];
       if (!p) { p = { alias: (u.displayName || (u.email || 'usuario').split('@')[0]).slice(0, 24), comuna: '', int: [], pub: false, own: [], fav: [], desde: new Date().toISOString().slice(0, 10) }; }
       D.acct = { alias: p.alias, mail: u.email || '', comuna: p.comuna || '', int: p.int || [], pub: !!p.pub, desde: p.desde || new Date().toISOString().slice(0, 10), cloud: true };
       D.own = p.own || []; D.fav = p.fav || [];
-      return F.getDocs(F.query(F.collection(FBDB, 'subs'), F.where('uid', '==', u.uid))).then(function (qs) {
+      CLOUD.creado = p.creado || null;
+      var mig = Promise.resolve();
+      if (!p.creado && u.metadata && u.metadata.creationTime && F.Timestamp) {
+        // cuentas anteriores: se registra la fecha real de creación que informa Firebase Authentication (las reglas impiden cambiarla después)
+        var cts = F.Timestamp.fromDate(new Date(u.metadata.creationTime));
+        mig = F.setDoc(F.doc(FBDB, 'users', u.uid), { creado: cts }, { merge: true }).then(function () { CLOUD.creado = cts; }, function () {});
+      }
+      return mig.then(function () { return Promise.all([cloudLoadProfile(u), cloudLoadMarks(u)]); }).then(function () { return F.getDocs(F.query(F.collection(FBDB, 'subs'), F.where('uid', '==', u.uid))).then(function (qs) {
         var arr = []; qs.forEach(function (d) { var x = d.data(); x.id = d.id; arr.push(x); });
         arr.sort(function (a, b) { return (b.ts || 0) - (a.ts || 0); });
         D.subs = arr.map(function (x) { return { id: x.id, title: x.title, when: x.when, f: x.f, status: x.status, img: x.img || '', img2: x.img2 || '', ts: x.ts || 0 }; });
-      }, function () {});
-    }).then(function () { save(); return cloudLoadShared(); }).then(function () { render(true); }, function (e) { CLOUD.err = cloudErr(e); render(true); });
+      }, function () {}); });
+    }).then(function () { save(); nfStart(); return cloudLoadShared(); }).then(function () { render(true); }, function (e) { CLOUD.err = cloudErr(e); render(true); });
   }
   function cloudLoadShared() {
     if (!FB) return Promise.resolve();
     var F = FB.fs, jobs = [];
-    jobs.push(F.getDocs(F.query(F.collection(FBDB, 'posts'), F.orderBy('ts', 'desc'), F.limit(100))).then(function (qs) { var a = []; qs.forEach(function (d) { var x = d.data(); x.id = d.id; a.push(x); }); C.posts = a; }, function () {}));
+    var pq = CLOUD.uid ? F.query(F.collection(FBDB, 'posts'), F.orderBy('ts', 'desc'), F.limit(100)) : F.query(F.collection(FBDB, 'posts'), F.where('vis', '==', 'pub'), F.limit(100));
+    jobs.push(F.getDocs(pq).then(function (qs) { var a = []; qs.forEach(function (d) { var x = d.data(); x.id = d.id; a.push(x); }); a.sort(function (p, q) { return (q.ts || 0) - (p.ts || 0); }); C.posts = a; C.postsErr = false; ensureAuthors(); }, function () { C.postsErr = true; }));
     var evs = {};
     function addEv(qs) { qs.forEach(function (d) { var x = d.data(); x.id = d.id; evs[x.id] = x; }); }
     jobs.push(F.getDocs(F.query(F.collection(FBDB, 'events'), F.where('status', '==', 'aprobado'))).then(addEv, function () {}));
     if (CLOUD.uid) jobs.push(F.getDocs(F.query(F.collection(FBDB, 'events'), F.where('uid', '==', CLOUD.uid))).then(addEv, function () {}));
     if (CLOUD.admin) jobs.push(F.getDocs(F.query(F.collection(FBDB, 'events'), F.where('status', '==', 'pendiente'))).then(addEv, function () {}));
-    return Promise.all(jobs).then(function () { C.events = Object.keys(evs).map(function (k) { return evs[k]; }); });
+    return Promise.all(jobs).then(function () { C.events = Object.keys(evs).map(function (k) { return evs[k]; }); }).then(openHashPost);
   }
   var _spT = null;
   function cloudSaveProfile() {
@@ -1866,7 +2476,7 @@ img { max-width: 100%; }
     }).then(function (cr) {
       user = cr.user;
       var desde = new Date().toISOString().slice(0, 10), batch = F.writeBatch(FBDB);
-      batch.set(F.doc(FBDB, 'users', user.uid), { alias: al, aliasKey: key, comuna: comuna || '', int: ints, pub: !!pub, desde: desde, own: [], fav: [] });
+      batch.set(F.doc(FBDB, 'users', user.uid), { alias: al, aliasKey: key, comuna: comuna || '', int: ints, pub: !!pub, desde: desde, creado: F.serverTimestamp(), own: [], fav: [] });
       batch.set(F.doc(FBDB, 'aliases', key), { uid: user.uid });
       return batch.commit().then(function () { return A.updateProfile(user, { displayName: al }).catch(function () {}); }).then(function () { return { uid: user.uid, email: user.email, displayName: al }; });
     }).then(function (u) {
@@ -1896,11 +2506,19 @@ img { max-width: 100%; }
       F = FB.fs; u = FBA.currentUser;
       return FB.auth.reauthenticateWithCredential(u, FB.auth.EmailAuthProvider.credential(u.email, pw));
     }).then(function () {
+      var X = [];
+      ['from', 'to'].forEach(function (k) { X.push(F.getDocs(F.query(F.collection(FBDB, 'follows'), F.where(k, '==', u.uid), F.limit(150))).then(function (qs) { return qs.docs.map(function (d) { return d.ref; }); }, function () { return []; })); });
+      X.push(F.getDocs(F.query(F.collection(FBDB, 'users', u.uid, 'notifs'), F.limit(300))).then(function (qs) { return qs.docs.map(function (d) { return d.ref; }); }, function () { return []; }));
+      return Promise.all(X);
+    }).then(function (refs) {
       var key = norm(D.acct.alias).replace(/[^a-z0-9_.-]/g, ''), batch = F.writeBatch(FBDB);
+      refs.forEach(function (l) { l.forEach(function (r) { batch.delete(r); }); });
       D.subs.forEach(function (s) { if (s.id) batch.delete(F.doc(FBDB, 'subs', s.id)); });
       C.posts.filter(function (p) { return p.uid === u.uid; }).forEach(function (p) { batch.delete(F.doc(FBDB, 'posts', p.id)); });
       C.events.filter(function (e) { return e.uid === u.uid; }).forEach(function (e) { batch.delete(F.doc(FBDB, 'events', e.id)); });
-      batch.delete(F.doc(FBDB, 'aliases', key)); batch.delete(F.doc(FBDB, 'users', u.uid));
+      batch.delete(F.doc(FBDB, 'aliases', key)); batch.delete(F.doc(FBDB, 'users', u.uid)); batch.delete(F.doc(FBDB, 'profiles', u.uid));
+      Object.keys(C.marks || {}).forEach(function (pid) { batch.delete(F.doc(FBDB, 'users', u.uid, 'marks', pid)); });
+      try { if (FBST) FB.st.deleteObject(FB.st.ref(FBST, 'profiles/' + u.uid + '/avatar.jpg')).catch(function () {}); } catch (x) {}
       return batch.commit();
     }).then(function () { CLOUD.busy = true; return FB.auth.deleteUser(u); }).then(function () { CLOUD.busy = false; CLOUD.uid = ''; CLOUD.admin = false; }, function (e) { CLOUD.busy = false; throw e; });
   }
@@ -1945,10 +2563,12 @@ img { max-width: 100%; }
   }
 
   /* ---------- Comunidad ---------- */
-  var TIPOS_POST = ['Pregunta', 'Ayuda para identificar un boleto', 'Hallazgo', 'Otro tema'];
+  var TIPOS_POST = ['Pregunta', 'Ayuda para identificar un boleto', 'Hallazgo', 'Intercambio', 'Otro tema'];
   function dposts() { if (!D.posts) D.posts = []; return D.posts; }
   function postsAll() {
-    var real = (CLOUD.on ? C.posts : dposts()).slice().sort(function (a, b) { return (b.ts || 0) - (a.ts || 0); });
+    var ex = C.extra || [];
+    var real = (CLOUD.on ? C.posts.concat(ex.filter(function (x) { return !C.posts.some(function (p) { return p.id === x.id; }); })) : dposts()).slice().sort(function (a, b) { return (b.ts || 0) - (a.ts || 0); });
+    if (CLOUD.on) return real;
     var seeds = COMMUNITY.map(function (c, i) { return { id: 'ej' + i, ej: true, title: c.title, text: c.text, alias: c.who, st: c.st, ts: 0, replyCount: c.replies, tipo: 'Ejemplo' }; });
     return real.concat(seeds);
   }
@@ -1963,8 +2583,14 @@ img { max-width: 100%; }
   function createPost(o) {
     var rec = { title: o.title, text: o.text, tipo: o.tipo, alias: D.acct.alias, uid: CLOUD.on ? CLOUD.uid : 'local', ts: Date.now(), replyCount: 0 };
     if (CLOUD.on) {
-      var F = FB.fs;
-      return F.addDoc(F.collection(FBDB, 'posts'), rec).then(function (r) { rec.id = r.id; C.posts.unshift(rec); return rec; });
+      var F = FB.fs, ref = F.doc(F.collection(FBDB, 'posts')), imgs = o.imgs || [];
+      rec.vis = o.vis === 'pub' ? 'pub' : 'soc'; rec.likeCount = 0;
+      return Promise.all(imgs.map(function (im, i) {
+        return cloudUpload('posts/' + CLOUD.uid + '/' + ref.id + '-' + i + '.jpg', im.big).catch(function () { return im.small; });
+      })).then(function (urls) {
+        if (urls.length) rec.imgs = urls;
+        return F.setDoc(ref, rec);
+      }).then(function () { rec.id = ref.id; C.posts.unshift(rec); return rec; });
     }
     rec.id = 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5); rec.replies = [];
     dposts().unshift(rec);
@@ -1977,6 +2603,7 @@ img { max-width: 100%; }
       var F = FB.fs;
       return F.addDoc(F.collection(FBDB, 'posts', p.id, 'replies'), rep).then(function (r) {
         rep.id = r.id; (C.replies[p.id] = C.replies[p.id] || []).push(rep); p.replyCount = (p.replyCount || 0) + 1;
+        nfPut(p.uid, 'c_' + r.id, { type: 'comment', cat: p.tipo === 'Intercambio' ? 'col' : 'com', ref: p.id, title: p.title });
         return F.updateDoc(F.doc(FBDB, 'posts', p.id), { replyCount: F.increment(1) }).catch(function () {});
       });
     }
@@ -2006,7 +2633,13 @@ img { max-width: 100%; }
   }
   function moderateEvent(id, st) {
     var e = evById(id); if (!e || !isAdminNow()) return Promise.resolve();
-    if (CLOUD.on) { var F = FB.fs; return F.updateDoc(F.doc(FBDB, 'events', id), { status: st }).then(function () { e.status = st; }); }
+    if (CLOUD.on) {
+      var F = FB.fs;
+      return F.updateDoc(F.doc(FBDB, 'events', id), { status: st }).then(function () {
+        e.status = st;
+        if (e.uid && e.uid !== CLOUD.uid && !NOTIF_BY_FUNCTIONS) nfPut(e.uid, 'ev_' + id + (st === 'aprobado' ? '_ok' : '_no'), { type: 'evento', cat: 'com', ref: id, title: String(e.title || '').slice(0, 120) });
+      });
+    }
     e.status = st; save(); return Promise.resolve();
   }
 
@@ -2063,10 +2696,6 @@ img { max-width: 100%; }
     if (!res.length && !cat) return '<div class="empty">No encontramos nada para “' + esc(q) + '”.<br>Prueba con el nombre de la empresa, el código de la unidad (UN14), el código de la línea (14HT) o la numeración.</div>';
     if (res.length) h += '<div class="sec"><h2>Boletos (' + res.length + ')</h2></div><div class="grid2">' + res.map(card).join('') + '</div>';
     return h + cat;
-  }
-  function postCard(p) {
-    var n = p.replyCount || 0, ex = String(p.text || ''); if (ex.length > 150) ex = ex.slice(0, 150).trim() + '…';
-    return '<button class="note post" data-a="post" data-id="' + esc(p.id) + '"><div class="hd"><h2>' + esc(p.title) + '</h2>' + (p.ej ? '<span class="bd pend">Ejemplo</span>' : '<span class="bd rev">' + esc(p.tipo || 'Publicación') + '</span>') + '</div><p>' + esc(ex) + '</p><p style="font-size:12px;margin-top:6px">' + esc(p.ej ? p.alias : '@' + p.alias) + (p.ts ? ' · ' + esc(fmtTs(p.ts)) : '') + ' · ' + n + (n === 1 ? ' respuesta' : ' respuestas') + '</p></button>';
   }
   function adminBtns(e) { return '<div class="btns row2" style="margin-top:10px"><button class="btn" data-a="evok" data-id="' + esc(e.id) + '">Aprobar y publicar</button><button class="btn ghost" data-a="evno" data-id="' + esc(e.id) + '">No aprobar</button></div>'; }
   function myEvents() { var me = CLOUD.on ? CLOUD.uid : 'local'; return evDyn().filter(function (e) { return e.uid === me; }); }
@@ -2133,6 +2762,6 @@ img { max-width: 100%; }
 })();
 
 </script>
-<!-- Bolecciona Concepción · prototipo v14: catálogo de empresas y recorridos; funciona en el navegador, requiere backend para cuentas y datos compartidos -->
+<!-- Bolecciona Concepción · prototipo v17: catálogo de empresas y recorridos; funciona en el navegador, requiere backend para cuentas y datos compartidos -->
 </body>
 </html>
