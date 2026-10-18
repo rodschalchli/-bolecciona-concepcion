@@ -339,6 +339,7 @@ h1, h2, .row b, .card b, .evcard b { overflow-wrap: anywhere; }
 .top .iconbtn { position: relative; }
 .vb { display: inline-block; width: 1.05em; height: 1.05em; vertical-align: -0.17em; margin-left: 4px; flex: none; }
 .pbelow { display: flex; flex-direction: column; gap: 2px; margin: -2px 0 12px; font-size: 13px; color: var(--muted); }
+.pbelow .bdiag { color: #ffb4a8; font-size: 12px; line-height: 1.35; border-left: 3px solid #ffb4a8; padding-left: 8px; margin-top: 4px; }
 .pbelow .fnd { color: var(--accent); font-family: var(--f-display); font-weight: 600; font-size: 13.5px; }
 .nitem2 { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
 .nitem2 .nitem { margin-bottom: 0; }
@@ -368,7 +369,9 @@ h1, h2, .row b, .card b, .evcard b { overflow-wrap: anywhere; }
 .pavatar { overflow: hidden; }
 .pavatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .phead .tx { flex: 1; }
-#profform input[type=file] { width: 100%; font-size: 13px; }
+#profform input[type=file], #postform input[type=file] { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; pointer-events: none; }
+.filebtn { position: relative; display: flex; cursor: pointer; margin-top: 4px; }
+.filebtn:focus-within .btn { outline: 2px solid var(--accent); outline-offset: 2px; }
 #profform textarea { min-height: 90px; }
 
 .post { display: block; width: 100%; }
@@ -396,7 +399,7 @@ h1, h2, .row b, .card b, .evcard b { overflow-wrap: anywhere; }
 .pprev img { width: 84px; height: 84px; object-fit: cover; border-radius: 10px; border: 1px solid var(--line); display: block; }
 .pprev .pi button { position: absolute; top: -8px; right: -8px; width: 26px; height: 26px; border-radius: 50%; background: var(--bg); border: 1px solid var(--line); color: var(--fg); font-size: 16px; line-height: 1; }
 .pcol { text-align: left; color: inherit; }
-#postform input[type=file] { width: 100%; font-size: 13px; }
+
 </style>
 <style>
 :root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
@@ -1291,22 +1294,47 @@ img { max-width: 100%; }
 
   /* ---------- Insignia de fundador (verificación interna), «Usuario desde» y denuncias ---------- */
   var TICK = '<svg class="vb" viewBox="0 0 24 24" role="img" aria-label="Cuenta oficial del fundador (verificación interna de Bolecciona Concepción)"><title>Cuenta oficial del fundador · verificación interna de Bolecciona Concepción</title><path fill="#1d9bf0" d="M12 1.800l2.300 1.700 2.800-.2 1.100 2.600 2.500 1.300-.5 2.800 1.500 2.400-1.500 2.400.5 2.800-2.500 1.300-1.100 2.600-2.800-.2L12 22.200l-2.300-1.700-2.800.2-1.100-2.600-2.500-1.300.5-2.800L2.300 12l1.500-2.400-.5-2.800 2.500-1.300 1.100-2.600 2.800.2z"/><path d="M7.800 12.300l2.800 2.800 5.700-5.900" fill="none" stroke="#fff" stroke-width="2.200" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  var FOUNDER_UID = '7oY3uUdkFCWx6xBRkBXFbQMk2To1';   // única cuenta autorizada (el UID no es secreto; la autoridad real son las reglas + badges/{UID})
+  var FOUNDER_TXT = 'Creador/Fundador Bolecciona Concepción';
+  var APP_V = 'v20';
   var _bdQ = {}, _bdT = null;
   function vb(uid) {
-    if (!CLOUD.on || !uid || uid === 'local') return '';
+    if (!CLOUD.on || !uid || uid !== FOUNDER_UID) return '';        // solo el UID autorizado puede tener insignia; ninguna otra cuenta consulta ni muestra nada
     C.bd = C.bd || {};
     var s = C.bd[uid];
-    if (s === undefined) { C.bd[uid] = 'w'; _bdQ[uid] = 1; clearTimeout(_bdT); _bdT = setTimeout(bdFlush, 30); return ''; }
+    if (s === undefined || (s === 'e' && Date.now() - (C.bdAt || 0) > 15000)) { C.bd[uid] = 'w'; _bdQ[uid] = 1; clearTimeout(_bdT); _bdT = setTimeout(bdFlush, 30); return ''; }
     return s === true ? TICK : '';
   }
   function bdFlush() {
     var ids = Object.keys(_bdQ); _bdQ = {}; if (!ids.length) return;
     fbLoad().then(function () {
       var F = FB.fs;
-      return Promise.all(ids.map(function (u) { return F.getDoc(F.doc(FBDB, 'badges', u)).then(function (sn) { C.bd[u] = sn.exists(); }, function () { C.bd[u] = false; }); }));
+      return Promise.all(ids.map(function (u) {
+        return F.getDoc(F.doc(FBDB, 'badges', u)).then(function (sn) {
+          var d = sn.exists() ? sn.data() : null;
+          if (!d) { C.bd[u] = false; C.bdInfo = 'nodoc'; }
+          else if (d.founder === true) { C.bd[u] = true; C.bdInfo = 'ok'; }
+          else { C.bd[u] = false; C.bdInfo = 'campo:' + typeof d.founder + ':' + String(d.founder); }
+        }, function (e) {
+          C.bd[u] = 'e'; C.bdAt = Date.now(); C.bdInfo = 'error:' + ((e && (e.code || e.message)) || 'desconocido');
+          try { console.error('[Bolecciona] No se pudo leer badges/' + u, e); } catch (x) {}
+        });
+      }));
     }).then(function () {
-      if (ids.some(function (u) { return C.bd[u] === true; }) && !(document.activeElement && /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName))) render(true);
-    }, function () {});
+      if (!(document.activeElement && /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName))) render(true);
+    }, function (e) { C.bd = C.bd || {}; ids.forEach(function (u) { C.bd[u] = 'e'; C.bdAt = Date.now(); }); C.bdInfo = 'error:' + ((e && (e.code || e.message)) || 'no se cargó Firebase'); try { console.error('[Bolecciona] fbLoad', e); } catch (x) {} render(true); });
+  }
+  function bdDiag() {
+    var own = CLOUD.uid, al = String((D.acct && D.acct.alias) || '').toLowerCase();
+    if (!own || (own !== FOUNDER_UID && al !== 'rodschalchli')) return '';
+    var m = function (t) { return '<div class="bdiag">Verificación de fundador (' + APP_V + '): ' + t + '</div>'; };
+    if (own !== FOUNDER_UID) return m('esta cuenta tiene un UID que empieza con «' + esc(own.slice(0, 5)) + '…» y termina en «' + esc(own.slice(-4)) + '», distinto del UID autorizado en la app («' + esc(FOUNDER_UID.slice(0, 5)) + '…' + esc(FOUNDER_UID.slice(-4)) + '»). Revisa el UID en Firebase → Authentication.');
+    var i = String(C.bdInfo || ''), s = C.bd && C.bd[own];
+    if (s === true || s === undefined || s === 'w') return '';
+    if (i.indexOf('error:') === 0) return m('no se pudo leer badges/' + esc(own.slice(0, 5)) + '… — ' + esc(i.slice(6)) + (/permission/.test(i) ? '. Las reglas de Firestore publicadas no incluyen el bloque «badges»: publícalas de nuevo.' : '.'));
+    if (i === 'nodoc') return m('en Firestore no existe el documento badges/' + esc(own.slice(0, 5)) + '… (colección «badges», ID igual a tu UID).');
+    if (i.indexOf('campo:') === 0) { var p = i.split(':'); return m('el campo founder vale «' + esc(p.slice(2).join(':')) + '» (tipo ' + esc(p[1]) + '); debe ser booleano true.'); }
+    return '';
   }
   function tsYear(v, desde) {
     try { if (v) { if (v.toDate) return String(v.toDate().getFullYear()); if (v.seconds != null) return String(new Date(v.seconds * 1000).getFullYear()); } } catch (e) {}
@@ -1318,7 +1346,7 @@ img { max-width: 100%; }
   }
   function underPhoto(uid, year) {
     vb(uid);
-    return '<div class="pbelow">' + (uid && C.bd && C.bd[uid] === true ? '<b class="fnd">Creador y fundador de Bolecciona Concepción</b>' : '') + (year ? '<span>Usuario desde ' + esc(year) + '</span>' : '') + '</div>';
+    return '<div class="pbelow">' + (uid === FOUNDER_UID && C.bd && C.bd[uid] === true ? '<b class="fnd">' + FOUNDER_TXT + '</b>' : '') + (year ? '<span>Usuario desde ' + esc(year) + '</span>' : '') + (uid && uid === CLOUD.uid ? bdDiag() : '') + '</div>';
   }
   var REPR = [['spam', 'Spam o publicidad'], ['ofensivo', 'Contenido ofensivo o acoso'], ['privacidad', 'Datos personales de otra persona'], ['otro', 'Otro motivo']];
   function reportBox(p) {
@@ -1439,7 +1467,7 @@ img { max-width: 100%; }
       var ph = S.pf && S.pf.foto !== undefined ? S.pf.foto : myPhoto(), pub = !!a.perfilPub;
       return head('Editar perfil', true) +
         '<form class="form" id="profform" novalidate>' +
-        '<div class="phead"><span class="pavatar" id="pf-prev">' + avatarHtml(ph, a.alias) + '</span><div class="tx"><label class="fld" for="pf-file" style="margin:0">Foto de perfil<input type="file" id="pf-file" accept="image/*"></label><button type="button" class="btn ghost" data-a="pfrm" style="margin-top:8px">Quitar foto</button></div></div>' +
+        '<div class="phead"><span class="pavatar" id="pf-prev">' + avatarHtml(ph, a.alias) + '</span><div class="tx"><label class="filebtn" for="pf-file" style="margin:0"><span class="btn ghost">Elegir foto</span><input type="file" id="pf-file" accept="image/*" aria-label="Elegir foto de perfil"></label><button type="button" class="btn ghost" data-a="pfrm" style="margin-top:8px">Quitar foto</button></div></div>' +
         '<label class="fld" for="pf-alias">Nombre de usuario<input type="text" id="pf-alias" maxlength="24" autocomplete="off" autocapitalize="none" spellcheck="false" value="' + esc(a.alias) + '"></label>' +
         '<label class="fld" for="pf-bio">Descripción<textarea id="pf-bio" maxlength="200" placeholder="Cuéntanos qué coleccionas (hasta 200 caracteres)">' + esc(a.bio || '') + '</textarea></label>' +
         '<label class="fld" for="pf-com">Comuna<select id="pf-com"><option value="">Sin indicar</option>' + COMUNAS.map(function (c) { return '<option' + (c === comSel ? ' selected' : '') + '>' + esc(c) + '</option>'; }).join('') + '</select></label>' +
@@ -1566,7 +1594,7 @@ img { max-width: 100%; }
         '<label class="fld" for="p-tipo">Tema<select id="p-tipo">' + selOpts(TIPOS_POST.map(function (x) { return [x, x]; }), d.tipo || TIPOS_POST[0]) + '</select></label>' +
         '<label class="fld" for="p-title">Título<input type="text" id="p-title" maxlength="100" autocomplete="off" placeholder="Ej.: ¿Qué empresa imprimió este boleto?" value="' + esc(d.title || '') + '"></label>' +
         '<label class="fld" for="p-text">Mensaje<textarea id="p-text" maxlength="2000" placeholder="Cuéntanos los detalles: numeración, colores, año aproximado…">' + esc(d.text || '') + '</textarea></label>' +
-        (CLOUD.on ? '<label class="fld" for="p-files">Fotos de boletos (hasta 3)<input type="file" id="p-files" accept="image/*" multiple></label><div id="pimgPrev">' + pimgPrevHtml() + '</div>' +
+        (CLOUD.on ? '<div class="fld" style="margin-bottom:0">Fotos de boletos (hasta 3)</div><label class="filebtn" for="p-files"><span class="btn ghost">Elegir fotos</span><input type="file" id="p-files" accept="image/*" multiple aria-label="Elegir fotos de boletos"></label><div id="pimgPrev">' + pimgPrevHtml() + '</div>' +
         '<div class="sec"><h2>Quién puede verla</h2></div>' +
         '<label class="check"><input type="radio" name="pvis" value="soc"' + (d.vis !== 'pub' ? ' checked' : '') + '><span><b>Solo boleccionadores</b>: la ven las personas con cuenta.</span></label>' +
         '<label class="check"><input type="radio" name="pvis" value="pub"' + (d.vis === 'pub' ? ' checked' : '') + '><span><b>Pública</b>: cualquiera puede verla y compartir su enlace, incluso sin cuenta.</span></label>' : '') +
