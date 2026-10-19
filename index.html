@@ -411,6 +411,8 @@ h1, h2, .row b, .card b, .evcard b { overflow-wrap: anywhere; }
 </style>
 <style>
 :root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+html { height: var(--appH, 100%); background: #06122a; }
+#splash { bottom: auto; height: var(--appH, 100%); }
 body { margin: 0; }
 img { max-width: 100%; }
 </style>
@@ -2800,8 +2802,21 @@ img { max-width: 100%; }
   window.addEventListener('error', function (ev) { console.error('Bolecciona Concepción:', ev.message || 'Error inesperado'); });
   window.addEventListener('unhandledrejection', function (ev) { console.error('Bolecciona Concepción: operación no completada', ev.reason); });
   /* app instalable (PWA): el navegador ofrece «Añadir a la pantalla de inicio» */
+  /* iPhone con la app instalada: a veces entrega a la página una altura menor que la pantalla real (deja una franja vacía abajo y sube el menú).
+     Si pasa, se fija la altura real de la pantalla. Fuera de la app instalada no cambia nada. */
+  function fixAppH() {
+    var el = document.documentElement;
+    try {
+      var portrait = window.innerHeight >= window.innerWidth;
+      var h = portrait ? Math.max(screen.width, screen.height) : Math.min(screen.width, screen.height);
+      var diff = h - window.innerHeight;
+      if (isStandalone() && diff >= 20 && diff <= 140) el.style.setProperty('--appH', h + 'px'); else el.style.removeProperty('--appH');
+    } catch (x) {}
+  }
+  window.addEventListener('resize', fixAppH); window.addEventListener('orientationchange', function () { setTimeout(fixAppH, 250); });
   var _pwaEv = null;
   function isStandalone() { try { return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true; } catch (x) { return false; } }
+  fixAppH();
   window.addEventListener('beforeinstallprompt', function (ev) { ev.preventDefault(); _pwaEv = ev; if (S.tab === 'profile' && !S.stack.length) render(true); });
   window.addEventListener('appinstalled', function () { _pwaEv = null; toast('Bolecciona quedó instalada en tu pantalla de inicio'); render(true); });
   if ('serviceWorker' in navigator && /^https:$|^http:$/.test(location.protocol) && (location.protocol === 'https:' || location.hostname === 'localhost')) {
