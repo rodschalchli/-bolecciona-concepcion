@@ -4,6 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <script src="firebase-config.js"></script>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#06122a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Bolecciona">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>Bolecciona Concepción</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1633,6 +1641,7 @@ img { max-width: 100%; }
     },
     profile: function () {
       var rowsEnd = '<div class="sec"><h2>Proyecto</h2></div><div class="rows">' +
+        (isStandalone() ? '' : '<button class="row" data-a="pwa"><span class="tx"><b>Instalar la app</b><small>' + (_pwaEv ? 'Añádela a tu pantalla de inicio' : 'Cómo añadirla a tu pantalla de inicio') + '</small></span>' + ICON.chev + '</button>') +
         '<button class="row" data-a="plans"><span class="tx"><b>Planes y beneficios</b><small>Qué incluye cada acceso</small></span>' + ICON.chev + '</button>' +
         '<button class="row" data-a="advertise"><span class="tx"><b>Anunciar en Bolecciona</b><small>Publicidad y auspicios</small></span>' + ICON.chev + '</button>' +
         '<button class="row" data-a="catemp"><span class="tx"><b>Empresas y recorridos</b><small>Catálogo de unidades y recorridos</small></span>' + ICON.chev + '</button>' +
@@ -2108,6 +2117,11 @@ img { max-width: 100%; }
     else if (a === 'askout') { S.confirmOut = true; render(true); }
     else if (a === 'cancelout') { S.confirmOut = false; render(true); }
     else if (a === 'logout') signOut();
+    else if (a === 'pwa') {
+      if (_pwaEv) { var pe = _pwaEv; _pwaEv = null; pe.prompt(); if (pe.userChoice) pe.userChoice.then(function () { render(true); }, function () {}); }
+      else if (/iphone|ipad|ipod/i.test(navigator.userAgent)) toast('En Safari toca el botón Compartir y elige «Añadir a pantalla de inicio»');
+      else toast('Abre el menú del navegador (⋮) y elige «Instalar app» o «Añadir a pantalla de inicio»');
+    }
     else if (a === 'event') push({ name: 'event', id: id });
     else if (a === 'evmonth') { var nd = new Date(S.ev.y, S.ev.m + (+id), 1); S.ev.y = nd.getFullYear(); S.ev.m = nd.getMonth(); S.ev.sel = (isoOf(nd).slice(0, 7) === TODAY.slice(0, 7)) ? TODAY : ''; render(true); }
     else if (a === 'evday') { S.ev.sel = S.ev.sel === id ? '' : id; render(true); }
@@ -2785,6 +2799,14 @@ img { max-width: 100%; }
   });
   window.addEventListener('error', function (ev) { console.error('Bolecciona Concepción:', ev.message || 'Error inesperado'); });
   window.addEventListener('unhandledrejection', function (ev) { console.error('Bolecciona Concepción: operación no completada', ev.reason); });
+  /* app instalable (PWA): el navegador ofrece «Añadir a la pantalla de inicio» */
+  var _pwaEv = null;
+  function isStandalone() { try { return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true; } catch (x) { return false; } }
+  window.addEventListener('beforeinstallprompt', function (ev) { ev.preventDefault(); _pwaEv = ev; if (S.tab === 'profile' && !S.stack.length) render(true); });
+  window.addEventListener('appinstalled', function () { _pwaEv = null; toast('Bolecciona quedó instalada en tu pantalla de inicio'); render(true); });
+  if ('serviceWorker' in navigator && /^https:$|^http:$/.test(location.protocol) && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+    window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function (e) { try { console.warn('Bolecciona: no se pudo activar el modo instalable', e); } catch (x) {} }); });
+  }
   cloudStart();
   render(false);
 })();
