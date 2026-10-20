@@ -45,6 +45,15 @@ body {
 }
 button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; text-align: left; }
 #main:focus { outline: none; }
+.skl { padding: 4px 0; } .sk-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.skc { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 14px; margin-bottom: 12px; display: flex; gap: 12px; align-items: center; }
+.skb { background: linear-gradient(90deg, var(--surface2) 25%, #1b3d70 50%, var(--surface2) 75%); background-size: 200% 100%; border-radius: 8px; animation: skm 1.3s ease-in-out infinite; }
+.skc .skb.av { width: 42px; height: 42px; border-radius: 50%; flex: none; } .skc .col { flex: 1; min-width: 0; } .skc .skb.l1 { height: 13px; width: 55%; margin-bottom: 9px; } .skc .skb.l2 { height: 11px; width: 90%; margin-bottom: 7px; } .skc .skb.l3 { height: 11px; width: 70%; }
+@keyframes skm { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+@media (prefers-reduced-motion: reduce) { .skb { animation: none; } }
+#inst { position: absolute; left: 12px; right: 12px; bottom: 84px; z-index: 5; background: var(--surface2); border: 1px solid var(--accent); border-radius: 16px; padding: 14px; box-shadow: 0 8px 28px rgba(0,0,0,.45); }
+#inst b { display: block; font-family: var(--f-display); font-size: 14.5px; margin-bottom: 4px; } #inst p { margin: 0 0 10px; font-size: 13px; color: var(--fg); line-height: 1.4; }
+#inst .ib { display: flex; gap: 8px; } #inst .ib button { min-height: 40px; padding: 0 14px; border-radius: 12px; font-weight: 600; font-size: 13.5px; text-align: center; border: 1px solid var(--line); } #inst .ib .go { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); flex: 1; }
 #splash:focus { outline: none; }
 button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 svg { display: block; }
@@ -663,6 +672,7 @@ img { max-width: 100%; }
     var el = document.getElementById('toast'); el.textContent = msg; el.classList.add('show');
     clearTimeout(toast.t); toast.t = setTimeout(function () { el.classList.remove('show'); }, 2200);
   }
+  function skel(n) { var c = '<div class="skc"><span class="skb av"></span><span class="col"><span class="skb l1" style="display:block"></span><span class="skb l2" style="display:block"></span><span class="skb l3" style="display:block"></span></span></div>', s = ''; for (var i = 0; i < n; i++) s += c; return '<div class="skl" role="status" aria-live="polite"><span class="sk-sr">Cargando…</span>' + s + '</div>'; }
   function stBadge(st) { return st === 'opt' ? '' : st === 'ver' ? '<span class="bd est">Por verificar</span>' : st === 'ok' ? '<span class="bd ok">Confirmado</span>' : st === 'est' ? '<span class="bd est">Estimado</span>' : '<span class="bd pend">Pendiente</span>'; }
 
   /* ---------- Catálogo ---------- */
@@ -1573,7 +1583,7 @@ img { max-width: 100%; }
         '<div class="btns" style="margin:0 0 12px"><button class="btn" data-a="signup">Crear cuenta de boleccionador</button></div>';
       var l = NF.list.filter(function (n) { return f === 'all' || nfCat(n) === f; });
       var un = l.filter(function (n) { return !n.read; }).length;
-      if (NF.state === 'load' && !NF.list.length) return hd + '<div class="empty">Cargando notificaciones…</div>';
+      if (NF.state === 'load' && !NF.list.length) return hd + skel(4);
       if (NF.state === 'err' && !NF.list.length) return hd + '<div class="note soon"><h2>No se pudieron cargar</h2><p>Revisa tu conexión. Si el problema sigue, confirma que las reglas de Firestore con notificaciones estén publicadas.</p></div><div class="btns" style="margin:0 0 12px"><button class="btn ghost" data-a="nreload">Reintentar</button></div>';
       var empty = { all: 'Cuando alguien interactúe con tus publicaciones o te siga, lo verás aquí.', col: 'Aquí aparecen los «Me gusta» y comentarios de tus intercambios.', com: 'Aquí aparecen comentarios, «Me gusta» y nuevos seguidores de la comunidad.' }[f];
       return hd + (un ? '<div class="btns" style="margin:0 0 12px"><button class="btn ghost" data-a="nreadall" data-id="' + f + '">Marcar como leídas (' + un + ')</button></div>' : '') +
@@ -1637,12 +1647,12 @@ img { max-width: 100%; }
       var l = postsAll().filter(function (p) { return p.tipo === 'Intercambio'; });
       return (D.acct ? '<div class="btns" style="margin:0 0 12px"><button class="btn" data-a="newxch">Publicar un intercambio</button></div>' : gateNote('Participar es para boleccionadores', 'Puedes leer los intercambios públicos. Para publicar o responder necesitas una cuenta gratuita.')) +
         '<div class="notice"><span><b>Cómo funciona.</b> Publica qué boleto ofreces y qué buscas. El acuerdo se conversa en los comentarios; la app no gestiona envíos ni pagos.</span></div>' +
-        (l.length ? l.map(postCard).join('') : '<div class="note soon"><h2>Aún no hay intercambios</h2><p>' + (C.postsErr ? 'No se pudieron cargar las publicaciones. Revisa que las reglas de Firestore estén publicadas.' : 'Cuando alguien publique uno, aparecerá aquí.') + '</p></div>');
+        (l.length ? l.map(postCard).join('') : (CLOUD.on && !C.pLoaded) ? skel(3) : '<div class="note soon"><h2>Aún no hay intercambios</h2><p>' + (C.postsErr ? 'No se pudieron cargar las publicaciones. Revisa que las reglas de Firestore estén publicadas.' : 'Cuando alguien publique uno, aparecerá aquí.') + '</p></div>');
     },
     commCol: function () {
       if (!CLOUD.on) return soonCard('Coleccionistas', 'La lista de coleccionistas usa perfiles públicos guardados en la nube; no está disponible en modo local.');
       var st = C.collState, l = C.coll || [];
-      if (st === 'load' || !st) return '<div class="empty">Cargando coleccionistas…</div>';
+      if (st === 'load' || !st) return skel(4);
       if (st === 'err') return '<div class="note soon"><h2>No se pudo cargar</h2><p>Revisa que las reglas de Firestore incluyan los perfiles públicos y vuelve a intentarlo.</p></div>';
       return '<p class="muted small" style="margin:0 0 10px">Perfiles de personas que eligieron hacerlos públicos.</p>' +
         (l.length ? l.map(function (c) {
@@ -1654,7 +1664,7 @@ img { max-width: 100%; }
       return (D.acct ? '<div class="btns" style="margin:0 0 12px"><button class="btn" data-a="newpost">Crear publicación</button></div>' : gateNote('Participar es para boleccionadores', 'Puedes leer las publicaciones públicas. Para publicar, comentar, dar «Me gusta» o guardar necesitas una cuenta gratuita.')) +
         (CLOUD.on ? '' : '<div class="notice"><span><b>Modo local.</b> Las publicaciones nuevas se guardan solo en este dispositivo. Las fotos, «Me gusta», guardar y los perfiles públicos requieren la cuenta en la nube.</span></div>') +
         (CLOUD.on && D.acct ? '<div class="seg" role="tablist" aria-label="Filtrar publicaciones"><button role="tab" data-a="pfilt" data-id="all" aria-pressed="' + (f !== 'sv') + '">Recientes</button><button role="tab" data-a="pfilt" data-id="sv" aria-pressed="' + (f === 'sv') + '">Guardadas</button></div>' : '') +
-        (l.length ? l.map(postCard).join('') : '<div class="note soon"><h2>' + (f === 'sv' ? 'No has guardado publicaciones' : 'Aún no hay publicaciones') + '</h2><p>' + (C.postsErr && CLOUD.on ? 'No se pudieron cargar las publicaciones. Revisa que las reglas de Firestore estén publicadas.' : f === 'sv' ? 'Toca «Guardar» en una publicación para encontrarla aquí.' : 'Sé la primera persona en publicar.') + '</p></div>');
+        (l.length ? l.map(postCard).join('') : (CLOUD.on && !C.pLoaded) ? skel(3) : '<div class="note soon"><h2>' + (f === 'sv' ? 'No has guardado publicaciones' : 'Aún no hay publicaciones') + '</h2><p>' + (C.postsErr && CLOUD.on ? 'No se pudieron cargar las publicaciones. Revisa que las reglas de Firestore estén publicadas.' : f === 'sv' ? 'Toca «Guardar» en una publicación para encontrarla aquí.' : 'Sé la primera persona en publicar.') + '</p></div>');
     },
     newpost: function () {
       var d = S.pd || {}, cl = CLOUD.on && cloudUser();
@@ -2512,7 +2522,7 @@ img { max-width: 100%; }
   var FBCFG = window.BOLECCIONA_FIREBASE || {};
   var CLOUD = { on: !!(FBCFG.apiKey && FBCFG.projectId && FBCFG.appId), ready: false, uid: '', admin: false, busy: false, err: '' };
   var FBV = '10.14.1', FBP = null, FB = null, FBA = null, FBDB = null, FBST = null;
-  var C = { posts: [], replies: {}, events: [] };
+  var C = { posts: [], replies: {}, events: [] }; setTimeout(function () { if (!C.pLoaded) { C.pLoaded = true; try { if (S.tab === 'comm') render(true); } catch (x) {} } }, 9000);
   function fbLoad() {
     if (FBP) return FBP;
     var base = 'https://www.gstatic.com/firebasejs/' + FBV + '/';
@@ -2578,7 +2588,7 @@ img { max-width: 100%; }
     if (!FB) return Promise.resolve();
     var F = FB.fs, jobs = [];
     var pq = CLOUD.uid ? F.query(F.collection(FBDB, 'posts'), F.orderBy('ts', 'desc'), F.limit(100)) : F.query(F.collection(FBDB, 'posts'), F.where('vis', '==', 'pub'), F.limit(100));
-    jobs.push(F.getDocs(pq).then(function (qs) { var a = []; qs.forEach(function (d) { var x = d.data(); x.id = d.id; a.push(x); }); a.sort(function (p, q) { return (q.ts || 0) - (p.ts || 0); }); C.posts = a; C.postsErr = false; ensureAuthors(); }, function () { C.postsErr = true; }));
+    jobs.push(F.getDocs(pq).then(function (qs) { var a = []; qs.forEach(function (d) { var x = d.data(); x.id = d.id; a.push(x); }); a.sort(function (p, q) { return (q.ts || 0) - (p.ts || 0); }); C.posts = a; C.postsErr = false; C.pLoaded = true; ensureAuthors(); }, function () { C.postsErr = true; C.pLoaded = true; }));
     var evs = {};
     function addEv(qs) { qs.forEach(function (d) { var x = d.data(); x.id = d.id; evs[x.id] = x; }); }
     jobs.push(F.getDocs(F.query(F.collection(FBDB, 'events'), F.where('status', '==', 'aprobado'))).then(addEv, function () {}));
@@ -2836,8 +2846,23 @@ img { max-width: 100%; }
 
   function closeSplash() {
     var sp = document.getElementById('splash'); sp.classList.add('gone'); setTimeout(function () { sp.hidden = true; }, 400);
-    document.getElementById('app').removeAttribute('inert');
+    document.getElementById('app').removeAttribute('inert'); setTimeout(showInst, 6000);
     try { var mn = document.getElementById('main'); mn.setAttribute('tabindex', '-1'); mn.focus({ preventScroll: true }); } catch (x) {}
+  }
+  var _instTries = 0;
+  function instOff() { try { return +localStorage.getItem('bol-inst-no') > Date.now() - 7 * 864e5; } catch (x) { return false; } }
+  function showInst() {
+    try {
+      if (document.getElementById('inst') || isStandalone() || instOff()) return;
+      var ios = /iphone|ipad|ipod/i.test(navigator.userAgent), vn = viewName();
+      if (!ios && !_pwaEv) return;
+      if (['home', 'cat', 'comm'].indexOf(vn) < 0) { if (++_instTries < 4) setTimeout(showInst, 8000); return; }
+      var d = document.createElement('div'); d.id = 'inst'; d.setAttribute('role', 'region'); d.setAttribute('aria-label', 'Instalar la app');
+      d.innerHTML = '<b>Instala Bolecciona en tu pantalla de inicio</b><p>' + (ios && !_pwaEv ? 'Acceso rápido y funciona sin conexión. En Safari toca el botón Compartir y elige «Añadir a pantalla de inicio».' : 'Acceso rápido, pantalla completa y funciona sin conexión.') + '</p><div class="ib">' + (_pwaEv ? '<button class="go" type="button" data-a="pwa" id="inst-go">Instalar</button>' : '') + '<button type="button" id="inst-no">' + (_pwaEv ? 'Ahora no' : 'Entendido') + '</button></div>';
+      document.getElementById('app').appendChild(d);
+      function bye() { try { localStorage.setItem('bol-inst-no', String(Date.now())); } catch (x) {} if (d.parentNode) d.parentNode.removeChild(d); }
+      document.getElementById('inst-no').addEventListener('click', bye); var g = document.getElementById('inst-go'); if (g) g.addEventListener('click', function () { setTimeout(bye, 50); });
+    } catch (x) {}
   }
   (function () {
     var sp = document.getElementById('splash'); document.getElementById('app').setAttribute('inert', '');
