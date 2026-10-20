@@ -2874,6 +2874,7 @@ img { max-width: 100%; }
       vh: probeH('100vh'), lvh: probeH('100lvh'), dvh: probeH('100dvh'), svh: probeH('100svh'), top: probeInset('top'), bottom: probeInset('bottom'),
       html: Math.round(document.documentElement.getBoundingClientRect().height), appB: Math.round((document.getElementById('app') || document.body).getBoundingClientRect().bottom), appH: document.documentElement.style.getPropertyValue('--appH') || '-' };
   }
+  var _appHLock = 0;
   function fixAppH() {
     var el = document.documentElement;
     try {
@@ -2881,7 +2882,9 @@ img { max-width: 100%; }
       var cand = [portrait ? Math.max(screen.width, screen.height) : Math.min(screen.width, screen.height), window.outerHeight, probeH('100lvh'), probeH('100vh')].filter(function (v) { return v > 0; });
       var h = Math.max.apply(null, cand);
       var diff = h - window.innerHeight;
-      if (isStandalone() && diff >= 20 && diff <= 140) el.style.setProperty('--appH', h + 'px'); else el.style.removeProperty('--appH');
+      if (!isStandalone()) { el.style.removeProperty('--appH'); _appHLock = 0; return; }
+      if (_appHLock && _appHLock.p === portrait) return; /* ya fijado: no vuelve a cambiar (evita el rebote) */
+      if (diff >= 20 && diff <= 140) { el.style.setProperty('--appH', h + 'px'); _appHLock = { p: portrait, h: h }; }
     } catch (x) {}
   }
   function diagText() {
@@ -2889,7 +2892,7 @@ img { max-width: 100%; }
     return 'inner ' + i.inner + ' · outer ' + i.outer + ' · screen ' + i.scrW + '×' + i.scrH + ' · avail ' + i.availH + ' · visual ' + i.vv + ' · vh ' + i.vh + ' · lvh ' + i.lvh + ' · dvh ' + i.dvh + ' · svh ' + i.svh + ' · margen sup ' + i.top + ' · margen inf ' + i.bottom + ' · html ' + i.html + ' · app termina en ' + i.appB + ' · ajuste ' + i.appH;
   }
   window.addEventListener('pageshow', function () { setTimeout(fixAppH, 50); }); document.addEventListener('visibilitychange', function () { if (!document.hidden) setTimeout(fixAppH, 100); });
-  window.addEventListener('resize', fixAppH); window.addEventListener('orientationchange', function () { setTimeout(fixAppH, 250); });
+   window.addEventListener('orientationchange', function () { _appHLock = 0; document.documentElement.style.removeProperty('--appH'); setTimeout(fixAppH, 250); });
   var _pwaEv = null;
   function isStandalone() { try { return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true; } catch (x) { return false; } }
   fixAppH(); [150, 400, 900, 1800, 3200, 6000, 10000].forEach(function (ms) { setTimeout(fixAppH, ms); }); document.addEventListener('touchstart', fixAppH, { passive: true });
