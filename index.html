@@ -2885,14 +2885,14 @@ img { max-width: 100%; }
     } catch (x) {}
   }
   function diagText() {
-    var i = screenInfo();
+    fixAppH(); var i = screenInfo();
     return 'inner ' + i.inner + ' · outer ' + i.outer + ' · screen ' + i.scrW + '×' + i.scrH + ' · avail ' + i.availH + ' · visual ' + i.vv + ' · vh ' + i.vh + ' · lvh ' + i.lvh + ' · dvh ' + i.dvh + ' · svh ' + i.svh + ' · margen sup ' + i.top + ' · margen inf ' + i.bottom + ' · html ' + i.html + ' · app termina en ' + i.appB + ' · ajuste ' + i.appH;
   }
   window.addEventListener('pageshow', function () { setTimeout(fixAppH, 50); }); document.addEventListener('visibilitychange', function () { if (!document.hidden) setTimeout(fixAppH, 100); });
   window.addEventListener('resize', fixAppH); window.addEventListener('orientationchange', function () { setTimeout(fixAppH, 250); });
   var _pwaEv = null;
   function isStandalone() { try { return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true; } catch (x) { return false; } }
-  fixAppH();
+  fixAppH(); [150, 400, 900, 1800, 3200, 6000, 10000].forEach(function (ms) { setTimeout(fixAppH, ms); }); document.addEventListener('touchstart', fixAppH, { passive: true });
   window.addEventListener('beforeinstallprompt', function (ev) { ev.preventDefault(); _pwaEv = ev; if (S.tab === 'profile' && !S.stack.length) render(true); });
   window.addEventListener('appinstalled', function () { _pwaEv = null; toast('Bolecciona quedó instalada en tu pantalla de inicio'); render(true); });
   if ('serviceWorker' in navigator && /^https:$|^http:$/.test(location.protocol) && (location.protocol === 'https:' || location.hostname === 'localhost')) {
