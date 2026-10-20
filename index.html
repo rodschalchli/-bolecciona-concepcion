@@ -1700,7 +1700,7 @@ img { max-width: 100%; }
         }).join('') : '<div class="note"><p style="margin:0">No hay propuestas pendientes.</p></div>');
     },
     profile: function () {
-      var rowsEnd = (isStandalone() ? '<div class="note"><b>Diagnóstico de pantalla (temporal)</b><p style="margin:4px 0 0;font-size:11.5px;word-break:break-word">' + esc(diagText()) + '</p></div>' : '') + '<div class="sec"><h2>Proyecto</h2></div><div class="rows">' +
+      var rowsEnd = '<div class="sec"><h2>Proyecto</h2></div><div class="rows">' +
         (isStandalone() ? '' : '<button class="row" data-a="pwa"><span class="tx"><b>Instalar la app</b><small>' + (_pwaEv ? 'Añádela a tu pantalla de inicio' : 'Cómo añadirla a tu pantalla de inicio') + '</small></span>' + ICON.chev + '</button>') +
         '<button class="row" data-a="plans"><span class="tx"><b>Planes y beneficios</b><small>Qué incluye cada acceso</small></span>' + ICON.chev + '</button>' +
         '<button class="row" data-a="advertise"><span class="tx"><b>Anunciar en Bolecciona</b><small>Publicidad y auspicios</small></span>' + ICON.chev + '</button>' +
