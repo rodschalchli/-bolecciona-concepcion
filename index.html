@@ -44,6 +44,7 @@ body {
   display: flex; justify-content: center; overflow: hidden;
 }
 button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; text-align: left; }
+#main:focus { outline: none; }
 button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 svg { display: block; }
 
@@ -435,7 +436,7 @@ img { max-width: 100%; }
 </div>
 
 <!-- PORTADA PROTEGIDA: la imagen de fondo de #splash fue elegida por el dueño del proyecto (20-oct-2026). No cambiarla en futuras ediciones. -->
-<div id="splash">
+<div id="splash" role="dialog" aria-modal="true" aria-labelledby="sp-t" aria-describedby="sp-d">
   <div class="in">
     <svg class="sky" viewBox="0 0 400 200" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
       <polygon points="0,200 0,120 40,104 90,126 140,112 200,138 260,118 320,96 370,84 400,98 400,200" fill="#0d2447"/>
@@ -452,8 +453,8 @@ img { max-width: 100%; }
       </g>
     </svg>
     <svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><use href="#logo-mark"/></svg>
-    <div class="wordmark">Bolecciona<span>Concepción</span></div>
-    <p>Los boletos también cuentan la historia de nuestra ciudad.</p>
+    <div class="wordmark" id="sp-t">Bolecciona<span>Concepción</span></div>
+    <p id="sp-d">Los boletos también cuentan la historia de nuestra ciudad.</p>
     <button class="enter" id="enter-signup" type="button">Crear mi cuenta</button>
     <button class="enter3" id="enter-login" type="button">Ya tengo cuenta</button>
     <button class="enter2" id="enter" type="button">Ver vista previa</button>
@@ -2083,12 +2084,34 @@ img { max-width: 100%; }
     ['comm', 'Comunidad', '<svg viewBox="0 0 24 24"><circle cx="9" cy="9" r="3"/><path d="M3.5 19c.6-3 2.8-4.6 5.5-4.6s4.9 1.6 5.5 4.6"/><circle cx="17" cy="9.5" r="2.4"/><path d="M16.5 14.6c2.3 0 3.6 1.4 4 3.8"/></svg>'],
     ['profile', 'Perfil', '<svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.6"/><path d="M5 20c.8-3.6 3.6-5.4 7-5.4s6.2 1.8 7 5.4"/></svg>']
   ];
+  /* ---------- Botón «atrás» del teléfono: cada pantalla nueva es una entrada del historial ---------- */
+  var HST = { i: 0, snaps: [], pend: 0 };
+  function snapKey() { return S.tab + '|' + JSON.stringify(S.stack); }
+  function snapNow() { return { tab: S.tab, stack: JSON.parse(JSON.stringify(S.stack)), key: snapKey() }; }
+  function histSync() {
+    try {
+      var k = snapKey(), cur = HST.snaps[HST.i];
+      if (!cur) { HST.snaps[0] = snapNow(); history.replaceState({ b: 0 }, ''); return; }
+      if (cur.key === k) return;
+      var prev = HST.snaps[HST.i - 1];
+      if (prev && prev.key === k) { HST.i--; HST.pend++; history.back(); setTimeout(function () { if (HST.pend > 0) HST.pend--; }, 700); return; }
+      HST.snaps.length = HST.i + 1; HST.snaps.push(snapNow()); HST.i++; history.pushState({ b: HST.i }, '');
+    } catch (x) {}
+  }
+  window.addEventListener('popstate', function (e) {
+    if (HST.pend > 0) { HST.pend = 0; return; }
+    var b = e.state && typeof e.state.b === 'number' ? e.state.b : null;
+    if (b === null || b === HST.i || !HST.snaps[b]) return;
+    var sn = HST.snaps[b]; HST.i = b;
+    S.tab = sn.tab; S.stack = JSON.parse(JSON.stringify(sn.stack)); S.sugg = false; render(false);
+  });
   function render(keep) {
     var v = S.stack[S.stack.length - 1], top = main.scrollTop;
     try { main.innerHTML = VIEWS[v.name](v) + storageNotice(); } catch (err) { console.error('Error al mostrar la pantalla', err); main.innerHTML = '<div class="note"><h2>No se pudo abrir esta pantalla</h2><p>Vuelve al inicio o recarga la página. Tus datos locales no se han borrado.</p><div class="btns" style="margin-top:12px"><button class="btn" data-a="tab" data-id="home">Volver al inicio</button></div></div>'; }
     main.setAttribute('data-view', v.name);
     main.scrollTop = keep ? top : 0;
     navEl.innerHTML = TABS.map(function (t) { return '<button data-a="tab" data-id="' + t[0] + '"' + (S.tab === t[0] ? ' aria-current="true"' : '') + '>' + t[2] + t[1] + '</button>'; }).join('');
+    histSync();
   }
   function push(v) { S.stack.push(v); S.sugg = false; render(false); }
   function copyText(text) {
@@ -2241,10 +2264,15 @@ img { max-width: 100%; }
     else if (t.id === 'f-front' || t.id === 'f-back') {
       var side = t.id === 'f-front' ? 'front' : 'back', file = t.files && t.files[0];
       if (!file) return;
+      if (!/^image\//.test(file.type) || file.size > 15 * 1024 * 1024) { S.formMsg = { k: 'err', t: 'Elige una imagen (JPG o PNG) de menos de 15 MB.' }; t.value = ''; render(true); return; }
       var fr = new FileReader();
+      fr.onerror = function () { S.formMsg = { k: 'err', t: 'No se pudo leer la foto. Prueba con otra.' }; render(true); };
       fr.onload = function () {
         var raw = String(fr.result);
-        shrink(raw, 1280, 0.8).then(function (small) { S.pv[side] = small || raw; render(true); });
+        shrink(raw, 1280, 0.8).then(function (small) {
+          if (!small && raw.length > 4 * 1024 * 1024) { S.formMsg = { k: 'err', t: 'No se pudo preparar la foto. Prueba con otra más liviana.' }; render(true); return; }
+          S.pv[side] = small || raw; S.formMsg = null; render(true); toast('Foto cargada');
+        });
       };
       fr.readAsDataURL(file);
     }
@@ -2805,7 +2833,21 @@ img { max-width: 100%; }
   function adminBtns(e) { return '<div class="btns row2" style="margin-top:10px"><button class="btn" data-a="evok" data-id="' + esc(e.id) + '">Aprobar y publicar</button><button class="btn ghost" data-a="evno" data-id="' + esc(e.id) + '">No aprobar</button></div>'; }
   function myEvents() { var me = CLOUD.on ? CLOUD.uid : 'local'; return evDyn().filter(function (e) { return e.uid === me; }); }
 
-  function closeSplash() { var sp = document.getElementById('splash'); sp.classList.add('gone'); setTimeout(function () { sp.hidden = true; }, 400); }
+  function closeSplash() {
+    var sp = document.getElementById('splash'); sp.classList.add('gone'); setTimeout(function () { sp.hidden = true; }, 400);
+    document.getElementById('app').removeAttribute('inert');
+    try { var mn = document.getElementById('main'); mn.setAttribute('tabindex', '-1'); mn.focus({ preventScroll: true }); } catch (x) {}
+  }
+  (function () {
+    var sp = document.getElementById('splash'); document.getElementById('app').setAttribute('inert', '');
+    setTimeout(function () { var b0 = document.getElementById('enter-signup'); if (b0 && !sp.hidden) { try { b0.focus({ preventScroll: true }); } catch (x) {} } }, 60);
+    sp.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') { closeSplash(); return; }
+      if (e.key !== 'Tab') return;
+      var f = [].slice.call(sp.querySelectorAll('button')), i = f.indexOf(document.activeElement);
+      if (e.shiftKey && i <= 0) { e.preventDefault(); f[f.length - 1].focus(); } else if (!e.shiftKey && i === f.length - 1) { e.preventDefault(); f[0].focus(); }
+    });
+  })();
   document.getElementById('enter').addEventListener('click', closeSplash);
   document.getElementById('enter-signup').addEventListener('click', function () { closeSplash(); S.tab = 'profile'; S.stack = [{ name: 'profile' }, { name: 'signup' }]; render(false); });
   document.getElementById('enter-login').addEventListener('click', function () { closeSplash(); S.tab = 'profile'; S.stack = [{ name: 'profile' }, { name: 'login' }]; render(false); });
