@@ -45,6 +45,7 @@ body {
 }
 button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; text-align: left; }
 #main:focus { outline: none; }
+#splash:focus { outline: none; }
 button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 svg { display: block; }
 
@@ -436,7 +437,7 @@ img { max-width: 100%; }
 </div>
 
 <!-- PORTADA PROTEGIDA: la imagen de fondo de #splash fue elegida por el dueño del proyecto (20-oct-2026). No cambiarla en futuras ediciones. -->
-<div id="splash" role="dialog" aria-modal="true" aria-labelledby="sp-t" aria-describedby="sp-d">
+<div id="splash" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="sp-t" aria-describedby="sp-d">
   <div class="in">
     <svg class="sky" viewBox="0 0 400 200" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
       <polygon points="0,200 0,120 40,104 90,126 140,112 200,138 260,118 320,96 370,84 400,98 400,200" fill="#0d2447"/>
@@ -2840,7 +2841,7 @@ img { max-width: 100%; }
   }
   (function () {
     var sp = document.getElementById('splash'); document.getElementById('app').setAttribute('inert', '');
-    setTimeout(function () { var b0 = document.getElementById('enter-signup'); if (b0 && !sp.hidden) { try { b0.focus({ preventScroll: true }); } catch (x) {} } }, 60);
+    setTimeout(function () { if (!sp.hidden) { try { sp.focus({ preventScroll: true }); } catch (x) {} } }, 60);
     sp.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') { closeSplash(); return; }
       if (e.key !== 'Tab') return;
