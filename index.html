@@ -206,7 +206,8 @@ ul.plain li { margin-bottom: 4px; }
 #splash .enter2 { text-shadow: 0 1px 6px rgba(5,13,28,.8); }
 #splash .sky { display: none; }
 #splash small { color: #8fdcff; text-shadow: 0 1px 6px rgba(5,13,28,.9); }
-@media (min-width: 600px) { #splash { align-items: center; background: #050d1c; } #splash .in { height: min(100%, 860px); overflow: hidden; border-radius: 28px; box-shadow: 0 0 0 1px rgba(255,255,255,.08), 0 24px 60px rgba(0,0,0,.5); } }
+/* Tablet y escritorio: la portada ocupa toda la pantalla; la imagen aprobada se ve completa y los lados continúan con sus mismos colores */
+@media (min-width: 600px) { #splash { align-items: stretch; background: linear-gradient(180deg, #092454 0%, #082252 5%, #0b2656 10%, #0b2759 15%, #0e2a5f 20%, #0f2e64 25%, #133269 30%, #193871 35%, #25437c 40%, #3b5186 45%, #676488 50%, #a7797b 55%, #e0906b 60%, #836863 65%, #03204d 70%, #02204d 75%, #113468 80%, #0d2b52 85%, #234070 90%, #062351 95%, #04204d 100%); } #splash .in { height: 100%; max-width: max(430px, 50vh); overflow: hidden; border-radius: 0; box-shadow: none; } }
 
 .pic { display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: contain; background: #dfe2ea; border-radius: 8px; }
 .heroimg { display: block; width: 100%; height: auto; max-height: 70vh; object-fit: contain; background: #dfe2ea; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,.4); }

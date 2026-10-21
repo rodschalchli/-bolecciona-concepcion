@@ -2,7 +2,7 @@
    Objetivo: que la web se pueda instalar y abrir aunque no haya señal.
    - Solo guarda archivos del propio sitio (index, íconos, manifiesto). Nunca toca Firebase, Firestore, Auth ni fuentes: esas peticiones pasan directo a la red.
    - Estrategia «red primero»: si hay internet siempre se descarga la versión más reciente (así las actualizaciones llegan solas); la copia guardada solo se usa sin conexión. */
-var CACHE = 'bolecciona-shell-v30';
+var CACHE = 'bolecciona-shell-v31';
 var SHELL = ['./', 'index.html', 'firebase-config.js', 'manifest.json', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png'];
 
 self.addEventListener('install', function (e) {
