@@ -85,7 +85,11 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 #story .st-nav button { min-height: 50px; border-radius: 14px; font-family: var(--f-display); font-weight: 600; font-size: 14.5px; text-align: center; padding: 0 18px; }
 #story .st-prev { border: 1px solid rgba(233,242,251,.3); color: #fff; flex: 0 0 auto; min-width: 112px; } #story .st-prev[disabled] { opacity: .35; }
 #story .st-next { flex: 1; background: var(--accent); color: var(--accent-ink); letter-spacing: .02em; }
-#story .st-next.fin { background: var(--paper); color: var(--ink); white-space: nowrap; }
+#story .st-next.fin { white-space: nowrap; }
+/* Botones semitransparentes, igual que los de la portada */
+#story .st-nav button { min-height: 46px; border: 1px solid rgba(255,255,255,.55); background: rgba(6,18,42,.28); color: #fff; }
+#story .st-nav button[disabled] { opacity: .4; }
+#story .st-nav .st-next { background: rgba(6,18,42,.28); color: #fff; }
 @media (max-width: 350px) { #story .st-prev { min-width: 92px; padding: 0 10px; } #story .st-next { padding: 0 10px; font-size: 13.5px; } }
 #story button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 @media (min-width: 900px) { #story .st-wrap { max-width: 1040px; padding-left: 40px; padding-right: 40px; } #story .st-p { flex-direction: row; text-align: left; gap: 56px; justify-content: center; } #story .st-fig { width: 46%; height: min(54vh, 460px); } #story .st-copy { width: 44%; align-items: flex-start; gap: 20px; } #story h2.st-t { font-size: 38px; } #story .st-tx p { font-size: 19px; } #story .st-nav { max-width: 520px; margin-left: auto; width: 46%; } #story .st-top, #story .st-bars { max-width: 100%; } }
